@@ -14,7 +14,6 @@ import logging
 
 from opsupport_bpm.models.pnml_to_hypergraph import get_transition_name
 from opsupport_bpm.models.pnml_to_hypergraph import get_transitions
-from org.emettelatripla.util.util import *
 import xml.etree.ElementTree as ET
 
 
