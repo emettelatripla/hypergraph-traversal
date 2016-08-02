@@ -21,7 +21,7 @@ from opsupport_bpm.models.hypergraph import number_of_end_events
 ============================================================
 useful functions to process pnml files
 
-pnet : must be the "root" element of a pnml file
+pnet : must be the "root" element of a pnml file (shoould cnahge that in the future!)
 ============================================================
 """
 
