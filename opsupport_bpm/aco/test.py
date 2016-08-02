@@ -8,6 +8,7 @@ Main test for aco
 
 import logging
 import sys
+from time import time
 
 from halp.directed_hypergraph import DirectedHypergraph
 from opsupport_bpm.aco.aco_directed_hypergraph import aco_algorithm_norec
@@ -69,9 +70,14 @@ def main():
     hg = DirectedHypergraph()
     
     # STEP 1: convert pnet into hypergraph + tau post processing
+    start_time_conv = time()
     hg = convert_pnet_to_hypergraph(pnet)
+    end_time_conv = time()
+    print("Conversion Petri net to hypergraph took: {0}".format(end_time_conv - start_time_conv))
+    start_time_post = time()
     hg = tau_post_processing(hg)
-    
+    end_time_post = time()
+    print("Tau post processing on hypergraph took: {0}".format(end_time_post - start_time_post))
     #STEP 2: randomly initialise hypergraph's nodes utility values
     hg = random_init_attributes(hg)
     #print_hg(hg,'hyp.txt')
@@ -106,14 +112,19 @@ def main():
     
     # =====================  call ACO algorithm (NON RECURSIVE)
     #p_opt = aco_algorithm(start_nodes, hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
+    start_time_aco = time()
     p_opt = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
+    end_time_aco = time()
+    print("AcCO optimisation took: {0}".format(end_time_aco - start_time_aco))
     
     # =================  highlight optimal path on pnet
+    start_time_opt = time()
     show_opt_path_pnet(p_opt, tree, file_root)
     
     # ================= reduce pnet to show only the optimal path
     reduce_opt_path_pnet(tree, file_root)
-    
+    end_time_opt = time()
+    print("Post processing pnet (show optimal path on pnet) took: {0}".format(end_time_opt - start_time_opt))
     
 
 

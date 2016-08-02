@@ -84,6 +84,8 @@ def phero_choice_single_node(f_edge_set, hg):
     :param f_edge_set: set of candidate edges
     :param hg: hypergraph under optimisation
     '''
+    # use this to switch on some debugging on standard output
+    debug = False
     #setup the logger
     #logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://BPMNexamples/aco.log',level=logging.INFO)
     logger = logging.getLogger(__name__)
@@ -111,8 +113,8 @@ def phero_choice_single_node(f_edge_set, hg):
             cumul_hash[i] = cumul_hash[i] + hash_pheroval[j]
             j = j+1
         i = i+1
-    print("This is the list: "+str(hash_pheroval))
-    print("This is the cumul list: "+str(cumul_hash))
+    if debug: print("This is the list: "+str(hash_pheroval))
+    if debug: print("This is the cumul list: "+str(cumul_hash))
     #extract random number and check
     len_ch = len(cumul_hash)-1
     low = cumul_hash[0]
