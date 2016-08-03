@@ -13,6 +13,10 @@ Contains also the methods reuqired to highlight the optimal path in a hypergraph
 import logging
 
 from opsupport_bpm.models.pnml_to_hypergraph import get_transition_name
+from opsupport_bpm.models.pnml_to_hypergraph import get_incoming_arcs
+from opsupport_bpm.models.pnml_to_hypergraph import get_outgoing_arcs
+from opsupport_bpm.models.pnml_to_hypergraph import get_id
+    
 from opsupport_bpm.models.pnml_to_hypergraph import get_transitions
 import xml.etree.ElementTree as ET
 
@@ -74,12 +78,15 @@ def reduce_opt_path_pnet(tree, file_root):
     :param file_root: the root of the file (e.g., "bpichallenge_2012", "road_fine_process")
     '''
     logger = logging.getLogger(__name__)
-    logger.debug("Reducing pnet...")
+    logger.debug("Reducing pnet to keep only transitions and places along the optimal path...")
     pnet = tree.getroot()
     #STEP 1: delete not highlighted transitions
     #trans_pnet = get_transitions(pnet)
     trans_pnet = pnet.findall('.net/page/transition')
     page = pnet.findall('.net/page')
+    places_pnet = pnet.findall('.net/page/place')
+    # keeep only place connected to transitions on optimal path
+    trans_to_keep = []
     for t_pnet in trans_pnet:
         graphics = t_pnet.find('graphics')
         fills = graphics.findall('fill')
@@ -94,13 +101,39 @@ def reduce_opt_path_pnet(tree, file_root):
             t_name = get_transition_name(t_pnet)
             page = pnet.find('./net/page')
             #find arcs to remove
-            t_id = t_pnet.get('id')
-            arcs = pnet.findall('./net/page/arc')
-            for arc in arcs:
-                if arc.get('source') == t_id or arc.get('target') == t_id:
-                    page.remove(arc)
+            #t_id = t_pnet.get('id')
+            #arcs = pnet.findall('./net/page/arc')
+            #for arc in arcs:
+            #    if arc.get('source') == t_id or arc.get('target') == t_id:
+            #        page.remove(arc)
             #remove transition
-            page.remove(t_pnet)      
+            logger.debug("Found transition to remove: {0}".format(get_transition_name(t_pnet)))
+            page.remove(t_pnet)
+        else:
+            trans_to_keep.append(t_pnet)
+            
+    # this does not work on the update!
+    #now delete places
+    """
+    for place in places_pnet:
+        inc_arcs = get_incoming_arcs(place,pnet)
+        out_arcs = get_outgoing_arcs(place,pnet)
+        delete = False
+        for arc in inc_arcs:
+            if arc.get('source') not in trans_to_keep:
+                delete = True
+        for arc in out_arcs:
+            if arc.get('target') not in trans_to_keep:
+                delete = True
+        if delete:
+            page = pnet.find('./net/page')
+            logger.debug("Found place to remove: {0}".format(get_id(place)))
+            page.remove(place)
+            """
+            #for arc in inc_arcs:
+            #    page.remove(arc)
+            #for arc in out_arcs:
+            #    page.remove(arc)
     #STEP 2: delete arcs sourcing from or targeting non highlighted transitions and places
     # TO BE COMPLETED
     #write the output

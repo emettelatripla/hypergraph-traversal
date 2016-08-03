@@ -22,7 +22,7 @@ import xml.etree.ElementTree as ET
 
 def main():
     #setup the logger
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://BPMNexamples/aco.log',level=logging.DEBUG)
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://BPMNexamples/aco.log',level=logging.ERROR)
     logger = logging.getLogger(__name__)
     
     # increase recursion limit (if needed)
@@ -41,19 +41,20 @@ def main():
     #file_name = "C://BPMNexamples/inductive/ex5_review_inductive.pnml"
     #file_name = "C://BPMNexamples/alpha/ex1_alpha.pnml"
     
+    #===========================================================
     # =========================================================================================
     # ROOT: the identifier that will be used in the "highlighted" and "reduced" pnml versions
     # TYPE: the name of the folder were the original pnml file can be found (and that should
     # reflect the discovery algorithm used for mining
     
     #file_root = "ex1_inductive"
-    file_root = "bpi_challenge2012"
+    #file_root = "bpi_challenge2012"
     #file_root = "road_fine_process"
-    #file_root = "hospital_inductive"
+    file_root = "hospital_inductive"
     #file_root = "repair_start_end_inductive"
     
-    file_type = "inductive"
-    #file_type = "real_logs"
+    #file_type = "inductive"
+    file_type = "real_logs"
     
     #MINED WITH ALPHA MINER
     #file_root = "ex6_claim_alpha"
@@ -62,6 +63,9 @@ def main():
     file_name = "C://BPMNexamples/"+file_type+"/"+file_root+".pnml"
     
     # ===================================================================================================
+    #===========================================================
+    #===========================================================
+    #===========================================================
     
     # START: read the pnml file....
     tree = ET.parse(file_name)
@@ -74,6 +78,7 @@ def main():
     hg = convert_pnet_to_hypergraph(pnet)
     end_time_conv = time()
     print("Conversion Petri net to hypergraph took: {0}".format(end_time_conv - start_time_conv))
+    
     start_time_post = time()
     hg = tau_post_processing(hg)
     end_time_post = time()
@@ -96,8 +101,9 @@ def main():
             start_nodes.append(node)
     END """
     
-    
+    #===========================================================
     # ==================== INITIALISATION NON RECURSIVE VERSION ===========================================
+    #===========================================================
     logger.debug("*"*50)
     logger.info("*"*50)
     logger.info("*** BEGIN ACO OPTIMISATION.... ***")
@@ -110,7 +116,9 @@ def main():
     COL_NUM = 3
     W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
     
+    #===========================================================
     # =====================  call ACO algorithm (NON RECURSIVE)
+    #===========================================================
     #p_opt = aco_algorithm(start_nodes, hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
     start_time_aco = time()
     p_opt = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
