@@ -22,7 +22,7 @@ import xml.etree.ElementTree as ET
 
 def main():
     #setup the logger
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://BPMNexamples/aco.log',level=logging.ERROR)
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://BPMNexamples/aco.log',level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     
     # increase recursion limit (if needed)
