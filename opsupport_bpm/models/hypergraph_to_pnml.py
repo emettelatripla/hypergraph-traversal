@@ -21,7 +21,7 @@ from opsupport_bpm.models.pnml_to_hypergraph import get_transitions
 import xml.etree.ElementTree as ET
 
 
-def show_opt_path_pnet(hg_opt, tree, file_root):
+def show_opt_path_pnet(hg_opt, tree, file_root, output_dir):
     '''
     given optimal path (hypergraph hg_opt) and a Petri net (tree), it highlights the optimal path in the Petri net
     (highlihgting the non xor/tau nodes in the Petri net 
@@ -29,6 +29,7 @@ def show_opt_path_pnet(hg_opt, tree, file_root):
     :param hg_opt: optimal path
     :param tree: the tree XML element of a pnml file
     :param file_root: the root of the file (e.g., "bpichallenge_2012", "road_fine_process")
+    :param output_dir: the output directory (where to write the result pnml file)
     '''
     logger = logging.getLogger(__name__)
     #get the list of nodes
@@ -67,15 +68,17 @@ def show_opt_path_pnet(hg_opt, tree, file_root):
 #                 # change colour
 #                 graphics = t_pnet.find('graphics')
 #                 graphics.append(grey_color)
-    output_file = "C://BPMNexamples/output/"+file_root+"_highlight.pnml"
+    output_file = output_dir+"/"+file_root+"_highlight.pnml"
     logger.debug("writing output on file: {0}".format(output_file))
     tree.write(output_file, encoding='utf-8')
     
-def reduce_opt_path_pnet(tree, file_root):
+def reduce_opt_path_pnet(tree, file_root, output_dir):
     '''
     given a pnet with highlighted optimal path, it deletes all the non relevant detail from the pnet
     :param tree: the tree element of a pnml file
     :param file_root: the root of the file (e.g., "bpichallenge_2012", "road_fine_process")
+    :param output_dir: the output directory (where to write the result pnml file)
+    :param file_root: the "root" of the file, e.g. "bpi_challenge2012"
     '''
     logger = logging.getLogger(__name__)
     logger.debug("Reducing pnet to keep only transitions and places along the optimal path...")
@@ -137,7 +140,8 @@ def reduce_opt_path_pnet(tree, file_root):
     #STEP 2: delete arcs sourcing from or targeting non highlighted transitions and places
     # TO BE COMPLETED
     #write the output
-    tree.write("C://BPMNexamples/output/"+file_root+"_reduced.pnml", encoding='utf-8')
+    output_file = output_dir+"/"+file_root+"_reduced.pnml"
+    tree.write(output_file, encoding='utf-8')
 
 def get_transitions_from_opt_path(hg_opt):
     '''

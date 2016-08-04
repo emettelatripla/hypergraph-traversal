@@ -21,8 +21,33 @@ import xml.etree.ElementTree as ET
 
 
 def main():
-    #setup the logger
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://BPMNexamples/aco.log',level=logging.DEBUG)
+    # setup working directory and root file
+    working_dir = "C://opsupport_bpm_files"
+    input_dir = working_dir+"/pnml_input"
+    
+    # files for testing ====================================================
+    #file_root = "ex1_inductive"
+    #file_root = "bpi_challenge2012"
+    #file_root = "road_fine_process"
+    file_root = "hospital_inductive"
+    #file_root = "repair_start_end_inductive"
+    
+    #file_type = "inductive"
+    io_subdir = "/real_logs"
+    
+    #MINED WITH ALPHA MINER
+    #file_root = "ex6_claim_alpha"
+    #file_type = "alpha"
+    
+    #pnml_file = "C://BPMNexamples/"+file_type+"/"+file_root+".pnml"
+    pnml_file = input_dir+io_subdir+"/"+file_root+".pnml"
+    
+    # output directory
+    output_dir = working_dir+"/output_single"
+    
+    #setup the logger =====================================================
+    log_file = working_dir+"/aco.log"
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     
     # increase recursion limit (if needed)
@@ -32,35 +57,20 @@ def main():
     
     
     # ========================= A BUNCH OF FILES FOR TESTING =============================
-    #file_name = "C://BPMNexamples/inductive/ex1_inductive.pnml"
-    #file_name = "C://BPMNexamples/inductive/ex4_inductive.pnml"
-    #file_name = "C://BPMNexamples/real_logs/hospital_inductive.pnml"
-    #file_name = "C://BPMNexamples/inductive/repair_start_end_inductive.pnml"
-    #file_name = "C://BPMNexamples/inductive/ex6_claim_inductive.pnml"
+    #pnml_file = "C://BPMNexamples/inductive/ex1_inductive.pnml"
+    #pnml_file = "C://BPMNexamples/inductive/ex4_inductive.pnml"
+    #pnml_file = "C://BPMNexamples/real_logs/hospital_inductive.pnml"
+    #pnml_file = "C://BPMNexamples/inductive/repair_start_end_inductive.pnml"
+    #pnml_file = "C://BPMNexamples/inductive/ex6_claim_inductive.pnml"
     #The following has loop:
-    #file_name = "C://BPMNexamples/inductive/ex5_review_inductive.pnml"
-    #file_name = "C://BPMNexamples/alpha/ex1_alpha.pnml"
+    #pnml_file = "C://BPMNexamples/inductive/ex5_review_inductive.pnml"
+    #pnml_file = "C://BPMNexamples/alpha/ex1_alpha.pnml"
     
     #===========================================================
     # =========================================================================================
-    # ROOT: the identifier that will be used in the "highlighted" and "reduced" pnml versions
-    # TYPE: the name of the folder were the original pnml file can be found (and that should
-    # reflect the discovery algorithm used for mining
     
-    #file_root = "ex1_inductive"
-    #file_root = "bpi_challenge2012"
-    #file_root = "road_fine_process"
-    file_root = "hospital_inductive"
-    #file_root = "repair_start_end_inductive"
     
-    #file_type = "inductive"
-    file_type = "real_logs"
     
-    #MINED WITH ALPHA MINER
-    #file_root = "ex6_claim_alpha"
-    #file_type = "alpha"
-    
-    file_name = "C://BPMNexamples/"+file_type+"/"+file_root+".pnml"
     
     # ===================================================================================================
     #===========================================================
@@ -68,7 +78,7 @@ def main():
     #===========================================================
     
     # START: read the pnml file....
-    tree = ET.parse(file_name)
+    tree = ET.parse(pnml_file)
     pnet = tree.getroot()
     
     hg = DirectedHypergraph()
@@ -127,10 +137,10 @@ def main():
     
     # =================  highlight optimal path on pnet
     start_time_opt = time()
-    show_opt_path_pnet(p_opt, tree, file_root)
+    show_opt_path_pnet(p_opt, tree, file_root, output_dir)
     
     # ================= reduce pnet to show only the optimal path
-    reduce_opt_path_pnet(tree, file_root)
+    reduce_opt_path_pnet(tree, file_root, output_dir)
     end_time_opt = time()
     print("Post processing pnet (show optimal path on pnet) took: {0}".format(end_time_opt - start_time_opt))
     
