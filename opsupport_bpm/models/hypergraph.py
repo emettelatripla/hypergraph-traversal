@@ -9,6 +9,29 @@ Statistics of hypergraph
 '''
 import logging
 
+from halp.directed_hypergraph import DirectedHypergraph
+
+def reset_pheromone(hg):
+    '''
+    Reset the pheromone level to a default (0.5)
+    :param hg:
+    '''
+    hg_copy = DirectedHypergraph()
+    for edge in hg.get_hyperedge_id_set():
+        #hg_copy = hg.copy()
+        PHERO_DEFAULT = 0.5
+        head_edge = hg.get_hyperedge_head(edge)
+        for head_node in head_edge:
+            attrs = hg.get_node_attributes(head_node)
+            hg_copy.add_node(head_node,attrs)
+        tail_edge = hg.get_hyperedge_tail(edge)
+        for tail_node in tail_edge:
+            attrs = hg.get_node_attributes(tail_node)
+            hg_copy.add_node(tail_node,attrs)
+        hg_copy.add_hyperedge(tail_edge, head_edge, phero = PHERO_DEFAULT, id = edge, name = edge)
+    
+    return hg_copy
+
 def tau_post_processing(hg):
     """
     POST-PROCESSING of tau-split, tau-join nodes 
