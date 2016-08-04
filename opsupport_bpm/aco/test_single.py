@@ -131,9 +131,13 @@ def main():
     #===========================================================
     #p_opt = aco_algorithm(start_nodes, hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
     start_time_aco = time()
-    p_opt = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
+    aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
+    p_opt = aco_result[0]
+    utility = aco_result[1]
     end_time_aco = time()
-    print("AcCO optimisation took: {0}".format(end_time_aco - start_time_aco))
+    print("ACO optimisation took: {0}".format(end_time_aco - start_time_aco))
+    print("ACO optimisation UTILITY: {0}".format(utility))
+    
     
     # =================  highlight optimal path on pnet
     start_time_opt = time()

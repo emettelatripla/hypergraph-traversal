@@ -237,9 +237,10 @@ def aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY):
     p_opt = post_process_loop_escape(p_opt)
     logger.info("********** OPTIMAL PATH FOUND ******************")
     print_hg_std_out_only(p_opt)
-    logger.info("****** UTILITY: "+str(calculate_utility(p_opt, W_COST, W_TIME, W_QUAL, W_AVAIL)))
+    UTILITY = calculate_utility(p_opt, W_COST, W_TIME, W_QUAL, W_AVAIL)
+    logger.info("****** UTILITY: "+str(UTILITY))
     logger.info("***********************************************")
-    return p_opt
+    return (p_opt, UTILITY)
 
 def add_edge(p,hg,edge):
     """
