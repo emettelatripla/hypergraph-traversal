@@ -19,7 +19,7 @@ from opsupport_bpm.models.hypergraph_to_pnml import show_opt_path_pnet
 from opsupport_bpm.models.pnml_to_hypergraph import convert_pnet_to_hypergraph
 import xml.etree.ElementTree as ET
 from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
-    read_hg_from_file
+    read_hg_from_file, print_hg_std_out_only
 
 
 def main():
@@ -104,7 +104,23 @@ def main():
     reset_pheromone(hg_rw_test)
     write_hg_to_file(hg_rw_test,output_dir+"/hg_file_write.txt")
     hg_rw_read = read_hg_from_file(output_dir+"/hg_file_write.txt")
+    print_hg_std_out_only(hg_rw_read)
     write_hg_to_file(hg_rw_read,output_dir+"/hg_file_rewrite.txt")
+    
+    logger.debug("@"*70)
+    logger.debug("@"*70)
+    logger.debug("@"*70)
+    logger.debug("@"*70)
+    print_hg_std_out_only(hg)
+    logger.debug("@"*70)
+    logger.debug("@"*70)
+    logger.debug("@"*70)
+    print_hg_std_out_only(hg_rw_read)
+    logger.debug("@"*70)
+    logger.debug("@"*70)
+    logger.debug("@"*70)
+#     hg = hg_rw_read
+    
     
     #print_hg(hg,'hyp.txt')
     

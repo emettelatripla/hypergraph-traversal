@@ -8,6 +8,7 @@ Statistics of hypergraph
 @author: UNIST
 '''
 import logging
+import ast
 
 from halp.directed_hypergraph import DirectedHypergraph
 
@@ -21,10 +22,14 @@ def reset_pheromone(hg):
         #hg_copy = hg.copy()
         PHERO_DEFAULT = 0.5
         head_edge = hg.get_hyperedge_head(edge)
+        #head_edge = ast.literal_eval(head_edge)
+        #print(head_edge)
         for head_node in head_edge:
+            #print(head_node)
             attrs = hg.get_node_attributes(head_node)
             hg_copy.add_node(head_node,attrs)
         tail_edge = hg.get_hyperedge_tail(edge)
+        #tail_edge = ast.literal_eval(tail_edge)
         for tail_node in tail_edge:
             attrs = hg.get_node_attributes(tail_node)
             hg_copy.add_node(tail_node,attrs)

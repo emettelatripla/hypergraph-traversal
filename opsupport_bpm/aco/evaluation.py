@@ -20,6 +20,8 @@ from opsupport_bpm.models.hypergraph_to_pnml import reduce_opt_path_pnet
 from opsupport_bpm.models.hypergraph_to_pnml import show_opt_path_pnet
 from opsupport_bpm.models.pnml_to_hypergraph import convert_pnet_to_hypergraph
 from opsupport_bpm.models.hypergraph import get_statistics
+from opsupport_bpm.util.print_hypergraph import read_hg_from_file,\
+    write_hg_to_file, print_hg_std_out_only
 
 
 def get_pnml_tree(input_eval_dir, file_root):
@@ -127,8 +129,116 @@ def cleanup(output_eval_dir):
         file_name = output_eval_dir + "/pnml/" + f
         os.remove(file_name)
         
+def convert_input_pnml_to_hgr():
+    """
+    converts all input .pnml files into .hgr files
+    """
+    # set up working directory
+    working_dir = "C://opsupport_bpm_files"
+    output_eval_dir = working_dir+"/eval/output_files"
+    # all the pnml files in input_eval_dir will be evaluated
+    input_eval_dir = working_dir+"/eval/input_files"
+    
+    
+    # setup logger
+    logger = logging.getLogger(__name__)
+    
+    file_root = None
+    
+    for file_name in os.listdir(input_eval_dir):
+        if file_name.endswith(".pnml"):
+                file_root = os.path.splitext(file_name)[0]
+                file_ext = os.path.splitext(file_name)[1]
+                print("=============================================================================")
+                print("========= Processing {1} file: {0}".format(file_name, file_ext))
+                print("=============================================================================")
+        
+        # randomly initialise utility in hypergraph (and keep it the same for the entire evaluation
+        
+                conversion = setup_conversion_pnet_to_hg(file_root, input_eval_dir, output_eval_dir)
+                hg = conversion[0]
+                out_file_name = input_eval_dir + '/' + file_root + '.hgr'
+                write_hg_to_file(hg, out_file_name)
 
-def main():
+        
+        
+def optimise():
+    """
+    reads all input hypergraphs (in .hgr files) and does the optimisation
+    """
+    # set up working directory
+    working_dir = "C://opsupport_bpm_files"
+    output_eval_dir = working_dir+"/eval/output_files"
+    # all the pnml files in input_eval_dir will be evaluated
+    input_eval_dir = working_dir+"/eval/input_files"
+    
+    
+    # set up ACO params
+    COL_NUM = 2
+    COL_NUM_MAX = 12
+    COL_NUM_STEP = 3
+    ANT_NUM = 6
+    ANT_NUM_MAX = 27
+    ANT_NUM_STEP = 6
+    phero_tau = 0.5
+    W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
+    
+
+    # cleanup output directories!
+    #cleanup(output_eval_dir)
+    
+    # setup logger
+    log_file = output_eval_dir+"/logs/run.log"
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.WARNING)
+    logger = logging.getLogger(__name__)
+    
+    # non .pnml files in input_eval_dir will be ignored
+    for file_name in os.listdir(input_eval_dir):
+        if file_name.endswith(".hgr"):
+            file_root = os.path.splitext(file_name)[0]
+            file_ext = os.path.splitext(file_name)[1]
+            print("=============================================================================")
+            print("========= Processing {1} file: {0}".format(file_name, file_ext))
+            print("=============================================================================")
+        
+            hg = read_hg_from_file(input_eval_dir + '/' + file_name)
+            conv_pnet_to_hg_time = 0.0
+            tau_post_time = 0.0
+            stats = get_statistics(hg)
+            
+            performance_file_name = output_eval_dir+"/performance/"+file_root+".txt"
+            performance_file = open(performance_file_name, 'w')
+            # write header line
+            header_line = "FILE ROOT" + '\t' + "COL_NUM" + '\t' + "ANT_NUM" + '\t' + "TAU PHERO" + '\t' "UTILITY" + '\t' + "PNET_TO_HG_T" + '\t' + "TAU_POST_T" + '\t' + "ACO_T" + '\t' + "PNET_POST_T" + '\t' + "ACTIVITIES" + '\t' + "TOTAL TRANSITIONS" + '\t' + "XOR JOINS" + '\t' + "XOR SPLITS"
+            performance_file.write(header_line)
+            performance_file.write('\n')
+            # reset_pheromone
+            #hg = reset_pheromone(hg)
+            # loop on colonies
+            for col_num in range(COL_NUM, COL_NUM_MAX, COL_NUM_STEP):
+                # reset_pheromone
+                print_hg_std_out_only(hg)
+                hg = reset_pheromone(hg)
+                # loop on ants within colonies
+                for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
+                    # possible loop on phero_tau (nest here)
+                    aco_result = do_one_run(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
+                    aco_alg_time = aco_result[0] 
+                    pnet_post_time = aco_result[1]
+                    utility = aco_result[2]
+                    # EVALUATION FINISHED, WRITE PERFORMANCE RESULT
+                    new_perf_line = file_root + '\t' + str(col_num) + '\t' + str(ant_num) + '\t' + str(phero_tau) + '\t' + str(utility) + '\t' + str(conv_pnet_to_hg_time) + '\t' + str(tau_post_time) + '\t' + str(aco_alg_time) + '\t' + str(pnet_post_time)+ '\t' + str(stats['activities']) + '\t' + str(stats['transitions']) + '\t' + str(stats['xor-join']) + '\t' + str(stats['xor-split'])
+                    performance_file.write(new_perf_line)
+                    performance_file.write('\n')
+            performance_file.close()
+    print("--- TERMINATED ---")
+    
+
+
+def convert_and_optimise():
+    """
+    converts all input pnml file into hypergraphs, initialise them randomly and does the optimisation
+    """
     
     
     # set up working directory
@@ -150,61 +260,78 @@ def main():
     
 
     # cleanup output directories!
-    cleanup(output_eval_dir)
+    #cleanup(output_eval_dir)
     
     # setup logger
-    log_file = output_eval_dir+"/logs/run.log"
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.WARNING)
+    
     logger = logging.getLogger(__name__)
     
     # non .pnml files in input_eval_dir will be ignored
     for file_name in os.listdir(input_eval_dir):
         if file_name.endswith(".pnml"):
-                file_root = os.path.splitext(file_name)[0]
-                file_ext = os.path.splitext(file_name)[1]
-                print("=============================================================================")
-                print("========= Processing {1} file: {0}".format(file_name, file_ext))
-                print("=============================================================================")
+            file_root = os.path.splitext(file_name)[0]
+            file_ext = os.path.splitext(file_name)[1]
+            print("=============================================================================")
+            print("========= Processing {1} file: {0}".format(file_name, file_ext))
+            print("=============================================================================")
         
         # randomly initialise utility in hypergraph (and keep it the same for the entire evaluation
         # TBC TBC TBC
         # loop on COL_NUM
-        conversion = setup_conversion_pnet_to_hg(file_root, input_eval_dir, output_eval_dir)
-        hg = conversion[0]
-        conv_pnet_to_hg_time = conversion[1] 
-        tau_post_time = conversion[2]
-        stats = get_statistics(hg)
-        
-        performance_file_name = output_eval_dir+"/performance/"+file_root+".txt"
-        performance_file = open(performance_file_name, 'w')
-        # write header line
-        header_line = "FILE ROOT" + '\t' + "COL_NUM" + '\t' + "ANT_NUM" + '\t' + "TAU PHERO" + '\t' "UTILITY" + '\t' + "PNET_TO_HG_T" + '\t' + "TAU_POST_T" + '\t' + "ACO_T" + '\t' + "PNET_POST_T" + '\t' + "ACTIVITIES" + '\t' + "TOTAL TRANSITIONS" + '\t' + "XOR JOINS" + '\t' + "XOR SPLITS"
-        performance_file.write(header_line)
-        performance_file.write('\n')
-        # reset_pheromone
-        #hg = reset_pheromone(hg)
-        # loop on colonies
-        for col_num in range(COL_NUM, COL_NUM_MAX, COL_NUM_STEP):
+            conversion = setup_conversion_pnet_to_hg(file_root, input_eval_dir, output_eval_dir)
+            hg = conversion[0]
+            conv_pnet_to_hg_time = conversion[1] 
+            tau_post_time = conversion[2]
+            stats = get_statistics(hg)
+            
+            performance_file_name = output_eval_dir+"/performance/"+file_root+".txt"
+            performance_file = open(performance_file_name, 'w')
+            # write header line
+            header_line = "FILE ROOT" + '\t' + "COL_NUM" + '\t' + "ANT_NUM" + '\t' + "TAU PHERO" + '\t' "UTILITY" + '\t' + "PNET_TO_HG_T" + '\t' + "TAU_POST_T" + '\t' + "ACO_T" + '\t' + "PNET_POST_T" + '\t' + "ACTIVITIES" + '\t' + "TOTAL TRANSITIONS" + '\t' + "XOR JOINS" + '\t' + "XOR SPLITS"
+            performance_file.write(header_line)
+            performance_file.write('\n')
             # reset_pheromone
-            hg = reset_pheromone(hg)
-            # loop on ants within colonies
-            for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
-                # possible loop on phero_tau (nest here)
-                aco_result = do_one_run(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
-                aco_alg_time = aco_result[0] 
-                pnet_post_time = aco_result[1]
-                utility = aco_result[2]
-                # EVALUATION FINISHED, WRITE PERFORMANCE RESULT
-                new_perf_line = file_root + '\t' + str(col_num) + '\t' + str(ant_num) + '\t' + str(phero_tau) + '\t' + str(utility) + '\t' + str(conv_pnet_to_hg_time) + '\t' + str(tau_post_time) + '\t' + str(aco_alg_time) + '\t' + str(pnet_post_time)+ '\t' + str(stats['activities']) + '\t' + str(stats['transitions']) + '\t' + str(stats['xor-join']) + '\t' + str(stats['xor-split'])
-                performance_file.write(new_perf_line)
-                performance_file.write('\n')
-        performance_file.close()
+            #hg = reset_pheromone(hg)
+            # loop on colonies
+            for col_num in range(COL_NUM, COL_NUM_MAX, COL_NUM_STEP):
+                # reset_pheromone
+                hg = reset_pheromone(hg)
+                # loop on ants within colonies
+                for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
+                    # possible loop on phero_tau (nest here)
+                    aco_result = do_one_run(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
+                    aco_alg_time = aco_result[0] 
+                    pnet_post_time = aco_result[1]
+                    utility = aco_result[2]
+                    # EVALUATION FINISHED, WRITE PERFORMANCE RESULT
+                    new_perf_line = file_root + '\t' + str(col_num) + '\t' + str(ant_num) + '\t' + str(phero_tau) + '\t' + str(utility) + '\t' + str(conv_pnet_to_hg_time) + '\t' + str(tau_post_time) + '\t' + str(aco_alg_time) + '\t' + str(pnet_post_time)+ '\t' + str(stats['activities']) + '\t' + str(stats['transitions']) + '\t' + str(stats['xor-join']) + '\t' + str(stats['xor-split'])
+                    performance_file.write(new_perf_line)
+                    performance_file.write('\n')
+            performance_file.close()
     print("--- TERMINATED ---")
         
     
             
         
 
-#if __name__ == "__main__":
-#logging.basicConfig(level=logging.DEBUG)
-main()
+if __name__ == "__main__":
+    
+    
+    working_dir = "C://opsupport_bpm_files"
+    output_eval_dir = working_dir+"/eval/output_files"
+    
+    # cleanup output directory
+    cleanup(output_eval_dir)
+    
+    log_file = output_eval_dir+"/logs/run.log"
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.WARNING)
+    
+    
+    
+    # convert pnml files to hgr 
+    convert_input_pnml_to_hgr()
+    # optimise exiting hgr files
+    optimise()
+    
+    # convert and optimise all pnml files
+    #convert_and_optimise()
