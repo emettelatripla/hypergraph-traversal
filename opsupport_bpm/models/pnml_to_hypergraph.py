@@ -11,7 +11,7 @@ from halp.directed_hypergraph import DirectedHypergraph
 
 
 from opsupport_bpm.util.print_hypergraph import print_hg_std_out_only
-from opsupport_bpm.util.print_hypergraph import print_hg
+from opsupport_bpm.util.print_hypergraph import write_hg_to_file
 
 from opsupport_bpm.models.hypergraph import print_statistics
 from opsupport_bpm.models.hypergraph import number_of_start_events
@@ -370,7 +370,7 @@ def main():
     logger = logging.getLogger(__name__)
     
     #file_name = "C://BPMNexamples/inductive/road_fine_process.pnml"
-    file_name = "C://BPMNexamples/real_logs/hospital_inductive.pnml"
+    #file_name = "C://BPMNexamples/real_logs/hospital_inductive.pnml"
     file_name = "C://BPMNexamples/inductive/repair_start_end_inductive.pnml"
     
     tree = ET.parse(file_name)
@@ -398,7 +398,7 @@ def main():
     #     logger.info("Found new arc --- ID: "+id+" SOURCE: "+source+" TARGET: "+target)
     
     hg = convert_pnet_to_hypergraph(pnet)
-    print_hg(hg, "hyp_file.txt")
+    write_hg_to_file(hg, "hyp_file.txt")
     logger.debug("Number of start events: {0}".format(number_of_start_events(hg)))
     logger.debug("Number of end events: {0}".format(number_of_end_events(hg)))
     print_statistics(hg)

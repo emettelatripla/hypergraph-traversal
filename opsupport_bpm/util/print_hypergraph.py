@@ -3,10 +3,105 @@ Created on Aug 2, 2016
 
 Methods to print hypergraphs
 
+Persistence of hypergraph (write and read to/from file)
+
 @author: UNIST
 '''
 from halp.directed_hypergraph import DirectedHypergraph
 import logging
+import ast
+
+def write_hg_to_file(hg, file_name):
+    '''
+    write hypergraph on a file. 
+    Nodes in the file are written like (separator: &&&): n2&&&attr1=value1&&&attr2=value2...
+    Hyperedges (n1,n2)->(n3,n4) are written as (separator: &&&): e1&&&attr1=value1&&&attr2=value2...
+    :param hg:
+    :param file_name:
+    '''
+    out_file = open(file_name, 'w')
+    sep = '&&&'
+    
+    #out_file.write("nodes\n")
+    # write nodes
+    for node in hg.get_node_set():
+        line = 'node' + sep + str(node)
+        node_attrs = hg.get_node_attributes(node)
+        for attr_name in node_attrs.keys():
+            line += sep +str(attr_name)+ '=' +str(node_attrs[attr_name])
+        line += '\n'
+        out_file.write(line)
+      
+    #out_file.write("edges\n")  
+    # write edges
+    for edge in hg.get_hyperedge_id_set():
+        line = 'edge' + sep + str(edge)
+        edge_attrs = hg.get_hyperedge_attributes(edge)
+        for attr_name in edge_attrs:
+            line += sep +str(attr_name)+'=' + str(hg.get_hyperedge_attribute(edge,attr_name))
+#         for tail_node in hg.get_hyperedge_tail(edge):
+#             line += sep + 'tail_' + str(tail_node)
+#         for head_node in hg.get_hyperedge_head(edge):
+#             line += sep + 'head_' + str(head_node)
+        line = line + '\n'
+        out_file.write(line)
+    
+    out_file.close()
+        
+            
+
+def read_hg_from_file(file_name):
+    '''
+    returns a hypergraph based on the info in a file. Assumption: file_name has been written using write_hg_on_file
+    :param file_name:
+    '''
+    hg = DirectedHypergraph()
+    
+    in_file = open(file_name, 'r')
+    lines = in_file.readlines()
+    sep = '&&&'
+    for line in lines:
+        #line.strip()
+        values = line.split(sep)
+        #for value in values:
+        if values[0] == 'node':
+            # I am processing a node
+            node_id = values[1]
+            node_attrs = {}
+            for i in range(2, len(values), 1):
+                values[i] = values[i].strip()
+                attribute = values[i].split('=')
+                attr_name, attr_value = attribute[0], attribute[1]
+                node_attrs[attr_name] = attr_value
+                #print(node_attrs)
+            #print("nod_id, attrs: {0}, {1}".format(node_id, node_attrs))
+            hg.add_node(node_id, node_attrs)
+        if values[0] == 'edge':
+            tail = None
+            head = None
+            edge_attrs = {}
+            # I am processsing an edge
+            for j in range(2, len(values), 1):
+                values[j] = values[j].strip()
+                #print(values[j])
+                #if values[j] != 'name':
+                attribute = values[j].split('=')
+                attr_name, attr_value = attribute[0], attribute[1]
+                edge_attrs[attr_name] = attr_value
+                if attr_name == 'tail':
+                    tail = edge_attrs['tail']
+                    # turn string representation of tail into an actual list
+                    tail_list = ast.literal_eval(tail)
+                if attr_name == 'head':
+                    head = edge_attrs['head']
+                    # turn string representation of head into an actual list
+                    head_list = ast.literal_eval(head)
+            #print("ID, TAIL, HEAD: {2} - {0} - {1} - {3}".format(tail,head,values[1], edge_attrs))
+            hg.add_hyperedge(tail_list, head_list, edge_attrs)
+    #print_hg_std_out_only(hg)
+    in_file.close()    
+    return hg
+    
 
 def print_hg(hg, file_name):
     """

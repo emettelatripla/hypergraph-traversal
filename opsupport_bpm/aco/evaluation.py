@@ -139,12 +139,12 @@ def main():
     
     
     # set up ACO params
-    COL_NUM = 1
-    COL_NUM_MAX = 20
-    COL_NUM_STEP = 2
-    ANT_NUM = 2
-    ANT_NUM_MAX = 40
-    ANT_NUM_STEP = 3
+    COL_NUM = 2
+    COL_NUM_MAX = 12
+    COL_NUM_STEP = 3
+    ANT_NUM = 6
+    ANT_NUM_MAX = 27
+    ANT_NUM_STEP = 6
     phero_tau = 0.5
     W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
     

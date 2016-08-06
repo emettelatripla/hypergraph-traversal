@@ -13,11 +13,13 @@ from time import time
 from halp.directed_hypergraph import DirectedHypergraph
 from opsupport_bpm.aco.aco_directed_hypergraph import aco_algorithm_norec
 from opsupport_bpm.aco.aco_misc import random_init_attributes
-from opsupport_bpm.models.hypergraph import tau_post_processing
+from opsupport_bpm.models.hypergraph import tau_post_processing, reset_pheromone
 from opsupport_bpm.models.hypergraph_to_pnml import reduce_opt_path_pnet
 from opsupport_bpm.models.hypergraph_to_pnml import show_opt_path_pnet
 from opsupport_bpm.models.pnml_to_hypergraph import convert_pnet_to_hypergraph
 import xml.etree.ElementTree as ET
+from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
+    read_hg_from_file
 
 
 def main():
@@ -26,14 +28,15 @@ def main():
     input_dir = working_dir+"/pnml_input"
     
     # files for testing ====================================================
-    #file_root = "ex1_inductive"
+    file_root = "ex1_inductive"
     #file_root = "bpi_challenge2012"
     #file_root = "road_fine_process"
-    file_root = "hospital_inductive"
+    #file_root = "hospital_inductive"
     #file_root = "repair_start_end_inductive"
     
-    #file_type = "inductive"
-    io_subdir = "/real_logs"
+    file_type = "inductive"
+    #io_subdir = "/real_logs"
+    io_subdir = "/inductive"
     
     #MINED WITH ALPHA MINER
     #file_root = "ex6_claim_alpha"
@@ -95,6 +98,14 @@ def main():
     print("Tau post processing on hypergraph took: {0}".format(end_time_post - start_time_post))
     #STEP 2: randomly initialise hypergraph's nodes utility values
     hg = random_init_attributes(hg)
+    
+    # test write and rewrite
+    hg_rw_test = hg.copy()
+    reset_pheromone(hg_rw_test)
+    write_hg_to_file(hg_rw_test,output_dir+"/hg_file_write.txt")
+    hg_rw_read = read_hg_from_file(output_dir+"/hg_file_write.txt")
+    write_hg_to_file(hg_rw_read,output_dir+"/hg_file_rewrite.txt")
+    
     #print_hg(hg,'hyp.txt')
     
     #find start node (MAKE A FUNCTION FOR IT!!!!)
