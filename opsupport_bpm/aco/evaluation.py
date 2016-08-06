@@ -129,15 +129,15 @@ def cleanup(output_eval_dir):
         file_name = output_eval_dir + "/pnml/" + f
         os.remove(file_name)
         
-def convert_input_pnml_to_hgr():
+def convert_input_pnml_to_hgr(io_param):
     """
     converts all input .pnml files into .hgr files
     """
     # set up working directory
-    working_dir = "C://opsupport_bpm_files"
-    output_eval_dir = working_dir+"/eval/output_files"
+    working_dir = io_param['working_dir']
+    output_eval_dir = io_param['output_eval_dir']
     # all the pnml files in input_eval_dir will be evaluated
-    input_eval_dir = working_dir+"/eval/input_files"
+    input_eval_dir = io_param['input_eval_dir']
     
     
     # setup logger
@@ -162,26 +162,30 @@ def convert_input_pnml_to_hgr():
 
         
         
-def optimise():
-    """
+def optimise(io_param, aco_param):
+    '''
     reads all input hypergraphs (in .hgr files) and does the optimisation
+    :param aco_param: parameters for aco optimisation (see main)
+    '''
+    """
+    
     """
     # set up working directory
-    working_dir = "C://opsupport_bpm_files"
-    output_eval_dir = working_dir+"/eval/output_files"
+    working_dir = io_param['working_dir']
+    output_eval_dir = io_param['output_eval_dir']
     # all the pnml files in input_eval_dir will be evaluated
-    input_eval_dir = working_dir+"/eval/input_files"
+    input_eval_dir = io_param['input_eval_dir']
     
     
     # set up ACO params
-    COL_NUM = 2
-    COL_NUM_MAX = 12
-    COL_NUM_STEP = 3
-    ANT_NUM = 6
-    ANT_NUM_MAX = 27
-    ANT_NUM_STEP = 6
-    phero_tau = 0.5
-    W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
+    COL_NUM = aco_param['COL_NUM']
+    COL_NUM_MAX = aco_param['COL_NUM_MAX']
+    COL_NUM_STEP = aco_param['COL_NUM_STEP']
+    ANT_NUM = aco_param['ANT_NUM']
+    ANT_NUM_MAX = aco_param['ANT_NUM_MAX']
+    ANT_NUM_STEP = aco_param['ANT_NUM_STEP']
+    phero_tau = aco_param['phero_tau']
+    W_UTILITY = aco_param['W_UTILITY']
     
 
     # cleanup output directories!
@@ -235,28 +239,28 @@ def optimise():
     
 
 
-def convert_and_optimise():
+def convert_and_optimise(io_param, aco_param):
     """
     converts all input pnml file into hypergraphs, initialise them randomly and does the optimisation
     """
     
     
     # set up working directory
-    working_dir = "C://opsupport_bpm_files"
-    output_eval_dir = working_dir+"/eval/output_files"
+    working_dir = io_param['working_dir']
+    output_eval_dir = io_param['output_eval_dir']
     # all the pnml files in input_eval_dir will be evaluated
-    input_eval_dir = working_dir+"/eval/input_files"
+    input_eval_dir = io_param['input_eval_dir']
     
     
     # set up ACO params
-    COL_NUM = 2
-    COL_NUM_MAX = 12
-    COL_NUM_STEP = 3
-    ANT_NUM = 6
-    ANT_NUM_MAX = 27
-    ANT_NUM_STEP = 6
-    phero_tau = 0.5
-    W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
+    COL_NUM = aco_param['COL_NUM']
+    COL_NUM_MAX = aco_param['COL_NUM_MAX']
+    COL_NUM_STEP = aco_param['COL_NUM_STEP']
+    ANT_NUM = aco_param['ANT_NUM']
+    ANT_NUM_MAX = aco_param['ANT_NUM_MAX']
+    ANT_NUM_STEP = aco_param['ANT_NUM_STEP']
+    phero_tau = aco_param['phero_tau']
+    W_UTILITY = aco_param['W_UTILITY']
     
 
     # cleanup output directories!
@@ -317,21 +321,40 @@ def convert_and_optimise():
 if __name__ == "__main__":
     
     
+    # set working directory
     working_dir = "C://opsupport_bpm_files"
     output_eval_dir = working_dir+"/eval/output_files"
+    
+    io_param = {}
+    io_param['working_dir'] = working_dir 
+    io_param['output_eval_dir'] = working_dir+"/eval/output_files"
+    io_param['input_eval_dir'] = working_dir+"/eval/input_files"
+    io_param['log'] = output_eval_dir+"/logs/run.log"
     
     # cleanup output directory
     cleanup(output_eval_dir)
     
-    log_file = output_eval_dir+"/logs/run.log"
+    # set logger
+    log_file = io_param['log']
     logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.WARNING)
     
     
+    # set aco parameters
+    aco_param = {}
+    aco_param['COL_NUM'] = 2
+    aco_param['COL_NUM_MAX'] = 10
+    aco_param['COL_NUM_STEP'] = 5
+    aco_param['ANT_NUM'] = 6
+    aco_param['ANT_NUM_MAX'] = 47
+    aco_param['ANT_NUM_STEP'] = 9
+    aco_param['phero_tau'] = 0.5
+    W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
+    aco_param['W_UTILITY'] = W_UTILITY
     
     # convert pnml files to hgr 
-    convert_input_pnml_to_hgr()
+    convert_input_pnml_to_hgr(io_param)
     # optimise exiting hgr files
-    optimise()
+    optimise(io_param, aco_param)
     
     # convert and optimise all pnml files
-    #convert_and_optimise()
+    #convert_and_optimise(io_param, aco_param)
