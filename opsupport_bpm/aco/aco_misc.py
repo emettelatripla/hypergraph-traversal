@@ -12,6 +12,7 @@ from random import uniform
 from random import choice
 from random import random
 from random import randint
+from random import sample
 from string import ascii_uppercase
 import logging
 import sys
@@ -70,7 +71,7 @@ def generate_random_node_attributes():
 def generate_random_node_list(hg, size):
     node_list = []
     for i in range(0, size, 1):
-        node = randomword(6)
+        node = str(counter())
         node_attrs = generate_random_node_attributes()
         hg.add_node(node, node_attrs)
         node_list.append(node)
@@ -87,8 +88,8 @@ def rewrite_xor_block(hg, node, size):
     attrs_xor_split['type'] = 'xor-split'
     attrs_xor_join = generate_random_node_attributes()
     attrs_xor_join['type'] = 'xor-join'
-    xor_split = randomword(4)
-    xor_join = randomword(4)
+    xor_split = str(counter())
+    xor_join = str(counter())
     hg.add_node(xor_split, attrs_xor_split)
     hg.add_node(xor_join, attrs_xor_join)
     split_list = []
@@ -229,18 +230,72 @@ def random_generate_hg(level_size, block_size_min, block_size_max):
             out = rewrite_xor_block(hg, current_node, size)
             hg, current_node = out[0], out[1]
     
-    print_hg_std_out_only(hg)
-            
-        
-    
+    #print_hg_std_out_only(hg)
     
     return hg
 
 
+def is_node_ok_too_loop(hg, node):
+    is_ok = True
+    # should not start loop in sink, source, or tau split/join
+    if 'sink' in node:
+        is_ok = False
+    if node[0][0:3] == "tau":
+        is_ok = False
+    if 'source' in node:
+        is_ok = False
+    return is_ok
 
+def add_random_loops(hg, loops_number, loop_length):
+    '''
+    Add random loops to hg of varianble length
+    :param loops_number: number of loops that will be added
+    :param loop_length: average length of loops
+    '''
+    
+    #loop_length = randint(loop_length - 5, loop_length + 5)
+    node_set = hg.get_node_set()
+    i = 0
+    while i < loops_number:
+        i += 1
+        node1, node2, start_loop_node, end_loop_node = " ", " ", " ", " "
+        # pick one random element
+        found1, found2 = False, False
+        while not found1:
+            node1 = sample(node_set, 1)
+            found1 = is_node_ok_too_loop(hg, node1)
+        while not found2:
+            node2 = sample(node_set, 1)
+            found2 = is_node_ok_too_loop(hg, node2)
+        # TBC TBC should check also that node is not in and hyperedge???
+        if node1 != node2:
+            if node1 < node2:
+                start_loop_node, end_loop_node = node2, node1
+            else:
+                start_loop_node, end_loop_node = node1, node2
+        # insert loop
+        current_node = start_loop_node
+        edge_attrs = {'phero' : 0.5}
+        print("Found nodes for loop: {0}, {1}".format(start_loop_node, end_loop_node))
+        for j in range(0, loop_length, 1):
+            if j != loop_length -1:                                     # add new node
+                new_node = randomword(6)
+                new_node_attrs = generate_random_node_attributes()
+                hg.add_node(new_node, new_node_attrs)
+                hg.add_hyperedge(current_node, new_node, edge_attrs)
+                current_node = new_node
+                print("current_node: {0}".format(current_node))
+            else:                                                       # connect with node1
+                hg.add_hyperedge(current_node, end_loop_node, edge_attrs)
+    return hg
+            
+        
+    
 
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     logger = logging.getLogger(__name__)
-    hg = random_generate_hg()
+    hg = random_generate_hg(2, 2, 3)
+    hg = add_random_loops(hg, 2, 2)
+    print_hg_std_out_only(hg)
     
