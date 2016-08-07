@@ -9,8 +9,15 @@ Statistics of hypergraph
 '''
 import logging
 import ast
+from random import uniform
+import logging
+import sys
 
 from halp.directed_hypergraph import DirectedHypergraph
+from opsupport_bpm.util.print_hypergraph import print_hg_std_out_only
+
+
+
 
 def reset_pheromone(hg):
     '''
@@ -180,3 +187,6 @@ def print_statistics(hg):
     Displays statistics on standard output
     """
     print(str(get_statistics(hg)))
+
+
+    

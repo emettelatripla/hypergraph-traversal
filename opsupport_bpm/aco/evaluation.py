@@ -243,8 +243,6 @@ def convert_and_optimise(io_param, aco_param):
     """
     converts all input pnml file into hypergraphs, initialise them randomly and does the optimisation
     """
-    
-    
     # set up working directory
     working_dir = io_param['working_dir']
     output_eval_dir = io_param['output_eval_dir']
@@ -353,7 +351,7 @@ if __name__ == "__main__":
     
     # convert pnml files to hgr 
     convert_input_pnml_to_hgr(io_param)
-    # optimise exiting hgr files
+    # optimise existing hgr files
     optimise(io_param, aco_param)
     
     # convert and optimise all pnml files
