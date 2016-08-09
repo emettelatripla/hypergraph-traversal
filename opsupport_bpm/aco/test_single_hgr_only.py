@@ -6,9 +6,9 @@ Created on Aug 7, 2016
 
 import logging
 
-from opsupport_bpm.aco.aco_misc import random_generate_hg
+from opsupport_bpm.aco.aco_misc import random_generate_hg, add_random_loops
 from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
-    print_hg_std_out_only
+    print_hg_std_out_only, read_hg_from_file
 from opsupport_bpm.aco.evaluation import optimise
 from opsupport_bpm.aco.evaluation import cleanup
 from time import time
@@ -43,13 +43,24 @@ def do_one_run(io_param, aco_param, hg_gen_param):
     
     # generate hg
     hg = random_generate_hg(L_SIZE, B_SIZE_MIN, B_SIZE_MAX)
+    hg = add_random_loops(hg, 5, 5)
+    
+    # write hg on file
+    print("writing file FIRST time....")
     hg_gen_file_name = input_eval_dir + '/test_rewrite.hgr'
+    print_hg_std_out_only(hg)
     write_hg_to_file(hg, hg_gen_file_name)
+    
+    #print("read from file FIRST time....")
+    #hg = read_hg_from_file(hg_gen_file_name)
+    #print("writing file SECOND time....")
+    #write_hg_to_file(hg, hg_gen_file_name)
     
     # run optimisation
     #optimise(io_param, aco_param)
     
     start_time_aco = time()
+    print("running aco....")
     aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, phero_tau, W_UTILITY)
     p_opt = aco_result[0]
     utility = aco_result[1]
@@ -78,16 +89,16 @@ if __name__ == "__main__":
     
     # set logger
     log_file = io_param['log']
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.WARNING)
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.DEBUG)
     
     
     # set aco parameters
     aco_param = {}
-    aco_param['COL_NUM'] = 5
-    aco_param['COL_NUM_MAX'] = 10
+    aco_param['COL_NUM'] = 2
+    aco_param['COL_NUM_MAX'] = 3
     aco_param['COL_NUM_STEP'] = 5
-    aco_param['ANT_NUM'] = 15
-    aco_param['ANT_NUM_MAX'] = 47
+    aco_param['ANT_NUM'] = 2
+    aco_param['ANT_NUM_MAX'] = 3
     aco_param['ANT_NUM_STEP'] = 9
     aco_param['phero_tau'] = 0.5
     W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
@@ -95,9 +106,9 @@ if __name__ == "__main__":
     
     # set up hg gen params
     hg_gen_param = {}
-    hg_gen_param['level_size'] = 3000
-    hg_gen_param['block_size_min'] = 10
-    hg_gen_param['block_size_max'] = 18
+    hg_gen_param['level_size'] = 5
+    hg_gen_param['block_size_min'] = 3
+    hg_gen_param['block_size_max'] = 4
     
     do_one_run(io_param, aco_param, hg_gen_param)
     

@@ -88,8 +88,9 @@ def rewrite_xor_block(hg, node, size):
     attrs_xor_split['type'] = 'xor-split'
     attrs_xor_join = generate_random_node_attributes()
     attrs_xor_join['type'] = 'xor-join'
-    xor_split = str(counter())
-    xor_join = str(counter())
+    num = str(counter())
+    xor_split = 'xor-s ' + num
+    xor_join = 'xor-j ' + num
     hg.add_node(xor_split, attrs_xor_split)
     hg.add_node(xor_join, attrs_xor_join)
     split_list = []
@@ -133,8 +134,8 @@ def rewrite_and_block(hg, node, size):
     attrs_tau_split = generate_random_node_attributes()
     attrs_tau_join = generate_random_node_attributes()
     num = counter()
-    tau_split = 'tau split' + str(num)
-    tau_join = 'tau join' + str(num)
+    tau_split = 'tauspli ' + str(num)
+    tau_join = 'taujoin ' + str(num)
     hg.add_node(tau_split, attrs_tau_split)
     hg.add_node(tau_join, attrs_tau_join)
     split_list = []
@@ -234,17 +235,55 @@ def random_generate_hg(level_size, block_size_min, block_size_max):
     
     return hg
 
+# note: this allows for two or more loops to start and end from same nodes (that is, this function can return the same set of nodes if called twice)
+def find_start_end_of_loop(hg):
+    nodes = hg.get_node_set()
+    tau_indices = []
+    xor_indices = []
+    for node in nodes:
+        if node[0:4] == 'taus':
+            split = node.split()
+            tau_indices.append(split[1].strip())
+        if node[0:5] == 'xor-s':
+            split = node.split()
+            xor_indices.append(split[1].strip())
+    #print("Tau: "+str(tau_indices))
+    #print("Xor: "+str(xor_indices))
+    # pick two random tau split/join or xor split/join
+    if uniform(0,1) > 0.5:
+        if tau_indices != []:
+            # pick tau nodes (join is start of loop, split is end of loop
+            index = choice(tau_indices)
+            node_start = 'taujoin ' + index
+            node_end = 'tauspli ' + index
+        else:
+            # pick xor nodes
+            index = choice(xor_indices)
+            node_start = 'xor-j ' + index
+            node_end = 'xor-s ' + index
+    else:
+        if xor_indices != []:
+            # pick tau nodes (join is start of loop, split is end of loop
+            # pick xor nodes
+            index = choice(xor_indices)
+            node_start = 'xor-j ' + index
+            node_end = 'xor-s ' + index
+        else:
+            # pick xor nodes
+            index = choice(tau_indices)
+            node_start = 'taujoin ' + index
+            node_end = 'tauspli ' + index
+    # check if they have not been used yet
+    
+    # assign to start and end and return
+    start_loop, end_loop = node_start, node_end
+    return start_loop, end_loop
 
-def is_node_ok_too_loop(hg, node):
-    is_ok = True
-    # should not start loop in sink, source, or tau split/join
-    if 'sink' in node:
-        is_ok = False
-    if node[0][0:3] == "tau":
-        is_ok = False
-    if 'source' in node:
-        is_ok = False
-    return is_ok
+def get_random_node():
+    node_name = randomword(7)
+    node = []
+    node.append(node_name)
+    return node
 
 def add_random_loops(hg, loops_number, loop_length):
     '''
@@ -259,34 +298,36 @@ def add_random_loops(hg, loops_number, loop_length):
     while i < loops_number:
         i += 1
         node1, node2, start_loop_node, end_loop_node = " ", " ", " ", " "
-        # pick one random element
-        found1, found2 = False, False
-        while not found1:
-            node1 = sample(node_set, 1)
-            found1 = is_node_ok_too_loop(hg, node1)
-        while not found2:
-            node2 = sample(node_set, 1)
-            found2 = is_node_ok_too_loop(hg, node2)
+        # pick two random nodes to be start and end of loop
+        out = find_start_end_of_loop(hg)
+        start = out[0]
+        end = out[1]
+        start_loop_node = []
+        start_loop_node.append(start)
+        end_loop_node = []
+        end_loop_node.append(end)
         # TBC TBC should check also that node is not in and hyperedge???
-        if node1 != node2:
-            if node1 < node2:
-                start_loop_node, end_loop_node = node2, node1
-            else:
-                start_loop_node, end_loop_node = node1, node2
+        print("Found nodes for loop: {0}, {1}".format(node1, node2))
         # insert loop
         current_node = start_loop_node
+        #print("Found nodes for loop: {0}, {1}".format(start_loop_node, end_loop_node))
+        line = str(current_node)
         edge_attrs = {'phero' : 0.5}
-        print("Found nodes for loop: {0}, {1}".format(start_loop_node, end_loop_node))
-        for j in range(0, loop_length, 1):
-            if j != loop_length -1:                                     # add new node
-                new_node = randomword(6)
+        j = 0
+        while j <= loop_length:
+            if j != loop_length:                                     # add new node
+                new_node = get_random_node()
                 new_node_attrs = generate_random_node_attributes()
-                hg.add_node(new_node, new_node_attrs)
+                hg.add_node(new_node[0], new_node_attrs)
                 hg.add_hyperedge(current_node, new_node, edge_attrs)
+                #line += " ||| " + str(current_node) + " > " + str(new_node)
                 current_node = new_node
-                print("current_node: {0}".format(current_node))
-            else:                                                       # connect with node1
+                #print("current_node: {0}".format(current_node))
+            else:                                                    # connect with end loop node
                 hg.add_hyperedge(current_node, end_loop_node, edge_attrs)
+                #line += " ||| " + str(current_node) + " > " + str(end_loop_node)
+            j += 1
+        #print(line)
     return hg
             
         
@@ -295,7 +336,7 @@ def add_random_loops(hg, loops_number, loop_length):
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     logger = logging.getLogger(__name__)
-    hg = random_generate_hg(2, 2, 3)
-    hg = add_random_loops(hg, 2, 2)
+    hg = random_generate_hg(50, 5, 10)
+    hg = add_random_loops(hg, 10, 10)
     print_hg_std_out_only(hg)
     

@@ -168,6 +168,7 @@ def get_statistics(hg):
     nodes = hg.get_node_set()
     for node in nodes:
         total_trans = total_trans + 1
+        #print(hg.get_node_attributes(node))
         node_type = hg.get_node_attribute(node,'type')
         if node_type == "xor-split":
             xor_splits = xor_splits + 1

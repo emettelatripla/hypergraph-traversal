@@ -9,7 +9,7 @@ import os
 from time import time
 
 from opsupport_bpm.aco.aco_directed_hypergraph import aco_algorithm_norec
-from opsupport_bpm.aco.aco_misc import random_generate_hg
+from opsupport_bpm.aco.aco_misc import random_generate_hg, add_random_loops
 from opsupport_bpm.models.hypergraph import get_statistics
 from opsupport_bpm.models.hypergraph import reset_pheromone
 from opsupport_bpm.util.print_hypergraph import write_hg_to_file, \
@@ -60,15 +60,24 @@ def main_loop(io_param, aco_param, hg_gen_param):
     L_SIZE_STEP = hg_gen_param['level_size_step']
     B_SIZE_MIN = hg_gen_param['block_size_min']
     B_SIZE_MAX = hg_gen_param['block_size_max']
+    #LOOP_NO_MIN = hg_gen_param['loop_no_min']
+    LOOP_NO_MAX = hg_gen_param['loop_no_max']
+    LOOP_L_MIN = hg_gen_param['loop_length_min']
+    LOOP_L_MAX = hg_gen_param['loop_length_max']
+    
     
     # generate hgr files
     print("+++++++++++ Generating hypergraphs....")
     for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
-        file_name = input_eval_dir + '/hg_level' + str(i) + '.hgr'
-        hg = random_generate_hg(i, B_SIZE_MIN, B_SIZE_MAX)
-        write_hg_to_file(hg, file_name)
-        print("+++ hypergraph level {0}".format(i))
+        for j in range(LOOP_L_MIN, LOOP_L_MAX, 1):
+            file_name = input_eval_dir + '/hg_level' + str(i) + '_' + str(j) + '.hgr'
+            hg = random_generate_hg(i, B_SIZE_MIN, B_SIZE_MAX)
+            hg = add_random_loops(hg, LOOP_NO_MAX, j)
+            write_hg_to_file(hg, file_name)
+            print("+++ hypergraph level {0}, loop length {1}".format(i,j))
     "+++++++++++ Hypergraph generation completed"
+    
+    
         
     sep = '\t'
     
@@ -145,10 +154,16 @@ if __name__ == "__main__":
     
     # set up hg gen params
     hg_gen_param = {}
-    hg_gen_param['level_size_min'] = 310
-    hg_gen_param['level_size_max'] = 520
-    hg_gen_param['level_size_step'] = 60
-    hg_gen_param['block_size_min'] = 3
-    hg_gen_param['block_size_max'] = 8
+    hg_gen_param['level_size_min'] = 7
+    hg_gen_param['level_size_max'] = 8
+    hg_gen_param['level_size_step'] = 1
+    hg_gen_param['block_size_min'] = 2
+    hg_gen_param['block_size_max'] = 3
+    
+    #LOOP_NO_MIN = hg_gen_param['loop_no_min']
+    hg_gen_param['loop_no_max'] = 3
+    hg_gen_param['loop_length_min'] = 3
+    hg_gen_param['loop_length_max'] = 5
+    
     
     main_loop(io_param, aco_param, hg_gen_param)

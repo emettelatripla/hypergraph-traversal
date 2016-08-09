@@ -77,7 +77,7 @@ def read_hg_from_file(file_name):
                 #head_list = ast.literal_eval(head)
             #print("ID, TAIL, HEAD: {2} - {0} - {1} - {3}".format(tail,head,values[1], edge_attrs))
             hg.add_hyperedge(tail, head, edge_attrs)
-    #print_hg_std_out_only(hg)
+    print_hg_std_out_only(hg)
     in_file.close()    
     return hg
     
