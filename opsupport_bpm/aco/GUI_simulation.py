@@ -143,7 +143,7 @@ def simulation_GUI():
     time_entry.grid(row = row_num, column = 1)
     
     row_num += 1
-    qual_label = Label(main_window, text = 'Weight of availability:')
+    qual_label = Label(main_window, text = 'Weight of quality:')
     qual_label.grid(row = row_num, column = 0)
     qual_entry = Entry(main_window)
     qual_entry.grid(row = row_num, column = 1)
