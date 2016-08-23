@@ -28,8 +28,8 @@ def main():
     input_dir = working_dir+"/pnml_input"
     
     # files for testing ====================================================
-    file_root = "ex1_inductive"
-    #file_root = "bpi_challenge2012"
+    #file_root = "ex1_inductive"
+    file_root = "bpi_challenge2012"
     #file_root = "road_fine_process"
     #file_root = "hospital_inductive"
     #file_root = "repair_start_end_inductive"
@@ -149,7 +149,7 @@ def main():
 
     # Set ACO parameters
     tau = 0.6
-    ANT_NUM = 10
+    ANT_NUM = 3
     COL_NUM = 3
     W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
     

@@ -106,9 +106,9 @@ if __name__ == "__main__":
     
     # set up hg gen params
     hg_gen_param = {}
-    hg_gen_param['level_size'] = 5
-    hg_gen_param['block_size_min'] = 3
-    hg_gen_param['block_size_max'] = 4
+    hg_gen_param['level_size'] = 2
+    hg_gen_param['block_size_min'] = 2
+    hg_gen_param['block_size_max'] = 2
     
     do_one_run(io_param, aco_param, hg_gen_param)
     

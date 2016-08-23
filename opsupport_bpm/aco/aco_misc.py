@@ -80,7 +80,13 @@ def generate_random_node_list(hg, size):
 
     
 def rewrite_xor_block(hg, node, size):
-    
+    """
+    Rewrite a node with a xor_block of a certain size
+    :param hg: the hypergraph
+    :param node: the node to be rewritten
+    :param size: the size of the block that rewrits node
+    :return: hg, one of the newly generate nodes randomly chosen
+    """
     # create xor block and add edges to to hypergraph
     node_list = generate_random_node_list(hg, size)
     # generate xor split and join
@@ -128,6 +134,13 @@ def rewrite_xor_block(hg, node, size):
     return hg, choice(node_list)
     
 def rewrite_and_block(hg, node, size):
+    """
+    Rewrite a node with a and block of a certain size
+    :param hg: the hypergraph
+    :param node: the node to be rewritten
+    :param size: the size of the block that rewrits node
+    :return: hg, one of the newly generate nodes randomly chosen
+    """
     # create and block and add edges to to hypergraph
     node_list = generate_random_node_list(hg, size)
     # generate tau split and join
@@ -336,7 +349,7 @@ def add_random_loops(hg, loops_number, loop_length):
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     logger = logging.getLogger(__name__)
-    hg = random_generate_hg(50, 5, 10)
-    hg = add_random_loops(hg, 10, 10)
+    hg = random_generate_hg(2, 1, 2)
+    hg = add_random_loops(hg, 1, 5)
     print_hg_std_out_only(hg)
     

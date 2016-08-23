@@ -340,38 +340,53 @@ def escape_from_loop(current_node,next_edge,p,hg,used_edges):
         safe_node = current_node
         safe_node_found = True
         return new_edge, p, current_node, delete_nodes_visited
+    current_node_set = []
+    current_node_set.append(current_node)
     while not safe_node_found:
         # go back one node (with get predecessors - returns a set!)
-        curr_node_set = []
-        curr_node_set.append(current_node)
-        prec_edge_set = p.get_predecessors(curr_node_set)
+        ## curr_node_set = []
+        ## curr_node_set.append(current_node)
+        logger.debug("....current node set: {0}".format(current_node_set))
+        prec_edge_set = p.get_predecessors(current_node_set)
+        logger.debug("..... set of predecessors to choose from: {0}".format(prec_edge_set))
         prec_edge_set.difference_update(used_edges)
-        # choose edge to back
+        logger.debug("..... set of predecessors to choose from after used edges update: {0}".format(prec_edge_set))
+
+        # choose edge to back (in current path)
         p_back_edge = random.sample(set(prec_edge_set),1)[0]
-        # get id of edge in hg
+        # get id of chosen back edge in hg
         tail = p.get_hyperedge_tail(p_back_edge)
         head = p.get_hyperedge_head(p_back_edge)
         back_edge = hg.get_hyperedge_id(tail,head)
         logger.debug("...... Going back using edge: {0} in HG [{1} in current path]".format(back_edge,p_back_edge))
-        current_node = p.get_hyperedge_tail(p_back_edge)
-        logger.debug("...... Now in node {0}, looking for an escape".format(current_node))
+        logger.debug(".....go back edge HEAD, TAIL: {0}, {1}".format(head, tail))
+        ## current_node = p.get_hyperedge_tail(p_back_edge)
+        current_node_set = p.get_hyperedge_tail(p_back_edge)
+        logger.debug("...... Now in node {0}, looking for an escape".format(current_node_set))
         # remove edge used to go back
         # look for other forward edges
-        forward_edges = hg.get_successors(current_node)
+        #forward_edges = hg.get_successors(current_node)
+        forward_edges = hg.get_successors(random.sample(set(current_node_set), 1))
         logger.debug("Forward edges to choose from: {0}".format(forward_edges))
         # remove edge used to go back from path p
         logger.debug("Removing hyperedge from path: ({0}, {1}, {2}) ".format(p_back_edge,p.get_hyperedge_tail(p_back_edge),p.get_hyperedge_head(p_back_edge)))
-        p = safe_remove_edge(p, p_back_edge)
-        for node in current_node:
-            delete_nodes_visited.append(node)
-        #forward_edges.remove(back_edge)
+        # remove edge used to go back from current optimal path
+        p.remove_hyperedge(p_back_edge)
+        # remove edge used to go back from possible choices to escape the loop
+        forward_edges.remove(back_edge)
         if not forward_edges == set():
             new_edge = random.sample(set(forward_edges),1)[0]
             logger.debug("...... escape found! Edge: {0}".format(new_edge))
+            ## safe_node = current_node
+            current_node = random.sample(set(current_node_set), 1)
             safe_node = current_node
             safe_node_found = True
-            # TO-DO prepare return   
-            return new_edge, p, current_node, delete_nodes_visited
+            # TO-DO prepare return
+            logger.debug("....RETURNING FROM loop escape, delete_nodes_visited: {0}".format(delete_nodes_visited))
+            return new_edge, p, safe_node, delete_nodes_visited
+        # only the nodes in the loop are saved as nodes_to_delete
+        for node in current_node_set:
+            delete_nodes_visited.append(node)
     return None
 
 
@@ -382,51 +397,56 @@ def aco_search_nonrec(hg):
     simulates the behaviour of one single ant and returns the optimal path discovered by that ant
     :param hg: hypergraph
     '''
-     
+
+    # get the logger
     logger = logging.getLogger(__name__)
+
+    # assumption:  ONE END event (there can be more than one start event, one will be chosen randomly)
     start_end = get_start_end_node(hg)
-    # assumption: only ONE START event and ONE END event
     start_node_set = start_end[0]
     end_node_set = start_end[1]
-    logger.debug("Found START node: {0}".format(start_node_set))
-    logger.debug("Found END node: {0}".format(end_node_set))
-    number_of_nodes = len(hg.get_node_set())
-    logger.debug("Number of nodes to process: {0}".format(number_of_nodes))
-    # array of nodes to process
-    nodes_to_process = []
-    # randomly choose one start noe
-    start_node = random.sample(set(start_node_set),1)[0]
+    start_node = random.sample(set(start_node_set), 1)[0]
+    logger.debug("Found START node set: {0}".format(start_node_set))
+    logger.debug("Chosen START node (if many available): {0}".format(start_node))
+    logger.debug("Found END node set: {0}".format(end_node_set))
     # ASSUMPTION: only one end node
     end_node = end_node_set[0]
+    logger.debug("Found END node: {0}".format(end_node))
+
+    # count number of nodes to process
+    number_of_nodes = len(hg.get_node_set())
+    logger.debug("Number of nodes to process: {0}".format(number_of_nodes))
+
+    # array of nodes to process, add start_node as first node to process
+    nodes_to_process = []
     nodes_to_process.append(start_node)
+
     nodes_visited = []
     used_edges = []
     
     # begin looking forward...
-    p = DirectedHypergraph()
+    p = DirectedHypergraph()                    # current optimal path
     stop = False
-    i = 0
+    i = 0                                       # index of current node to process
     current_node = nodes_to_process[0]
     waiting = {}
     # to escape, isolate the nodes already visited because of waiting
-    nodes_visited_waiting = []
+    #nodes_visited_waiting = []
+
     while not stop:
         logger.debug("============= VISITING NEXT NODE: --- {0} ---- ========================".format(current_node))
         f_edge_set = hg.get_forward_star(current_node)
-        # choose next edge
-        # TBC: create phero_choice single node function
+        # choose next edge randomly based on pheromone distribution
         next_edge = phero_choice_single_node(f_edge_set, hg)
-        logger.debug("Next edge returned: {0}".format(next_edge))
-        # look in the head of next hedge
+        logger.debug("==> Next edge chosen: {0}".format(next_edge))
+        # look in the head of chosen next edge
         next_head = hg.get_hyperedge_head(next_edge)
-        # if a node in next edge has already been visited, then escape!
+        # if a node in next edge has already been visited, then we might be an a loop....check
         escape = False
         for node in next_head:
             if node in nodes_visited:
-                logger.debug("Node {0}; Possible escape needed, should investigate more...".format(node))
-                # check if in p exist an edge with node as tail
-                #logger.debug("Forward star is {0}, node is {1}".format(p.get_forward_star(node),node))
-                # check if node is head of waiting hyperedges
+                logger.debug("===OO=== Node {0}; Possible escape needed, should investigate more...".format(node))
+                # check if node is head of waiting hyperedges (if yes, then node is waiting, we are not in a loop!
                 waiting_head = False
                 waiting_edges = waiting.keys()
                 head = []
@@ -435,10 +455,9 @@ def aco_search_nonrec(hg):
                     if hg.get_hyperedge_head(edge) == head:
                         waiting_head = True
                 if waiting_head or node == end_node:
-                    # I know I am ina loop now, must escape!
-                    logger.debug("...I was not in a real loop, continue :)")
+                    logger.debug("==OO== ...I was not in a real loop, continue :)")
                 else:
-                    logger.debug("...I am in a LOOP, must ESCAPE!")
+                    logger.debug("==OO== ...I am in a LOOP, must ESCAPE!")
                     escape = True
             if escape:
                 logger.debug("#Escape begins ...")
@@ -453,21 +472,28 @@ def aco_search_nonrec(hg):
                 delete_nodes = escape[3]
                 # deleting nodes in the loop
                 logger.debug("Nodes to delete: {0}".format(delete_nodes))
+                # delete current node from visited nodes
+                nodes_visited.remove(current_node)
                 for node in delete_nodes:
-                    logger.debug("Removing node from list of visited nodes: {0}".format(node))
-                    nodes_visited.remove(node)
+                    logger.debug("Removing node from list of nodes to process: {0}".format(node))
+                    nodes_to_process.remove(node)
+                    i -= 1                          # update counter of current node
+                    if node in nodes_visited:
+                        logger.debug("Removing node from list of visited nodes: {0}".format(node))
+                        nodes_visited.remove(node)
                 logger.debug(".... #Escape terminated!")
                 logger.debug(".... current node: {0}".format(current_node))
             # ESCAPE TB TB TB 
         # wait for matches if its hyperedge
         """ wait for matches TBC"""
-        logger.debug("Successors of current node {0}: {1}".format(current_node,hg.get_successors(current_node)))
+        logger.debug("==> Current node {0}, successors: {1}".format(current_node,hg.get_successors(current_node)))
         # need a set to use get_successors
         current_node_set = set()
         current_node_set.update({current_node})
-        logger.debug("Current node set: {0}".format(current_node_set))
+        logger.debug("==> Current node set: {0}".format(current_node_set))
         if next_edge not in hg.get_successors(current_node_set):
-            logger.debug("+++ +++ +++ I am in a hyperedge, check waiting...")
+            # current_node is not the head of the chosen edge...so it must be an hyperedge
+            logger.debug("==> I am in a hyperedge, check waiting...")
             # look if there is a match waiting to happen
             if next_edge in waiting.keys():
                 # add current node
@@ -506,7 +532,23 @@ def aco_search_nonrec(hg):
         # terminating condition: next node is end event and it is only one left to process!
         #nodes_visited.append(current_node)
         #nodes_to_process.remove(current_node)
-        
+
+        # check next node
+        i += 1
+        current_node = nodes_to_process[i]
+        if current_node == end_node:
+            if waiting == {}:
+                stop = True
+                logger.debug(" ===!!! Optimisation terminated at node: {0}".format(current_node))
+            else:
+                logger.debug("Next node to process is end node, but I cannnot stop now....")
+                i += 1
+                current_node = nodes_to_process[i]
+                logger.debug("==> continue, next node will be: {0}".format(current_node))
+        else:                                   # it is not end node
+            logger.debug("==> continue node processing, next node is: {0}".format(current_node))
+
+        """ old terminatng condition
         if not len(nodes_to_process) == len(nodes_visited):
             # check next node to process
             i += 1
@@ -524,16 +566,9 @@ def aco_search_nonrec(hg):
         if len(nodes_to_process) == len(nodes_visited) and not waiting == {}:
             logger.error("Something went wrong here :(((")
         # get ready to continue
+        END OLD TERMINATING CONDITION"""
     return p
         
-        
-    
-       
-    
-
-
-
-
 
 """ recursive version of aco_search """
 #start_node_set: current position (can be a set of nodes) in the search
