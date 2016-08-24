@@ -13,41 +13,13 @@ from opsupport_bpm.aco.evaluation import cleanup
 from opsupport_bpm.aco.evaluation import convert_and_optimise
 from opsupport_bpm.aco.evaluation import optimise
 from opsupport_bpm.aco.evaluation import convert_input_pnml_to_hgr
+from opsupport_bpm.aco.aco_misc import random_generate_hg
+from opsupport_bpm.aco.aco_misc import add_random_loops
+from opsupport_bpm.util.print_hypergraph import write_hg_to_file
+from opsupport_bpm.aco.evaluation_hgr_only import sim_run_hgr_only
 
 
-def test_window():
-    main_window = Tk()
-    main_window.wm_title("Welcome to my first Tk GUI")
-    count_label = Label(main_window, text="Count: 0")
-    count_label.grid(row=0, column =1)
-    count_value = 0
-    def increment_count():
-        global count_value, count_label
-        count_value += 1
-        count_label.configure(text = "Count: " + str(count_value))
-        
-    incr_button = Button(main_window, text = "Increment", command=increment_count)
-    incr_button.grid(row = 0, column = 0)
-    quit_button = Button(main_window, text = "Quit", command = main_window.destroy)
-    quit_button.grid(row = 1, column = 0)
-    
-    name_label = Label(main_window, text = 'First Name')
-    name_label.grid(row = 2, column = 0)
-    lastn_label = Label(main_window, text = 'Last Name')
-    lastn_label.grid(row = 3, column = 0)
-    
-    e_name = Entry(main_window)
-    e_lastn = Entry(main_window)
-    e_name.grid(row = 2, column = 1)
-    e_lastn.grid(row = 3, column = 1)
-    
-    def show_entry_fields():
-        print("First Name: {0}".format(e_name.get()))
-        print("Last Name: {0}".format(e_lastn.get()))
-        
-    my_button = Button(text = "Print full name", command = show_entry_fields).grid(row = 4, column = 1)
-    
-    mainloop()
+
     
 def simulation_GUI():
     
@@ -70,7 +42,7 @@ def simulation_GUI():
     
     # initialise main window
     main_window = Tk()
-    main_window.wm_title("OPSUPPORT BPM - ACO Simulation Parameters")
+    main_window.wm_title("OPSUPPORT: ACO and Process generation settings")
     
     row_num = 0
     
@@ -147,8 +119,59 @@ def simulation_GUI():
     qual_label.grid(row = row_num, column = 0)
     qual_entry = Entry(main_window)
     qual_entry.grid(row = row_num, column = 1)
+
+    row_num += 1
+    Label(main_window, text='Artificial process generation').grid(row=row_num, column=0)
+
+    row_num += 1
+    min_level_label = Label(main_window, text='Min num of levels:')
+    min_level_label.grid(row=row_num, column=0)
+    min_level_entry = Entry(main_window)
+    min_level_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    max_level_label = Label(main_window, text='Max num of levels:')
+    max_level_label.grid(row=row_num, column=0)
+    max_level_entry = Entry(main_window)
+    max_level_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    step_level_label = Label(main_window, text='Levels step:')
+    step_level_label.grid(row=row_num, column=0)
+    step_level_entry = Entry(main_window)
+    step_level_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    block_len_label = Label(main_window, text='Length of rewrite block (min):')
+    block_len_label.grid(row=row_num, column=0)
+    block_len_entry = Entry(main_window)
+    block_len_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    block_len_max_label = Label(main_window, text='Length of rewrite block (max):')
+    block_len_max_label.grid(row=row_num, column=0)
+    block_len_max_entry = Entry(main_window)
+    block_len_max_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    loop_num_label = Label(main_window, text='Number of loops:')
+    loop_num_label.grid(row=row_num, column=0)
+    loop_num_entry = Entry(main_window)
+    loop_num_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    loop_length_label = Label(main_window, text='Length of loops (min):')
+    loop_length_label.grid(row=row_num, column=0)
+    loop_length_entry = Entry(main_window)
+    loop_length_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    loop_length_max_label = Label(main_window, text='Length of loops (max):')
+    loop_length_max_label.grid(row=row_num, column=0)
+    loop_length_max_entry = Entry(main_window)
+    loop_length_max_entry.grid(row=row_num, column=1)
     
-    def start_simulation():
+    def start_simulation_real_logs():
         aco_param = {}
         aco_param['COL_NUM'] = int(col_num_entry.get())
         aco_param['COL_NUM_MAX'] = int(col_num_max_entry.get())
@@ -165,14 +188,53 @@ def simulation_GUI():
         convert_input_pnml_to_hgr(io_param)
         # optimise existing hgr files
         optimise(io_param, aco_param)
+
+    def start_simulation_proc_gen():
+        aco_param = {}
+        aco_param['COL_NUM']        = int(col_num_entry.get())
+        aco_param['COL_NUM_MAX']    = int(col_num_max_entry.get())
+        aco_param['COL_NUM_STEP']   = int(col_num_step_entry.get())
+        aco_param['ANT_NUM']        = int(ant_num_entry.get())
+        aco_param['ANT_NUM_MAX']    = int(ant_num_max_entry.get())
+        aco_param['ANT_NUM_STEP']   = int(ant_num_step_entry.get())
+        aco_param['phero_tau']      = float(phero_tau_entry.get())
+        W_UTILITY = {'cost': float(cost_entry.get()), 'avail': float(avail_entry.get()),
+                     'qual': float(qual_entry.get()), 'time': float(time_entry.get())}
+        aco_param['W_UTILITY'] = W_UTILITY
+
+        gen_param = {}
+        gen_param['min_level']      = int(min_level_entry.get())
+        gen_param['max_level'] = int(max_level_entry.get())
+        gen_param['step_level']    = int(step_level_entry.get())
+        gen_param['block_len']     = int(block_len_entry.get())
+        gen_param['gen_loop_no']    = int(loop_num_entry.get())
+        gen_param['gen_loop_len']   = int(loop_length_entry.get())
+
+        # set up hg_gen param
+        gen_param['level_size_min'] = int(min_level_entry.get())
+        gen_param['level_size_max'] = int(max_level_entry.get())
+        gen_param['level_size_step'] = int(step_level_entry.get())
+
+        gen_param['block_size_min'] = int(block_len_entry.get())
+        gen_param['block_size_max'] = int(block_len_max_entry.get())
+        gen_param['loop_no_max'] = int(loop_num_entry.get())
+        gen_param['loop_length_min'] = int(loop_length_entry.get())
+        gen_param['loop_length_max'] = int(loop_length_max_entry.get())
+
+        sim_run_hgr_only(io_param, aco_param, gen_param)
+
     
     row_num += 1
-    start_button = Button(text = "start sim", command = start_simulation).grid(row = row_num, column = 1)
+    start_button_1 = Button(text = "START sim on real logs", command = start_simulation_real_logs).grid(row = row_num, column = 0)
+
+    row_num += 1
+    start_button_2 = Button(text="START sim artificial process generation", command=start_simulation_proc_gen).grid(row=row_num, column=0)
     
     mainloop()
     
 
 
 if __name__ == "__main__":
-    #test_window()
+
+
     simulation_GUI()

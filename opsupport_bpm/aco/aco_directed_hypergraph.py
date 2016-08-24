@@ -317,7 +317,6 @@ def escape_from_loop(current_node,next_edge,p,hg,used_edges):
     
     logger = logging.getLogger(__name__)
     delete_nodes_visited = []
-    delete_nodes_to_process = []
     safe_node_found = False
     # check if we can escape from current node
     curr_node_set = []
@@ -325,29 +324,30 @@ def escape_from_loop(current_node,next_edge,p,hg,used_edges):
     outgoings = hg.get_successors(curr_node_set)
     logger.debug("....successors of current node {1}: {0}".format(outgoings,current_node))
     outgoings = outgoings.remove(next_edge)
-    if not outgoings is None:
+    logger.debug("Used edges: {0}".format(used_edges))
+    logger.debug("Outgoings before: {0}".format(outgoings))
+    if outgoings is not None:
         outgoings.difference_update(used_edges)
-    if not outgoings is None:
+        logger.debug("Usable ougoings from current node: {0}".format(outgoings))
+    if outgoings is not None:
         logger.debug("..... Current node {0} has possible escape edge")
         new_edge = random.sample(set(outgoings),1)[0]
         used_edges.append(new_edge)
         logger.debug("..... Current node {0} has posible escape edge {1}".format(current_node,new_edge))
-        # TO DO: prepare the output to return
-        #p.remove_hyperedge(next_edge)
-        #delete_nodes_to_process.append(next_edge)
-        #p.remove_node(current_node)
-        #delete_nodes_visited.append(current_node)
-        safe_node = current_node
-        safe_node_found = True
         return new_edge, p, current_node, delete_nodes_visited
+
     current_node_set = []
     current_node_set.append(current_node)
     while not safe_node_found:
         # go back one node (with get predecessors - returns a set!)
-        ## curr_node_set = []
-        ## curr_node_set.append(current_node)
         logger.debug("....current node set: {0}".format(current_node_set))
-        prec_edge_set = p.get_predecessors(current_node_set)
+        #### prec_edge_set = p.get_predecessors(current_node_set)
+        prec_edge_set = set()
+        # get all the nodes in the backward stars
+        for node in current_node_set:
+            logger.debug("This is node in the for loop: {0}".format(node))
+            logger.debug("Backward star: {0}".format(p.get_backward_star(node)))
+            prec_edge_set = prec_edge_set.union(p.get_backward_star(node))
         logger.debug("..... set of predecessors to choose from: {0}".format(prec_edge_set))
         prec_edge_set.difference_update(used_edges)
         logger.debug("..... set of predecessors to choose from after used edges update: {0}".format(prec_edge_set))
@@ -365,8 +365,14 @@ def escape_from_loop(current_node,next_edge,p,hg,used_edges):
         logger.debug("...... Now in node {0}, looking for an escape".format(current_node_set))
         # remove edge used to go back
         # look for other forward edges
-        #forward_edges = hg.get_successors(current_node)
-        forward_edges = hg.get_successors(random.sample(set(current_node_set), 1))
+
+        #### forward_edges = hg.get_successors(random.sample(set(current_node_set), 1))
+        # look forward using all forward stars
+        forward_edges = set()
+        for node in current_node_set:
+            logger.debug("This is node in the for loop: {0}".format(node))
+            forward_edges = forward_edges.union(hg.get_forward_star(node))
+
         logger.debug("Forward edges to choose from: {0}".format(forward_edges))
         # remove edge used to go back from path p
         logger.debug("Removing hyperedge from path: ({0}, {1}, {2}) ".format(p_back_edge,p.get_hyperedge_tail(p_back_edge),p.get_hyperedge_head(p_back_edge)))
@@ -535,13 +541,16 @@ def aco_search_nonrec(hg):
 
         # check next node
         i += 1
+        logger.debug("Evaluating terminal condition - current node: {0}".format(current_node))
         current_node = nodes_to_process[i]
+        logger.debug("Evaluating terminal condition - next node: {0}".format(current_node))
         if current_node == end_node:
             if waiting == {}:
                 stop = True
                 logger.debug(" ===!!! Optimisation terminated at node: {0}".format(current_node))
             else:
                 logger.debug("Next node to process is end node, but I cannnot stop now....")
+                nodes_to_process.append(current_node)
                 i += 1
                 current_node = nodes_to_process[i]
                 logger.debug("==> continue, next node will be: {0}".format(current_node))

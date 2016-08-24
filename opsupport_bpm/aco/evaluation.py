@@ -19,6 +19,7 @@ from opsupport_bpm.models.hypergraph import tau_post_processing, reset_pheromone
 from opsupport_bpm.models.hypergraph_to_pnml import reduce_opt_path_pnet
 from opsupport_bpm.models.hypergraph_to_pnml import show_opt_path_pnet
 from opsupport_bpm.models.pnml_to_hypergraph import convert_pnet_to_hypergraph
+from opsupport_bpm.models.pnml_to_hypergraph import convert_to_hg_and_rw_pnml
 from opsupport_bpm.models.hypergraph import get_statistics
 from opsupport_bpm.util.print_hypergraph import read_hg_from_file,\
     write_hg_to_file, print_hg_std_out_only
@@ -38,8 +39,8 @@ def setup_conversion_pnet_to_hg(file_root, input_eval_dir, output_eval_dir):
     '''
     
     # extract root of pnml file: onet
-    pnet = get_pnml_tree(input_eval_dir, file_root).getroot()
-    
+    #pnet = get_pnml_tree(input_eval_dir, file_root).getroot()
+    file_name = input_eval_dir + "/" + file_root + ".pnml"
     
     # setup logger
     #logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.DEBUG)
@@ -49,7 +50,9 @@ def setup_conversion_pnet_to_hg(file_root, input_eval_dir, output_eval_dir):
     
     # STEP 1: convert pnet into hypergraph + tau post processing
     start_time_conv = time()
-    hg = convert_pnet_to_hypergraph(pnet)
+
+    hg = convert_to_hg_and_rw_pnml(file_name)
+
     end_time_conv = time()
     conv_pnet_to_hg_time = end_time_conv - start_time_conv
     print("{1}: Conversion Petri net to hypergraph took: {0}s".format(conv_pnet_to_hg_time, file_root))
@@ -68,7 +71,7 @@ def setup_conversion_pnet_to_hg(file_root, input_eval_dir, output_eval_dir):
     
     
     
-def do_one_run(hg, COL_NUM, ANT_NUM, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir):
+def sim_run_pnml_files(hg, COL_NUM, ANT_NUM, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir):
     '''
     
     :param hg:
@@ -226,7 +229,7 @@ def optimise(io_param, aco_param):
                 # loop on ants within colonies
                 for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
                     # possible loop on phero_tau (nest here)
-                    aco_result = do_one_run(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
+                    aco_result = sim_run_pnml_files(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
                     aco_alg_time = aco_result[0] 
                     pnet_post_time = aco_result[1]
                     utility = aco_result[2]
@@ -301,7 +304,7 @@ def convert_and_optimise(io_param, aco_param):
                 # loop on ants within colonies
                 for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
                     # possible loop on phero_tau (nest here)
-                    aco_result = do_one_run(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
+                    aco_result = sim_run_pnml_files(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
                     aco_alg_time = aco_result[0] 
                     pnet_post_time = aco_result[1]
                     utility = aco_result[2]

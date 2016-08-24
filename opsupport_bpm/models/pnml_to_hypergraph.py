@@ -143,6 +143,13 @@ def convert_pnet_to_hypergraph_andgatewayonly(pnet):
     return hg
 
 """ """
+
+def get_pnml_tree(input_eval_dir, file_root):
+    pnml_file = input_eval_dir+"/"+file_root+".pnml"
+    tree = ET.parse(pnml_file)
+    return tree
+
+
 def tau_pre_processing_pnet(pnet):
     """
     required pre-processing of tau transitiosn created by inductive miner
@@ -173,6 +180,9 @@ def tau_pre_processing_pnet(pnet):
             logger.debug("Pre processing, updating tau start transition: {0}".format(get_transition_name(transition)))
             set_transition_name(transition, 'tau start'+str(l))
             l = l+1
+    # TO-DO
+    # write this in the file
+    return pnet
 
 
 
@@ -364,7 +374,8 @@ def convert_pnet_to_hypergraph(pnet):
 """ ========================================================================"""    
 """ ================== main() ================================================="""
 """ some testing """
-      
+
+
 def main():
     logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://BPMNexamples/aco.log',level=logging.DEBUG)
     logger = logging.getLogger(__name__)
@@ -420,9 +431,28 @@ def main():
 
 #Upload to graphspace (doesn't work, but it prints json that can be uploaded :)
 #upload_graphspace("mcomuzzi@unist.ac.kr", "Uniqlo4321", "test", dg, "test001", "hyp_file.json")
+
+def convert_to_hg_and_rw_pnml(file_name):
+    # get the pnet root element
+    tree = ET.parse(file_name)
+    pnet = tree.getroot()
+
+    # pre process pnet and rewrite to file
+    pnet = tau_pre_processing_pnet(pnet)
+    tree.write(file_name, encoding='utf-8')
+
+    hg = convert_pnet_to_hypergraph(pnet)
+    return hg
+
+
     
 if __name__ == "__main__":
-    main()
+
+    file_name = 'C://opsupport_bpm_files/eval/input_files/bpi_challenge2012.pnml'
+
+    hg = convert_to_hg_and_rw_pnml(file_name)
+
+
 
 
 

@@ -38,7 +38,7 @@ def cleanup(input_eval_dir, output_eval_dir):
 #         file_name = output_eval_dir + "/pnml/" + f
 #         os.remove(file_name)
 
-def main_loop(io_param, aco_param, hg_gen_param):
+def sim_run_hgr_only(io_param, aco_param, hg_gen_param):
     # read parameters
     # set up working directory
     working_dir = io_param['working_dir']
@@ -92,7 +92,7 @@ def main_loop(io_param, aco_param, hg_gen_param):
             file_name = input_eval_dir + '/' + file_name
             hg = read_hg_from_file(file_name)
             hg_stats = get_statistics(hg)
-            perf_file_name = output_eval_dir + '/' + file_root + '.txt'
+            perf_file_name = output_eval_dir + '/performance/' + file_root + '.txt'
             perf_file = open(perf_file_name, 'w')
             line = 'FILE_ROOT' + sep + 'COL_NUM' + sep + 'ANT_NUM' + sep + 'UTILITY' + sep + 'EXEC_TIME' +  sep + 'ACT' + sep + 'TRANS' + sep + 'XOR-JOINS' + sep + 'XOR-SPLITS'
             perf_file.write(line)
@@ -166,4 +166,4 @@ if __name__ == "__main__":
     hg_gen_param['loop_length_max'] = 5
     
     
-    main_loop(io_param, aco_param, hg_gen_param)
+    sim_run_hgr_only(io_param, aco_param, hg_gen_param)
