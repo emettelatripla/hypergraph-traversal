@@ -5,15 +5,13 @@ Created on Aug 7, 2016
 '''
 
 import logging
-
-from opsupport_bpm.aco.aco_misc import random_generate_hg, add_random_loops
-from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
-    print_hg_std_out_only, read_hg_from_file
-from opsupport_bpm.aco.evaluation import optimise
-from opsupport_bpm.aco.evaluation import cleanup
 from time import time
 
 from opsupport_bpm.aco.aco_directed_hypergraph import aco_algorithm_norec
+from opsupport_bpm.aco.aco_misc import random_generate_hg, add_random_loops
+from opsupport_bpm.aco.simulation.simulation_pnml_only import cleanup
+from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
+    print_hg_std_out_only
 
 
 def do_one_run(io_param, aco_param, hg_gen_param):

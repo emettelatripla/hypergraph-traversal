@@ -4,23 +4,16 @@ Created on 2016. 8. 16.
 @author: UNIST
 '''
 
-
-from tkinter import *
-import sys
 import logging
+from tkinter import *
 
-from opsupport_bpm.aco.evaluation import cleanup
-from opsupport_bpm.aco.evaluation import convert_and_optimise
-from opsupport_bpm.aco.evaluation import optimise
-from opsupport_bpm.aco.evaluation import convert_input_pnml_to_hgr
-from opsupport_bpm.aco.aco_misc import random_generate_hg
-from opsupport_bpm.aco.aco_misc import add_random_loops
-from opsupport_bpm.util.print_hypergraph import write_hg_to_file
-from opsupport_bpm.aco.evaluation_hgr_only import sim_run_hgr_only
+from opsupport_bpm.aco.simulation.simulation_hgr_only import sim_run_hgr_only
+
+from opsupport_bpm.aco.simulation.simulation_pnml_only import cleanup
+from opsupport_bpm.aco.simulation.simulation_pnml_only import convert_input_pnml_to_hgr
+from opsupport_bpm.aco.simulation.simulation_pnml_only import optimise
 
 
-
-    
 def simulation_GUI():
     
     # set working directory (not modificable using GUI
@@ -37,8 +30,8 @@ def simulation_GUI():
     cleanup(output_eval_dir)
     
     # set logger
-    log_file = io_param['log']
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.WARNING)
+    #log_file = io_param['log']
+    #logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file,level=logging.WARNING)
     
     # initialise main window
     main_window = Tk()
@@ -229,7 +222,36 @@ def simulation_GUI():
 
     row_num += 1
     start_button_2 = Button(text="START sim artificial process generation", command=start_simulation_proc_gen).grid(row=row_num, column=0)
-    
+
+    row_num += 1
+    Label(main_window, text='Select log level').grid(row=row_num, column=0)
+
+    def sel():
+        log_level = var.get()
+        if log_level == "DEBUG":
+            log_level = logging.DEBUG
+        elif log_level == "INFO":
+            log_level = logging.INFO
+        elif log_level == "WARNING":
+            log_level = logging.WARNING
+        print("Log level set to : {0}".format(log_level))
+        # set logger
+        log_file = io_param['log']
+        logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename=log_file, level=log_level)
+
+
+    var = StringVar()
+
+    row_num += 1
+    r1 = Radiobutton(text="DEBUG", variable=var, value="DEBUG", command=sel)
+    r1.grid(row=row_num, column=0)
+    r2 = Radiobutton(text="INFO", variable=var, value="INFO", command=sel)
+    r2.grid(row=row_num, column=1)
+    r3 = Radiobutton(text="WARNING", variable=var, value="WARNING", command=sel)
+    r3.grid(row=row_num, column=2)
+
+
+
     mainloop()
     
 
