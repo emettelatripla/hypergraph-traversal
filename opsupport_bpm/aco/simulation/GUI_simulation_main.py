@@ -39,7 +39,7 @@ def simulation_GUI():
     
     row_num = 0
     
-    Label(main_window, text = 'ACO Parameters - Colonies').grid(row = row_num, column = 0)
+    Label(main_window, text = '=== ACO Parameters - Colonies (required) ===').grid(row = row_num, column = 0)
     
     row_num += 1
     col_num_label = Label(main_window, text = 'Number of colonies (min):')
@@ -60,7 +60,7 @@ def simulation_GUI():
     col_num_step_entry.grid(row = row_num, column = 1)
     
     row_num += 1
-    Label(main_window, text = 'ACO Parameters - Ants').grid(row = row_num, column = 0)
+    Label(main_window, text = '=== ACO Parameters - Ants (required) ===').grid(row = row_num, column = 0)
     
     row_num += 1
     ant_num_label = Label(main_window, text = 'Number of ants (min):')
@@ -87,7 +87,7 @@ def simulation_GUI():
     phero_tau_entry.grid(row = row_num, column = 1)
     
     row_num += 1
-    Label(main_window, text = 'Utility').grid(row = row_num, column = 0)
+    Label(main_window, text = '=== Utility (required) ===').grid(row = row_num, column = 0)
     
     row_num += 1
     cost_label = Label(main_window, text = 'Weight of cost:')
@@ -114,7 +114,7 @@ def simulation_GUI():
     qual_entry.grid(row = row_num, column = 1)
 
     row_num += 1
-    Label(main_window, text='Artificial process generation').grid(row=row_num, column=0)
+    Label(main_window, text='---- Artificial process generation (fill only if using artificially generated processes) ---').grid(row=row_num, column=0)
 
     row_num += 1
     min_level_label = Label(main_window, text='Min num of levels:')
@@ -216,16 +216,6 @@ def simulation_GUI():
 
         sim_run_hgr_only(io_param, aco_param, gen_param)
 
-    
-    row_num += 1
-    start_button_1 = Button(text = "START sim on real logs", command = start_simulation_real_logs).grid(row = row_num, column = 0)
-
-    row_num += 1
-    start_button_2 = Button(text="START sim artificial process generation", command=start_simulation_proc_gen).grid(row=row_num, column=0)
-
-    row_num += 1
-    Label(main_window, text='Select log level').grid(row=row_num, column=0)
-
     def sel():
         log_level = var.get()
         if log_level == "DEBUG":
@@ -243,12 +233,24 @@ def simulation_GUI():
     var = StringVar()
 
     row_num += 1
+    Label(main_window, text='=== Select log level (mandatory) ===').grid(row=row_num, column=0)
+
+    row_num += 1
     r1 = Radiobutton(text="DEBUG", variable=var, value="DEBUG", command=sel)
     r1.grid(row=row_num, column=0)
     r2 = Radiobutton(text="INFO", variable=var, value="INFO", command=sel)
     r2.grid(row=row_num, column=1)
     r3 = Radiobutton(text="WARNING", variable=var, value="WARNING", command=sel)
     r3.grid(row=row_num, column=2)
+
+    row_num += 1
+    start_button_1 = Button(text="START sim on pnml files in input folder", command=start_simulation_real_logs).grid(
+        row=row_num, column=0)
+
+    row_num += 1
+    start_button_2 = Button(text="START sim on artificially generated processes",
+                            command=start_simulation_proc_gen).grid(
+        row=row_num, column=0)
 
 
 

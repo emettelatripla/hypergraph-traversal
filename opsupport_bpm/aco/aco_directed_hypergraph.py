@@ -54,89 +54,6 @@ def get_start_end_node(hg):
 
 
 
-# node_set: the source node set (only one node in process models)
-# hg: the process model (hypergraph)
-#ANT_NUM number of ants in one colony
-#COL_NUM number of colonies
-#tau: pheromone evaporation coefficient 
-#W_UTILITY: weights of the utility function
-def aco_algorithm(start_node_set, hg, ANT_NUM, COL_NUM, tau, W_UTILITY):
-    '''
-    WORKS ONLY WITH RECURSIVE ACO SEARCH !!!
-    Main procedure for aco optimisation of hypergraph
-    :param start_node_set: the set of starting nodes
-    :param hg: hypergraphs
-    :param ANT_NUM: number of ants in one colony
-    :param COL_NUM: number of colonies
-    :param tau: pheromone evaporation coefficient
-    :param W_UTILITY: dictionary of utility weights, e.g. (cost : 0.2, avail : 0.2, qual : 0.2, time : 0.4)
-    '''
-    # check start and end nodes in hg
-    logger = logging.getLogger(__name__)
-    #logger.debug("Start and end node found, begin optimisation: {0} - {1}".format(start_node,end_node))
-    #set the values of the utility function weights
-    W_COST = W_UTILITY['cost']
-    W_AVAIL = W_UTILITY['avail']
-    W_QUAL = W_UTILITY['qual']
-    W_TIME = W_UTILITY['time']
-    #setup the logger
-    #logging.basicConfig(filename='aco.log',level=logging.INFO)
-    #currently optimal path
-    p_opt = DirectedHypergraph()
-    utility_opt = 0.0
-    #counters for colony
-    col = 0
-    while col < COL_NUM:
-        #counter for ant number
-        ant = 0
-        logger.info("--- Processing COLONY n. {0} -------------------".format(col))
-        #h_graph to store partial pheromone update
-        hg_phero = hg.copy()
-        #do something
-        p = DirectedHypergraph()
-        #add source node to optimal path (and its attributes)
-        for node in start_node_set:
-            p.add_node(node, hg.get_node_attributes(node))
-        while ant < ANT_NUM:
-            logger.info("----- Processing COLONY n. {1}, ANT n. {0} -----------------".format(ant, col))
-            p = DirectedHypergraph()
-            #add source node to optimal path (and its attributes)
-            for node in start_node_set:
-                p.add_node(node, hg.get_node_attributes(node))
-            """ call aco_search on p"""
-            # recursive
-            visited = []
-            p = aco_search(p, hg, start_node_set, 0, visited)
-            # non recursive
-            #p = aco_search_norec(p, hg, start_node_set)
-            #PRINT CURRENT OPTIMAL PATH
-            print_hg_std_out_only(p)
-            #calculate utility of p
-            utility = calculate_utility(p, W_COST, W_TIME, W_QUAL, W_AVAIL)
-            #do partial pheromone update
-            partial_phero_update(hg_phero, p, W_COST, W_TIME, W_QUAL, W_AVAIL)
-            #check if p is better than current optimal solution
-            #update if p is optimal
-            logger.debug("-------- Utility of current path: {0} ----------------------".format(utility))
-            logger.debug("-------- Current OPTIMAL UTILITY: {0} ----------------------".format(utility_opt))
-            if utility > utility_opt:
-                utility_opt = utility
-                p_opt = p
-                logger.info("----------------- ***** optimal path updated!!! *****---------------")
-            ant = ant + 1
-            #pheromone update
-            #TBC TBC
-        col = col + 1
-        #actual pheromone update after processing an entire colony
-        final_phero_update(hg, p_opt, tau)
-    #do something else
-    logger.info("********** OPTIMAL PATH FOUND ******************")
-    print_hg_std_out_only(p_opt)
-    logger.info("****** UTILITY: "+str(calculate_utility(p_opt, W_COST, W_TIME, W_QUAL, W_AVAIL)))
-    logger.info("***********************************************")
-    return p_opt
-
-
 def post_process_loop_escape(p_opt):
     '''
     NON RECURSIVE ACO
@@ -281,22 +198,6 @@ def add_head_to_nodes_to_process(edge, hg, nodes_to_process):
     logger.debug("Node to process: {0}".format(nodes_to_process))      
     return nodes_to_process
 
-""" used by escape from loop to delete all nodes not connected after deleting p_back_edge"""
-def safe_remove_edge(p, p_back_edge):
-    '''
-    remove an edge from a path
-    :param p: path
-    :param p_back_edge: edge
-    '''
-    #logger = logging.getLogger(__name__)
-    #back_tail = p.get_hyperedge_tail(p_back_edge)
-    #back_head = p.get_hyperedge_head(p_back_edge)
-    # we are going back, so only head may remain disconnected
-    p.remove_hyperedge(p_back_edge)
-    #for node in back_head:
-    #    logger.debug("Undoing edge {1}, removing node from path: {0}".format(node,p_back_edge))
-    #    p.remove_node(node)
-    return p
 
 def escape_from_loop(current_node,next_edge,p,hg,used_edges):
     '''
@@ -579,99 +480,7 @@ def aco_search_nonrec(hg):
     return p
         
 
-""" recursive version of aco_search """
-#start_node_set: current position (can be a set of nodes) in the search
-#p: current path
-#hg: process model
-# depth : just to pretty print with indentation
-# list of nodes visited so far
-def aco_search(p, hg, node_set, depth, visited):
-    '''
-    RECURSIVE VERSION OF ACO SEARCH !!! DOES NOT WORK ON HYPERGRAPHS WITH LOOPS
-    :param p: current (partial) optimal path
-    :param hg: hypergraph
-    :param node_set: current set of nodes explored by ant
-    :param depth: levels of recursion
-    :param visited: set of visited nodes in aco
-    '''
-    logger = logging.getLogger(__name__)
-    visited = []
-    visited.append(node_set)
-    #select next hyperedge from node according to pheromone distribution
-    edge_set = set()
-    for node in node_set:
-        edge_set = set.union(edge_set,hg.get_forward_star(node))
-    #select edge based on value of pheromone attribute (and add h_edge to current solution
-    next_edge = phero_choice(edge_set, hg, visited)
-    """ if phero choice returns None, then it means "go-back" """
-    """ go back until you find an edge that you can follow """
-    while next_edge == None:
-        # get the list of incoming edges
-        prec_edges = p.get_predecessors(node_set)
-        logger.debug("+++ NODE SET: {0} ...".format(str(node_set)))
-        # choose one randomly
-        prec_edge = random.sample(prec_edges,1)
-        logger.debug("+++ Go back using edge: {0} ...".format(str(prec_edge[0])))
-        # get the tail and call phero choice without the prec_edge chosen!
-        search_tail = p.get_hyperedge_tail(prec_edge[0])
-        logger.debug("+++ Going back, visiting node(s): {0} ...".format(str(search_tail)))
-        # get the edges outgoing from tail (forward star)
-        search_edges = hg.get_successors(search_tail)
-        # remove prec_edge from forward star
-        logger.debug("+++ Going back: remove edge {0} from edge list {1} ...".format(str(prec_edge[0]), str(search_edges)))
-        search_edges.remove(prec_edge[0])
-        logger.debug("+++ Going back using edge: {0} ...".format(str(search_edges)))
-        # call phero choice
-        if search_edges == set():
-            # go back, no available edges to explore
-            next_edge = None
-            logger.debug("+++ Going back one level more, no edges available".format(str(next_edge)))
-        else:
-            next_edge = phero_choice(search_edges, hg, visited)
-            logger.debug("+++ Found new unexplored edge: {0} ...".format(str(next_edge)))
-        if next_edge == None:
-            #get ready to loop again
-            node_set = search_tail
-        # (remember to loop back if no prec_edges are available to be chosen)
-    tail = hg.get_hyperedge_tail(next_edge)
-    head = hg.get_hyperedge_head(next_edge)
-    attrs = hg.get_hyperedge_attributes(next_edge)
-    #print_hyperedge(next_edge, hg)
-    #get the id of the next_edge and use it as id of new edge in p
-    edge_id = next_edge
-    attrs.update({'id' : edge_id})
-    phero_value = attrs['phero']
-    #add selected hyperedge/node to p
-    p.add_hyperedge(tail, head, attrs)
-    next_head = hg.get_hyperedge_head(next_edge)
-    for node in next_head:
-        p.add_node(node, hg.get_node_attributes(node))
-    #must add also all nodes in the tail (i fnot already)
-    next_tail = hg.get_hyperedge_tail(next_edge)
-    for node in next_tail:
-        p.add_node(node, hg.get_node_attributes(node))
-    #if new node added is sink, then return p
-    isSink = False
-    print(1*depth*"-"+"+++ nodes to call: {0}".format(next_head))
-    logger.debug("~~~~ Inspecting head of chosen edge - phero value: {0}".format(phero_value))
-    for node in next_head:
-        if hg.get_node_attribute(node,'sink') == True:
-            #print(2*depth*"-"+"--- STOP ---: {0}".format(str(node)))
-            isSink = True
-            logger.debug("~~~~ STOPPING AT: {0}, {1}".format(node, hg.get_node_attribute(node,'sink')))
-        #if isSink == False:
-        else:
-            #print(2*depth*"-"+"CALLING ACO SEARCH on: {0}".format(str(node)))
-            #p = aco_search(p, hg, next_head, depth+1)
-            node_s = []
-            node_s.append(node)
-            # store the node as visited
-            #print(str(depth+1))
-            # avoid loops by chekcing if node has been visited already
-            #if node_s not in visited:
-            p = aco_search(p, hg, node_s, depth+1, visited)
-    #else recursive call
-    return p
+
 
 
 
