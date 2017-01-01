@@ -17,7 +17,9 @@ from halp.directed_hypergraph import DirectedHypergraph
 from opsupport_bpm.util.print_hypergraph import print_hg_std_out_only
 
 
-
+def smartchoice():
+    # function added to test branches
+    pass
 
 def reset_pheromone(hg):
     '''
