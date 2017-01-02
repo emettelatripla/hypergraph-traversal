@@ -14,12 +14,65 @@ import logging
 import sys
 
 from halp.directed_hypergraph import DirectedHypergraph
-from opsupport_bpm.util.print_hypergraph import print_hg_std_out_only
 
 
-def smartchoice():
-    # function added to test branches
-    pass
+
+def smartchoice_attribute(hg: DirectedHypergraph, node, choice_attr, options):
+    """
+    Extends a node with an attribute-based smartchoice.
+    The values of a "choice_attr" determine which edge will be chosen by ants
+    :param node: the node in hg to be extended
+    :param choice_attr: the attribute guiding the choice
+    :param options: a dictionary of the type {attribute_value : output_edgge_id}
+    :return:
+    """
+    logger = logging.getLogger(__name__)
+    logger.debug("Extending for attribute-based smartchoice node: {0}".format(node))
+    # check if node exists
+    if hg.has_node(node):
+        logger.debug("Node found: {0}".format(node))
+        old_attrs = hg.get_node_attributes(node)
+        # extend node with smartchoice attributes
+        hg.add_node(node, old_attrs, choice_attr=choice_attr, opt_dict=options, smartchoice=True, smart_attribute=True)
+        logger.debug("Node extended")
+    else:
+        logger.error("Node to extend with smartchoice not found: {0}".format(node))
+    # extend node
+    # return hg
+    return hg
+
+def smartchoice_node(hg: DirectedHypergraph, node, edge_probabilities):
+    """
+    Extends a node with a node-based smartchoice
+    :param hg:
+    :param node:
+    :param probabilities: a dictionary of the probabilities with which ants will chose outgoing edges
+    :return:
+    """
+    logger = logging.getLogger(__name__)
+    logger.debug("Extending for node-based smartchoice node: {0}".format(node))
+    if hg.has_node(node):
+        logger.debug("Node found: {0}".format(node))
+        old_attrs = hg.get_node_attributes(node)
+        # extend node with smartchoice attributes
+        hg.add_node(node, old_attrs, edge_prob=edge_probabilities, smartchoice=True, smart_node=True)
+        logger.debug("Node extended")
+    else:
+        logger.error("Node to extend with smartchoice not found: {0}".format(node))
+    return hg
+
+def smartchoice_service(hg: DirectedHypergraph, node, service_uri, options):
+    logger = logging.getLogger(__name__)
+    logger.debug("Extending for service-based smartchoice node: {0}".format(node))
+    if hg.has_node(node):
+        logger.debug("Node found: {0}".format(node))
+        old_attrs = hg.get_node_attributes(node)
+        # extend node with smartchoice attributes
+        hg.add_node(node, old_attrs, uri=service_uri, opt_dict=options, smartchoice=True, smart_service=True)
+        logger.debug("Node extended")
+    else:
+        logger.error("Node to extend with smartchoice not found: {0}".format(node))
+    return hg
 
 def reset_pheromone(hg):
     '''
@@ -192,4 +245,8 @@ def print_statistics(hg):
     print(str(get_statistics(hg)))
 
 
-    
+
+
+
+if __name__ == "__main__":
+    pass

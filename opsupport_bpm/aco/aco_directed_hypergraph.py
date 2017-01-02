@@ -157,6 +157,7 @@ def aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY):
     UTILITY = calculate_utility(p_opt, W_COST, W_TIME, W_QUAL, W_AVAIL)
     logger.info("****** UTILITY: "+str(UTILITY))
     logger.info("***********************************************")
+    logger.warning("Is BF-path: {0}".format(p_opt.is_BF_hypergraph()))
     return (p_opt, UTILITY)
 
 def add_edge(p,hg,edge):

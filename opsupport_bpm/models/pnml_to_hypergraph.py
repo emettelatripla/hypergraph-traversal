@@ -17,6 +17,10 @@ from opsupport_bpm.models.hypergraph import print_statistics
 from opsupport_bpm.models.hypergraph import number_of_start_events
 from opsupport_bpm.models.hypergraph import number_of_end_events
 
+from opsupport_bpm.models.hypergraph import smartchoice_attribute, smartchoice_node, smartchoice_service
+
+import sys
+
 """" 
 ============================================================
 useful functions to process pnml files
@@ -367,8 +371,6 @@ def convert_pnet_to_hypergraph(pnet):
 
 
 
-
-
 """ ========================================================================"""
 """ ========================================================================"""    
 """ ========================================================================"""    
@@ -445,12 +447,57 @@ def convert_to_hg_and_rw_pnml(file_name):
     return hg
 
 
+
+def test_smartchoice():
+    # setup the logger
+    log = logging.getLogger('')
+    log.setLevel(logging.DEBUG)
+    format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(format)
+    log.addHandler(ch)
+
+    logger = logging.getLogger(__name__)
+
+    # example file
+    file_name = 'C://opsupport_bpm_files/pnml_input/inductive/ex2_inductive.pnml'
+    tree = ET.parse(file_name)
+    pnet = tree.getroot()
+
+    # convert pnml to hypergraph
+    hg = convert_pnet_to_hypergraph(pnet)
+
+    nodes = hg.get_node_set()
+    for node in nodes:
+        logger.info("New node found: {0}, {1}".format(node, hg.get_node_attributes(node)))
+
+    edges = hg.get_forward_star('n1')
+    logger.info("{0}".format(edges))
+
+
+    logger.info("DOING SMARTCHOICE EXTENSION....")
+    hg = smartchoice_attribute(hg,'n1','choice_variable',{'John': 'e1', 'James': 'e2'})
+
+    hg = smartchoice_node(hg, 'A', {'e1': 0.7, 'e2': '0.3'})
+
+    hg = smartchoice_service(hg, 'E', 'some_uri', {'gold': 'e1', 'silver': 'e2'})
+
+    nodes = hg.get_node_set()
+    for node in nodes:
+        logger.info("New node found: {0}, {1}".format(node, hg.get_node_attributes(node)))
+    edges = hg.get_forward_star('n1')
+    logger.info("{0}".format(edges))
+
+
     
 if __name__ == "__main__":
 
-    file_name = 'C://opsupport_bpm_files/eval/input_files/bpi_challenge2012.pnml'
+    #file_name = 'C://opsupport_bpm_files/eval/input_files/bpi_challenge2012.pnml'
 
-    hg = convert_to_hg_and_rw_pnml(file_name)
+    #hg = convert_to_hg_and_rw_pnml(file_name)
+
+    test_smartchoice()
 
 
 
