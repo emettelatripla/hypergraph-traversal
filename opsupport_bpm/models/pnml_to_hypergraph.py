@@ -223,7 +223,7 @@ def convert_pnet_to_hypergraph(pnet):
                 isSink = True
                 logger.debug(" %%%% Found END node %%%%")
             logger.debug("STEP 1 - Creating xor-join node -- {0}".format(node_id))
-            hg.add_node(node_id, source = isSource, sink = isSink, type = 'xor-join', name = " ")
+            hg.add_node(node_id, source = isSource, sink = isSink, type = 'xor-join', name = " ", smartchoice = False, smart_node = False, smart_service = False, smart_attribute=False)
             head = []
             head.append(node_id)
             isSink = False
@@ -233,7 +233,7 @@ def convert_pnet_to_hypergraph(pnet):
                 node_id2 = get_id(get_element(get_arc_source(arc), pnet))
                 node_name = get_transition_name(get_element(get_arc_source(arc), pnet))
                 logger.debug("STEP 1 - Creating transition node -- {0} -- {1}".format(node_id, node_name))
-                hg.add_node(node_name, source = isSource, sink = isSink, type = 'transition', name = node_name)
+                hg.add_node(node_name, source = isSource, sink = isSink, type = 'transition', name = node_name, smartchoice = False, smart_node = False, smart_service = False, smart_attribute=False)
                 tail = []
                 tail.append(node_name)
                 #create hyperedge
@@ -250,7 +250,7 @@ def convert_pnet_to_hypergraph(pnet):
                     logger.debug(" %%%% Found START node %%%%")
                     isSource = True
                 logger.debug("STEP 1 - Creating xor-split node -- {0}".format(node_id))
-                hg.add_node(node_id, source = isSource, sink = isSink, type = 'xor-split', name = " ")
+                hg.add_node(node_id, source = isSource, sink = isSink, type = 'xor-split', name = " ", smartchoice = False, smart_node = False, smart_service = False, smart_attribute=False)
                 #create node for all targets of outgoing arcs
                 isSink = False
                 isSource = False
@@ -259,7 +259,7 @@ def convert_pnet_to_hypergraph(pnet):
                     node_name = get_transition_name(get_element(get_arc_target(arc),pnet))
                     if(not hg.has_node(node_id2)):
                         logger.debug("STEP 1 - Creating transition node -- {0} -- {1}".format(node_id, node_name))
-                        hg.add_node(node_name, source = isSource, sink = isSink, type = 'transition', name = node_name)
+                        hg.add_node(node_name, source = isSource, sink = isSink, type = 'transition', name = node_name, smartchoice = False, smart_node = False, smart_service = False, smart_attribute=False)
                     head = []
                     head.append(node_name)
                     #create hyperedge
@@ -290,7 +290,7 @@ def convert_pnet_to_hypergraph(pnet):
                 logger.debug("%%%%%% Transition is END: {0}".format(get_transition_name(transition)))
         #create node in hypergraph
         logger.debug("STEP 2 - Creating transition node")
-        hg.add_node(get_transition_name(transition), source = isSource, sink = isSink, type = 'transition', name = get_transition_name(transition))
+        hg.add_node(get_transition_name(transition), source = isSource, sink = isSink, type = 'transition', name = get_transition_name(transition), smartchoice = False, smart_node = False, smart_service = False, smart_attribute=False)
         #look BACKWARD 
         if not isSource:
             inc_arcs = get_incoming_arcs(transition,pnet)

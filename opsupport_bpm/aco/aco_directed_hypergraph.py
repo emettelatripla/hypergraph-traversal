@@ -21,6 +21,8 @@ from opsupport_bpm.aco.aco_pheromone import phero_choice_single_node
 from opsupport_bpm.aco.aco_utility import calculate_utility
 from opsupport_bpm.util.print_hypergraph import print_hg_std_out_only
 
+import requests
+
 
 #setup logger
 def get_start_end_node(hg):
@@ -126,7 +128,11 @@ def aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY):
             # recursive
             #visited = []
             #p = aco_search(p, hg, start_node_set, 0, visited)
-            p = aco_search_nonrec(hg)
+
+            # SET ATTRIBUTE OF THIS ANT
+            ant_attrs = None
+
+            p = aco_search_nonrec(hg, ant_attrs)
             # non recursive
             #p = aco_search_norec(p, hg, start_node_set)
             #PRINT CURRENT OPTIMAL PATH
@@ -298,11 +304,14 @@ def escape_from_loop(current_node,next_edge,p,hg,used_edges):
     return None
 
 
-def aco_search_nonrec(hg):
+def aco_search_nonrec(hg, ant_attributes):
     '''
     NON RECURSIVE
     non-recursive version of aco search (breadth-first exploring of the hypergraph)
     simulates the behaviour of one single ant and returns the optimal path discovered by that ant
+
+    Extended with SMARTCHOICE
+
     :param hg: hypergraph
     '''
 
@@ -344,9 +353,68 @@ def aco_search_nonrec(hg):
     while not stop:
         logger.debug("============= VISITING NEXT NODE: --- {0} ---- ========================".format(current_node))
         f_edge_set = hg.get_forward_star(current_node)
-        # choose next edge randomly based on pheromone distribution
-        next_edge = phero_choice_single_node(f_edge_set, hg)
-        logger.debug("==> Next edge chosen: {0}".format(next_edge))
+
+        # choose next edge based on smartchoice or pheromone distribution
+        next_edge = None
+        is_smartchoice = hg.get_node_attribute(current_node, 'smartchoice')
+        if is_smartchoice == True:
+            # do something with smartchoice
+            is_smart_attr, is_smart_node, is_smart_service = hg.get_node_attribute(current_node, 'smart_attribute'), hg.get_node_attribute(current_node, 'smart_node'), hg.get_node_attribute(current_node, 'smart_service')
+            if  is_smart_attr == True:
+                # select next edge based on ATTRIBUTE smartchoice
+                # TO BE COMPLETED
+                logger.debug("Choosing next node using smart_attribute...")
+                # retrieve the attribute value required for the choice at this node
+                choice_attr = hg.get_node_attribute(current_node, 'choice_attr')
+                attr_value = ant_attributes[choice_attr]
+                logger.debug("Attribute - {0} - value: {1}".format(choice_attr, attr_value))
+                # choose next edge
+                opt_dict = hg.get_node_attribute(current_node, 'opt_dict')
+                next_edge = opt_dict[attr_value]
+                logger.debug("==> Next edge chosen (using smart_attribute) is: {0}".format(next_edge))
+            elif is_smart_node == True:
+                # select next edge based on NODE smartchoice
+                # idea: reuse pherochoice with a copy edge_set that uses probailities read from the node instead of phero levels
+                logger.debug("Choosing next node using smart_node...")
+                f_edge_set_copy = f_edge_set
+                # extract one random number between 0.1
+                random_v = random.random()
+                # build dict of probabilities
+                edge_prob_cumul = {}
+                total = 0
+                for edge in f_edge_set_copy:
+                    edge_prob = hg.get_node_attribute(current_node, 'edge_prob')[edge]
+                    edge_prob_cumul[edge] = total + edge_prob
+                    total += edge_prob
+                for edge in edge_prob_cumul:
+                    if random_v <= edge_prob_cumul[edge]:
+                        next_edge = edge
+                        break
+                logger.debug("Next edge phero level is: {0}".format(hg.get_hyperedge_attribute(next_edge, 'phero')))
+                logger.debug("==> Next edge chosen (using smart_node) is: {0}".format(next_edge))
+            elif is_smart_service == True:
+                logger.debug("Choosing next node using smart_service...")
+                # select next edge based on SERVICE smartchoice
+                # get the service URI
+                service_uri = hg.get_node_attribute(current_node, 'uri')
+                logger.debug("Invoking service at: {0}".format(service_uri))
+                # call the service
+                response = requests.get(service_uri)
+                ret_value = response.json()['ret_value']
+                logger.debug("returned value: {0}".format(ret_value))
+                # decide next edge based on the returned value
+                edge_list = hg.get_node_attribute(current_node, 'opt_dict')
+                next_edge = edge_list[ret_value]
+                logger.debug("==> Next edge chosen (using smart_service) is: {0}".format(next_edge))
+        else:
+            next_edge = phero_choice_single_node(f_edge_set, hg)
+            logger.debug("==> Next edge chosen using traditional pheromone: {0}".format(next_edge))
+        # check if next_edge chosen with pheromone is different
+        # REMOVE FOR SIMULATION
+        if is_smartchoice:
+            phero_edge = phero_choice_single_node(f_edge_set, hg)
+            logger.debug("==> Next would be edge (chosen using pheromone): {0}".format(phero_edge))
+
         # look in the head of chosen next edge
         next_head = hg.get_hyperedge_head(next_edge)
         # if a node in next edge has already been visited, then we might be an a loop....check

@@ -11,7 +11,7 @@ from opsupport_bpm.aco.aco_directed_hypergraph import aco_algorithm_norec
 from opsupport_bpm.aco.aco_misc import random_generate_hg, add_random_loops
 from opsupport_bpm.aco.simulation.simulation_pnml_only import cleanup
 from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
-    print_hg_std_out_only
+    print_hg_std_out_only, read_hg_from_file
 
 
 def do_one_run(io_param, aco_param, hg_gen_param):
@@ -68,7 +68,55 @@ def do_one_run(io_param, aco_param, hg_gen_param):
     print("ACO optimisation took: {0}s".format(aco_alg_time))
     print("UTILITY: {0}".format(utility))
     
-    
+def do_one_run_single_file(io_param, aco_param, file_name):
+    # set up working directory
+    working_dir = io_param['working_dir']
+    output_eval_dir = io_param['output_eval_dir']
+    # all the pnml files in input_eval_dir will be evaluated
+    input_eval_dir = io_param['input_eval_dir']
+
+    # set up ACO params
+    COL_NUM = aco_param['COL_NUM']
+    COL_NUM_MAX = aco_param['COL_NUM_MAX']
+    COL_NUM_STEP = aco_param['COL_NUM_STEP']
+    ANT_NUM = aco_param['ANT_NUM']
+    ANT_NUM_MAX = aco_param['ANT_NUM_MAX']
+    ANT_NUM_STEP = aco_param['ANT_NUM_STEP']
+    phero_tau = aco_param['phero_tau']
+    W_UTILITY = aco_param['W_UTILITY']
+
+    # setup hg generation params
+    L_SIZE = hg_gen_param['level_size']
+    B_SIZE_MIN = hg_gen_param['block_size_min']
+    B_SIZE_MAX = hg_gen_param['block_size_max']
+
+    # generate hg
+    hg = read_hg_from_file(file_name)
+
+    # write hg on file
+    #print("writing file FIRST time....")
+    #hg_gen_file_name = input_eval_dir + '/test_rewrite.hgr'
+    print_hg_std_out_only(hg)
+    #write_hg_to_file(hg, hg_gen_file_name)
+
+    # print("read from file FIRST time....")
+    # hg = read_hg_from_file(hg_gen_file_name)
+    # print("writing file SECOND time....")
+    # write_hg_to_file(hg, hg_gen_file_name)
+
+    # run optimisation
+    # optimise(io_param, aco_param)
+
+    start_time_aco = time()
+    print("running aco....")
+    aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, phero_tau, W_UTILITY)
+    p_opt = aco_result[0]
+    utility = aco_result[1]
+    end_time_aco = time()
+    aco_alg_time = end_time_aco - start_time_aco
+    print_hg_std_out_only(p_opt)
+    print("ACO optimisation took: {0}s".format(aco_alg_time))
+    print("UTILITY: {0}".format(utility))
 
 if __name__ == "__main__":
     
@@ -108,5 +156,7 @@ if __name__ == "__main__":
     hg_gen_param['block_size_min'] = 2
     hg_gen_param['block_size_max'] = 2
     
-    do_one_run(io_param, aco_param, hg_gen_param)
-    
+    #do_one_run(io_param, aco_param, hg_gen_param)
+
+    file_name = "C://opsupport_bpm_files/eval/input_files/ex1_inductive_smart_node.hgr"
+    do_one_run_single_file(io_param, aco_param, file_name)

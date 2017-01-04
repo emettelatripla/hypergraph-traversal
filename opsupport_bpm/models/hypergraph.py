@@ -16,6 +16,9 @@ import sys
 from halp.directed_hypergraph import DirectedHypergraph
 
 
+"""
+SMART CHOICE EXTENSIONS - START
+"""
 
 def smartchoice_attribute(hg: DirectedHypergraph, node, choice_attr, options):
     """
@@ -62,6 +65,14 @@ def smartchoice_node(hg: DirectedHypergraph, node, edge_probabilities):
     return hg
 
 def smartchoice_service(hg: DirectedHypergraph, node, service_uri, options):
+    """
+    extends a node with a service-based smartchoice
+    :param hg:
+    :param node:
+    :param service_uri: the uri of the operation to invoke (REST service)
+    :param options: a dictionary of the type {return value : chosen edge}
+    :return:
+    """
     logger = logging.getLogger(__name__)
     logger.debug("Extending for service-based smartchoice node: {0}".format(node))
     if hg.has_node(node):
@@ -73,6 +84,10 @@ def smartchoice_service(hg: DirectedHypergraph, node, service_uri, options):
     else:
         logger.error("Node to extend with smartchoice not found: {0}".format(node))
     return hg
+
+"""
+SMART CHOICE EXTENSIONS - END
+"""
 
 def reset_pheromone(hg):
     '''
