@@ -130,7 +130,8 @@ def aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY):
             #p = aco_search(p, hg, start_node_set, 0, visited)
 
             # SET ATTRIBUTE OF THIS ANT
-            ant_attrs = None
+            ant_attrs = {}
+            ant_attrs['ant_attribute_1'] = 'silver'                     # simulate silver clients
 
             p = aco_search_nonrec(hg, ant_attrs)
             # non recursive
@@ -398,7 +399,7 @@ def aco_search_nonrec(hg, ant_attributes):
                 # get the service URI
                 service_uri = hg.get_node_attribute(current_node, 'uri')
                 logger.debug("Invoking service at: {0}".format(service_uri))
-                # call the service
+                # call the service (min REST client)
                 response = requests.get(service_uri)
                 ret_value = response.json()['ret_value']
                 logger.debug("returned value: {0}".format(ret_value))
