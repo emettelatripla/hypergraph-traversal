@@ -29,9 +29,9 @@ def main():
     
     # files for testing ====================================================
     #file_root = "ex1_inductive"
-    file_root = "bpi_challenge2012"
+    #file_root = "bpi_challenge2012"
     #file_root = "road_fine_process"
-    #file_root = "hospital_inductive"
+    file_root = "hospital_inductive"
     #file_root = "repair_start_end_inductive"
     
     file_type = "inductive"

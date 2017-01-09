@@ -93,14 +93,38 @@ class SmartChoiceInjector():
             attrs['smartchoice'] = False
             self.hg.add_node(node, attrs)
 
-    def inject_attribute_sc_random(self, node):
+    def inject_attribute_sc_random(self, node, choice_attr, values):
         """
-
-        :param hg:
-        :param node:
+        :param values: the values that choice_attr can assume
         :return:
         """
-        pass
+        fstar = self.hg.get_forward_star(node)
+        list_fstar = list(fstar)
+        edge_no = len(fstar)
+        values_no = len(values)
+        random.shuffle(values)
+        options = {}
+        if values_no > edge_no:
+            # more values of attribute than edges available
+            counter = 0
+            for i in range(len(values)):
+                if counter < edge_no:
+                    options[i] = list_fstar[counter]
+                    counter += 1
+                else:
+                    counter = 0
+                    options[i] = list_fstar[counter]
+        else:
+            # more edges than values
+            chosen_edges = []
+            for i in range(len(values)):
+                edge = random.choice(list(fstar))
+                while (edge in chosen_edges):
+                    edge = random.choice(list(fstar))
+                options[i] = edge
+                chosen_edges.append(edge)
+        # create smacrtchoice at node
+        self.hg = smartchoice_attribute(self.hg, node, choice_attr, options)
 
     def inject_node_sc_random(self, node):
         """
@@ -122,7 +146,6 @@ class SmartChoiceInjector():
 
     def inject_service_smartchoice(self, node):
         """
-
         :param hg:
         :param node:
         :return:
@@ -141,21 +164,49 @@ class SmartChoiceInjector():
                 node_list.append(node)
         return node_list
 
-    """ TODO: some initialiser of smartchoice (e.g., picked random, all nodes in the same way)"""
+    """ Some initialiser of smartchoice (e.g., picked random, all nodes in the same way)"""
 
+    """ 1) nodes chosen with probability prob initialised using node_sc_random"""
+    def init_hg_node_sc_random(self, prob):
+        xorsplits = self.get_xorsplits()
+        for node in xorsplits:
+            if random.random() <= prob:
+                self.inject_node_sc_random(node)
+
+    """ 2) nodes chosen with probability prob initialised using attribute_sc_random"""
+    def init_hg_attribute_sc_random(self, prob, choice_attr, values):
+        xorsplits = self.get_xorsplits()
+        for node in xorsplits:
+            if random.random() <= prob:
+                self.inject_attribute_sc_random(node, choice_attr, values)
+
+    """ 3) nodes chosen with probability prob initialised using either node_ or attribute_sc_random """
+    def init_hg_random(self, prob, choice_attr, values):
+        xorsplits = self.get_xorsplits()
+        for node in xorsplits:
+            if random.random() <= prob:
+                if random.random() <= 0.5:
+                    self.inject_node_sc_random(node)
+                else:
+                    self.inject_attribute_sc_random(node, choice_attr, values)
 
 """ MAIN """
 if __name__ == "__main__":
 
-    file_name = "C://opsupport_bpm_files/eval/input_files/test.hgr"
+    file_name = "C://opsupport_bpm_files/eval/input_files/hospital.hgr"
 
     SCI = SmartChoiceInjector(file_name)
 
-    xorsplits = SCI.get_xorsplits()
-    print(xorsplits)
+    #SCI.init_hg_node_sc_random(0.9)
+    SCI.init_hg_attribute_sc_random(0.9,'patient_type',[0,1,2,3,4,5])
 
-    for node in xorsplits:
-        SCI.inject_node_sc_random(node)
+    
+    #xorsplits = SCI.get_xorsplits()
+    #print(xorsplits)
 
-    file_out = "C://opsupport_bpm_files/eval/input_files/output.hgr"
+    #for node in xorsplits:
+        #SCI.inject_node_sc_random(node)
+        #SCI.inject_attribute_sc_random(node,'attribute', [0,1])
+
+    file_out = "C://opsupport_bpm_files/eval/input_files/hospital_injected.hgr"
     SCI.write_hypergraph_to_file(file_out)
