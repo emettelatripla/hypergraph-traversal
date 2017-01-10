@@ -29,10 +29,11 @@ def main():
     
     # files for testing ====================================================
     #file_root = "ex1_inductive"
-    file_root = "bpi_challenge2012"
+    #file_root = "bpi_challenge2012"
     #file_root = "road_fine_process"
     #file_root = "hospital_inductive"
     #file_root = "repair_start_end_inductive"
+    file_root = "PurchasingExample"
     
     file_type = "inductive"
     #io_subdir = "/real_logs"
@@ -174,6 +175,8 @@ def main():
     reduce_opt_path_pnet(tree, file_root, output_dir)
     end_time_opt = time()
     print("Post processing pnet (show optimal path on pnet) took: {0}".format(end_time_opt - start_time_opt))
+
+    write_hg_to_file(p_opt, "popt.hgr")
     
 
 

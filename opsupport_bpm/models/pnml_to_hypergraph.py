@@ -219,7 +219,7 @@ def convert_pnet_to_hypergraph(pnet):
             #create node for place in hypergraph
             node_id = get_id(place)
             #check if join is end event (sink)
-            if (len(out_arcs) == 0):
+            if len(out_arcs) == 0:
                 isSink = True
                 logger.debug(" %%%% Found END node %%%%")
             logger.debug("STEP 1 - Creating xor-join node -- {0}".format(node_id))
@@ -367,7 +367,34 @@ def convert_pnet_to_hypergraph(pnet):
     #hg = tau_post_processing(hg)
     """ reduction of tau split/join """
     #hg = tau_reduction(hg)
+    hg = post_processing_end_nodes(hg)
     return hg
+
+def post_processing_end_nodes(hg:DirectedHypergraph):
+    logger = logging.getLogger(__name__)
+    logger.debug("<<<<< Adjusting number of end nodes in hypergaph >>>>>")
+    nodes = hg.get_node_set()
+    end_nodes = []
+    for node in nodes:
+        if hg.get_node_attribute(node,'sink') == True:
+            logger.debug("Found end node: {0}".format(node))
+            end_nodes.append(node)
+
+    # check number of end nodes
+    if len(end_nodes) > 1:
+        logger.debug("{0} end nodes found, adjusting".format(len(end_nodes)))
+        for node in end_nodes:
+            if hg.get_forward_star(node) != set():
+                logger.debug("{0} : fstar = {1}".format(node, hg.get_forward_star(node)))
+                logger.debug("Remove sink: {0}".format(node))
+                attrs = hg.get_node_attributes(node)
+                attrs['sink'] = False
+                hg.add_node(node, attrs)
+    else:
+        logger.debug("Nothing to adjust, only 1 end node found")
+    logger.debug("<<<<< ____________END______________________ >>>>>")
+    return hg
+
 
 
 

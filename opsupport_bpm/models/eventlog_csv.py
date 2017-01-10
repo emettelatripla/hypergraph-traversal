@@ -63,6 +63,7 @@ class EventLogHandler():
                 act_list.append(str(node))
         return act_list
 
+
     def get_case_act_matching(self, case_id):
         trace = self.get_trace(case_id)
         opt_act = self.get_optimal_activity_list()
@@ -71,6 +72,9 @@ class EventLogHandler():
             if act in opt_act:
                 counter += 1
         return counter / len(opt_act)
+
+    def get_case_dec_matching(self, case_id):
+        pass
 
 
 
