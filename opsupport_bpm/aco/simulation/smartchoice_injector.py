@@ -5,6 +5,8 @@ Functions to inject smartchoice options in a hypergraph
 from halp.directed_hypergraph import DirectedHypergraph
 
 import random
+import logging
+import sys
 
 from opsupport_bpm.util.print_hypergraph import read_hg_from_file, write_hg_to_file
 from opsupport_bpm.models.hypergraph import smartchoice_service, smartchoice_node, smartchoice_attribute
@@ -68,7 +70,7 @@ class SmartChoiceInjector():
         file.close()
 
 
-    def write_hypergraph_to_file(self, out_file_name):
+    def write_hypergraph_to_file(self, out_file_name):\
         write_hg_to_file(self.hg, out_file_name)
 
     def switch_on_smartchoice(self):
@@ -164,43 +166,77 @@ class SmartChoiceInjector():
                 node_list.append(node)
         return node_list
 
+    def print_xorsplits_info(self):
+        logger.debug("===!!!=== XOR SPLIT NODES INFO ===!!!=== ")
+        xorsplits = self.get_xorsplits()
+        for node in xorsplits:
+            logger.debug("--- Node: {0}".format(node))
+            for edge in self.hg.get_backward_star(node):
+                logger.debug("* Backward edge {0} >>> {1}".format(edge, self.hg.get_hyperedge_tail(edge)))
+            for edge in self.hg.get_forward_star(node):
+                logger.debug("* Forward edge {0} >>> {1}".format(edge, self.hg.get_hyperedge_head(edge)))
+        logger.debug("===!!!=== ==================== ===!!!=== ")
+
     """ Some initialiser of smartchoice (e.g., picked random, all nodes in the same way)"""
 
     """ 1) nodes chosen with probability prob initialised using node_sc_random"""
     def init_hg_node_sc_random(self, prob):
+        logger.debug("Initilalising hg with random node_smartchoice...")
         xorsplits = self.get_xorsplits()
         for node in xorsplits:
+            logger.debug("Analysing node: {0}".format(node))
             if random.random() <= prob:
+                logger.debug("Injecting node_smartchoice at node: {0}".format(node))
                 self.inject_node_sc_random(node)
 
     """ 2) nodes chosen with probability prob initialised using attribute_sc_random"""
     def init_hg_attribute_sc_random(self, prob, choice_attr, values):
+        logger.debug("Initilalising hg with random attribute_smartchoice...")
         xorsplits = self.get_xorsplits()
         for node in xorsplits:
+            logger.debug("Analysing node: {0}".format(node))
             if random.random() <= prob:
+                logger.debug("Injecting attribute_smartchoice at node: {0}".format(node))
                 self.inject_attribute_sc_random(node, choice_attr, values)
 
     """ 3) nodes chosen with probability prob initialised using either node_ or attribute_sc_random """
     def init_hg_random(self, prob, choice_attr, values):
+        logger.debug("Initilalising hg with random node/attribute_smartchoice...")
         xorsplits = self.get_xorsplits()
         for node in xorsplits:
+            logger.debug("Analysing node: {0}".format(node))
             if random.random() <= prob:
                 if random.random() <= 0.5:
+                    logger.debug("Injecting node_smartchoice at node: {0}".format(node))
                     self.inject_node_sc_random(node)
                 else:
+                    logger.debug("Injecting attribute_smartchoice at node: {0}".format(node))
                     self.inject_attribute_sc_random(node, choice_attr, values)
 
 """ MAIN """
 if __name__ == "__main__":
+    log = logging.getLogger('')
+    log.setLevel(logging.DEBUG)
+    format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    file_name = "C://opsupport_bpm_files/eval/input_files/hospital.hgr"
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(format)
+    log.addHandler(ch)
+
+    logger = logging.getLogger(__name__)
+
+
+
+    file_name = "C://opsupport_bpm_files/eval/input_files/road_fine_process.hgr"
 
     SCI = SmartChoiceInjector(file_name)
+
+    logger.debug("Number of XOR nodes: {0}".format(len(SCI.get_xorsplits())))
 
     #SCI.init_hg_node_sc_random(0.9)
     SCI.init_hg_attribute_sc_random(0.9,'patient_type',[0,1,2,3,4,5])
 
-    
+
     #xorsplits = SCI.get_xorsplits()
     #print(xorsplits)
 
@@ -208,5 +244,6 @@ if __name__ == "__main__":
         #SCI.inject_node_sc_random(node)
         #SCI.inject_attribute_sc_random(node,'attribute', [0,1])
 
-    file_out = "C://opsupport_bpm_files/eval/input_files/hospital_injected.hgr"
+    file_out = "C://opsupport_bpm_files/eval/input_files/output_injected.hgr"
+    SCI.print_xorsplits_info()
     SCI.write_hypergraph_to_file(file_out)
