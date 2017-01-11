@@ -162,9 +162,11 @@ if __name__ == "__main__":
     #file_name = "C://opsupport_bpm_files/eval/input_files/ex1_inductive_smart_node.hgr"
 
     # Test smart ATTRIBUTE
-    file_name = "C://opsupport_bpm_files/eval/input_files/ex1_inductive_smart_attribute.hgr"
+    #file_name = "C://opsupport_bpm_files/eval/input_files/ex1_inductive_smart_attribute.hgr"
 
     # Test smart SERVICE
     #file_name = "C://opsupport_bpm_files/eval/input_files/ex1_inductive_smart_service.hgr"
+
+    file_name = "C://opsupport_bpm_files/eval/input_files/PurchasingExample.hgr"
 
     do_one_run_single_file(io_param, aco_param, file_name)
