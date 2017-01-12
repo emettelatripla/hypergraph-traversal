@@ -7,6 +7,9 @@ from halp.directed_hypergraph import DirectedHypergraph
 from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
     read_hg_from_file, print_hg_std_out_only
 
+from opsupport_bpm.aco.aco_directed_hypergraph import aco_search_nonrec
+from opsupport_bpm.models.hypergraph import reset_pheromone
+
 class EventLogHandler():
 
     def __init__(self):
@@ -72,27 +75,72 @@ class EventLogHandler():
         :return:
         """
         # get start
-        node_start = None
-        node_set = self.opt_path.get_node_set()
-        act_list = []
-        index = 0
-        for node in node_set:
-            if self.opt_path.get_node_attribute(node,'source'):
-                node_start = node
-        current_node = node_start
-        while self.opt_path.get_node_attribute(current_node, 'sink') == False:
-            act_list.insert(index, current_node)
-            index += 1
-            next_edge = list(self.opt_path.get_forward_star(current_node))[0]
-            current_node = list(self.opt_path.get_hyperedge_head(next_edge))[0]
-        act_list.insert(index,current_node)
+        node_list = aco_search_nonrec(self.opt_path, None)[1]
+        for node in self.opt_path.get_node_set():
+            if self.opt_path.get_node_attribute(node,'sink') == True:
+                node_list.insert(len(node_list)+1, node)
+        return node_list
+
+    def get_optimal_traces_nodes(self):
+        """
+        Returns the list of valid traces (with all nodes) on the optimal path
+        :return:
+        """
+        hg = self.opt_path
+        hg == reset_pheromone(hg)
+        end_node = None
+        for node in hg.get_node_set():
+            if hg.get_node_attribute(node,'sink') == True:
+                end_node = node
+        traces = {}
+        i = 0
+        list = aco_search_nonrec(hg,None)[1]
+        list.insert(len(list) + 1, end_node)
+        traces[i] = list
+        for ant in range(1,200,1):
+            node_list = aco_search_nonrec(hg,None)[1]
+            node_list.insert(len(node_list) + 1, end_node)
+            new = True
+            for key in traces:
+                if traces[key] == node_list:
+                    new = False
+            if new:
+                i += 1
+                traces[i] = node_list
+        return traces
+
+    def get_optimal_traces_activities(self):
+        """
+        returns the list of valid traces (with activity labels only) in the optimal path
+        :return:
+        """
+        traces = self.get_optimal_traces_nodes()
+        trace_act = {}
+        for trace in traces:
+            for event in traces[trace]:
+                if event[:4] == "tau ":
+                    traces[trace].remove(str(event))
+                if self.opt_path.get_node_attribute(event, 'type') == 'xor-join':
+                    traces[trace].remove(str(event))
+                if self.opt_path.get_node_attribute(event, 'type') == 'xor-split':
+                    traces[trace].remove(str(event))
+        return traces
 
 
-        return act_list
+        # add end_node to all traces!
+
+
+
 
     def get_optimal_activity_list(self):
+        """
+        Returns an ordered list of activities in the optimal path removing all xor-split/join and tau* transitions
+        (that is, returns a possible trace of the optimal path)
+        :return:
+        """
         act_list = self.get_optimal_node_list()
         node_set = self.opt_path.get_node_set()
+
         for node in node_set:
              if node[:4] == "tau ":
                 act_list.remove(str(node))
@@ -101,6 +149,8 @@ class EventLogHandler():
              if self.opt_path.get_node_attribute(node, 'type') == 'xor-split':
                 act_list.remove(str(node))
         return act_list
+
+
 
 
     def get_optimal_decisions(self):
@@ -215,23 +265,33 @@ if __name__ == '__main__':
     print("OPTIMAL PATH NODE LIST    : {0}".format(ELH.get_optimal_node_list()))
     print("OPTIMAL PATH ACTIVITY LIST: {0}".format(ELH.get_optimal_activity_list()))
 
+    opt_traces = ELH.get_optimal_traces_nodes()
+    for trace in opt_traces:
+        print("NODE ======== {0} : {1}".format(trace, opt_traces[trace]))
+
+    opt_traces = ELH.get_optimal_traces_activities()
+    for trace in opt_traces:
+        print("ACTIVITIES == {0} : {1}".format(trace, opt_traces[trace]))
+
+
+
     #for key in ELH.log_by_case:
     #    print("Case {0}, optimal path activity matching: {1}".format(key,ELH.get_case_act_matching(key)))
 
-    print(ELH.get_case_act_matching("122"))
-    print(ELH.get_case_act_matching("720"))
+    #print(ELH.get_case_act_matching("122"))
+    #print(ELH.get_case_act_matching("720"))
     #print(ELH.get_case_act_matching("40"))
     #print(ELH.get_case_act_matching("49"))
     #print(ELH.get_case_act_matching("294"))
 
-    print(ELH.get_optimal_decisions())
-    print(ELH.get_all_decisions())
+    #print(ELH.get_optimal_decisions())
+    #print(ELH.get_all_decisions())
 
-    print(ELH.get_trace("122"))
-    print(ELH.get_case_dec_matching("122"))
+    #print(ELH.get_trace("122"))
+    #print(ELH.get_case_dec_matching("122"))
 
-    print(ELH.get_trace("720"))
-    print(ELH.get_case_dec_matching("720"))
+    #print(ELH.get_trace("720"))
+    #print(ELH.get_case_dec_matching("720"))
 
     #print(ELH.get_case_dec_matching("40"))
     #print(ELH.get_case_dec_matching("49"))

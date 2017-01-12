@@ -133,7 +133,7 @@ def aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY):
             ant_attrs = {}
             ant_attrs['ant_attribute_1'] = 'silver'                     # simulate silver clients
 
-            p = aco_search_nonrec(hg, ant_attrs)
+            p = aco_search_nonrec(hg, ant_attrs)[0]
             # non recursive
             #p = aco_search_norec(p, hg, start_node_set)
             #PRINT CURRENT OPTIMAL PATH
@@ -199,6 +199,9 @@ def add_head_to_nodes_to_process(edge, hg, nodes_to_process):
     """
     logger = logging.getLogger(__name__)
     node_set = hg.get_hyperedge_head(edge)
+
+    random.shuffle(node_set)
+
     # add to node to process
     for node in node_set:
         if node not in nodes_to_process:
@@ -547,7 +550,7 @@ def aco_search_nonrec(hg, ant_attributes):
             logger.error("Something went wrong here :(((")
         # get ready to continue
         END OLD TERMINATING CONDITION"""
-    return p
+    return p, nodes_visited
         
 
 
