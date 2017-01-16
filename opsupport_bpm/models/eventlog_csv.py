@@ -84,6 +84,7 @@ class EventLogHandler():
     def get_optimal_traces_nodes(self):
         """
         Returns the list of valid traces (with all nodes) on the optimal path
+        (uses a number of ant to explore the hypergraph)
         :return:
         """
         hg = self.opt_path
@@ -97,7 +98,7 @@ class EventLogHandler():
         list = aco_search_nonrec(hg,None)[1]
         list.insert(len(list) + 1, end_node)
         traces[i] = list
-        for ant in range(1,200,1):
+        for ant in range(1,1000,1):
             node_list = aco_search_nonrec(hg,None)[1]
             node_list.insert(len(node_list) + 1, end_node)
             new = True
@@ -115,16 +116,15 @@ class EventLogHandler():
         :return:
         """
         traces = self.get_optimal_traces_nodes()
-        trace_act = {}
+        traces_copy = {}
+        opt_act_list = self.get_optimal_activity_list()
         for trace in traces:
+            traces_copy[trace] = []
             for event in traces[trace]:
-                if event[:4] == "tau ":
-                    traces[trace].remove(str(event))
-                if self.opt_path.get_node_attribute(event, 'type') == 'xor-join':
-                    traces[trace].remove(str(event))
-                if self.opt_path.get_node_attribute(event, 'type') == 'xor-split':
-                    traces[trace].remove(str(event))
-        return traces
+                if event in opt_act_list:
+                     traces_copy[trace].append(event)
+
+        return traces_copy
 
 
         # add end_node to all traces!
@@ -238,6 +238,14 @@ class EventLogHandler():
         # determine metric value
         return DEC_OK, DEC_DEV, DEC_BACK, len(dec_all)
 
+    def is_trace_optimal(self, case_id):
+        pass
+
+    def enumerate_optimal_traces(self):
+        pass
+
+
+
 
 
 
@@ -273,10 +281,19 @@ if __name__ == '__main__':
     for trace in opt_traces:
         print("ACTIVITIES == {0} : {1}".format(trace, opt_traces[trace]))
 
+    # print("122", ELH.is_trace_optimal("122"))
+
+    print(ELH.get_trace("411"))
+    print(ELH.get_trace("224"))
+
+    for key in ELH.log_by_case:
+        if ELH.is_trace_optimal(key) == True:
+            print("Case {0}, is optimal".format(key))
+    print("STOP!")
 
 
-    #for key in ELH.log_by_case:
-    #    print("Case {0}, optimal path activity matching: {1}".format(key,ELH.get_case_act_matching(key)))
+    # for key in ELH.log_by_case:
+    #     print("Case {0}, optimal path activity matching: {1}".format(key,ELH.get_case_act_matching(key)))
 
     #print(ELH.get_case_act_matching("122"))
     #print(ELH.get_case_act_matching("720"))

@@ -319,6 +319,9 @@ def aco_search_nonrec(hg, ant_attributes):
     :param hg: hypergraph
     '''
 
+    nodes_for_enum = [200]
+    index = 0
+
     # get the logger
     logger = logging.getLogger(__name__)
 
@@ -357,6 +360,9 @@ def aco_search_nonrec(hg, ant_attributes):
     while not stop:
         logger.debug("============= VISITING NEXT NODE: --- {0} ---- ========================".format(current_node))
         f_edge_set = hg.get_forward_star(current_node)
+
+        nodes_for_enum.insert(index,current_node)
+        index += 1
 
         # choose next edge based on smartchoice or pheromone distribution
         next_edge = None
@@ -489,6 +495,9 @@ def aco_search_nonrec(hg, ant_attributes):
                     p = add_edge(p,hg, next_edge)
                     # delete entry in waiting
                     del waiting[next_edge]
+
+                    
+
                     #UPDATE CURRENT NODE !!!!!! TBC TBC TBC TBC
             # node is extreme of a hyperarc, we have to stop and wait for a match
             else:
@@ -550,8 +559,8 @@ def aco_search_nonrec(hg, ant_attributes):
             logger.error("Something went wrong here :(((")
         # get ready to continue
         END OLD TERMINATING CONDITION"""
-    return p, nodes_visited
-        
+    #return p, nodes_visited
+    return p, nodes_for_enum
 
 
 
