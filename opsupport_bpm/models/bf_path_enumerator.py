@@ -11,7 +11,8 @@ from opsupport_bpm.models.hypergraph import reset_pheromone
 
 import random
 from itertools import permutations, combinations
-
+import sys
+import logging
 
 class Node:
     def __init__(self):
@@ -39,6 +40,38 @@ class Node:
             else:
                 print("..."*level +act+" "+str(self.level))
 
+    def adjust_trace_tau_split(self):
+        if self.data[len(self.data)-1][:8] == "tau join":
+            id = self.data[len(self.data)-1][8]
+            tau_split = "tau split"+id
+            self.data.insert(0,tau_split)
+    def adjust_tau_split(self):
+        if self.children == []:
+            self.adjust_trace_tau_split()
+        else:
+            for child in self.children:
+                child.adjust_tau_split()
+            self.adjust_trace_tau_split()
+
+
+    def make_lists(self):
+        if self.children == []:
+             l = []
+             l.append(self.data)
+             self.data = l
+        else:
+            for child in self.children:
+                child.make_lists ()
+            l = []
+            l.append (self.data)
+            self.data = l
+            # if self.parent == None:
+            #     l = []
+            #     l.append(self.data)
+            #     self.data = l
+
+
+
 
 
 class BF_PathEnumerator():
@@ -53,6 +86,7 @@ class BF_PathEnumerator():
         self.path = None
         self.path_file = file_name
         self.opt_hgr = self.read_hgr(file_name)
+        self.tree = Node ()
 
     def read_hgr(self, file_name):
         hg = read_hg_from_file(file_name)
@@ -81,12 +115,15 @@ class BF_PathEnumerator():
                 tree.data.append(current_node)
 
                 next_nodes = self.opt_hgr.get_hyperedge_head(list(self.opt_hgr.get_forward_star(current_node))[0])
+                #next_nodes.insert(0,current_node)
                 for node in next_nodes:
                     new_block = Node()
                     new_block.set_parent(tree)
                     new_block.set_level(new_block.parent.level + 1)
                     tree.data.append(new_block)
+                    #start_node = "tau split"+id
                     end_node = "tau join"+id
+                    #self.explore (new_block, start_node, end_node)
                     self.explore(new_block, node, end_node)
                 current_node = end_node
             else:
@@ -98,36 +135,90 @@ class BF_PathEnumerator():
         tree.data.append(current_node)
         # take care of last node
 
+    def prepare_tree_for_trace_enumeration(self):
+        """
+        some makeup before trace enumeration:
+        :return:
+        """
+        self.tree.set_children ()       # set links to children
+        self.tree.adjust_tau_split ()   # add tau split activity in front of all children
+        self.tree.make_lists ()         # make all traces as "lists of lists"
 
 
-    def vertical_merge(self, data_up, data_down):
+
+
+
+    def vertical_merge(self, data_parent, data_down_list):
         """
         does teh vertical merge step: tested!
         :param data_up: a list with tau split/join
         :param data_down: a "leaf" list (that is, without tau split/join)
         :return:
         """
-        # get all the prmutations of data_down
-        perm_down = permutations(data_down)
-
-        # find the sublist between tau split/join in data_up
-        for value in data_up:
-            if value[0:9] == "tau split":
-                sublist_start = data_up.index(value)
-            if value[0:8] == "tau join":
-                sublist_end = data_up.index(value)
-
-        # do the merge (create list of lists)
         merge = []
-        data_up[sublist_start:sublist_end+1] = next(perm_down)
-        copy = self.deep_copy(data_up)
-        merge.append(copy)
+        data_up = data_parent[0]
+        # get all the prmutations of data_down
+        for data_down in data_down_list:
+            perm_down = permutations(data_down)
 
-        for perm in perm_down:
-            data_up[sublist_start:sublist_start+len(perm)] = perm
+            # find the sublist between tau split/join in data_up
+            for value in data_up:
+                if type(value) is str:
+                    if value[0:9] == "tau split":
+                        sublist_start = data_up.index(value)+1
+                    if value[0:8] == "tau join":
+                        sublist_end = data_up.index(value)-1
+
+                # do the merge (create list of lists)
+
+            data_up[sublist_start:sublist_end+1] = next(perm_down)
             copy = self.deep_copy(data_up)
             merge.append(copy)
 
+            for perm in perm_down:
+                data_up[sublist_start:sublist_start+len(perm)] = perm
+                copy = self.deep_copy(data_up)
+                merge.append(copy)
+
+        return merge
+
+    def vertical_substitution(self, hypertree, data_down_list):
+        """
+        does teh vertical merge step: tested!
+        :param data_up: a list with tau split/join
+        :param data_down: a "leaf" list (that is, without tau split/join)
+        :return:
+        """
+        data_parent = hypertree.data
+        merge = []
+        data_up = data_parent[0]
+        # get all the prmutations of data_down
+        for data_down in data_down_list:
+            #perm_down = permutations(data_down)
+
+            #xxx = next(perm_down)
+
+            # find the sublist between tau split/join in data_up
+            for value in data_up:
+                if type(value) is str:
+                    if value[0:9] == "tau split":
+                        sublist_start = data_up.index(value)+1
+                    if value[0:8] == "tau join":
+                        sublist_end = data_up.index(value)-1
+
+                # do the merge (create list of lists)
+
+            data_up[sublist_start:sublist_end+1] = data_down[1:-1]
+            copy = self.deep_copy(data_up)
+            merge.append(copy)
+
+            # for perm in perm_down:
+            #     data_up[sublist_start:sublist_start+len(perm)] = perm
+            #     copy = self.deep_copy(data_up)
+            #     merge.append(copy)
+        # remove the children of hypertree
+        hypertree.children = []
+        hypertree.data = merge
 
         return merge
 
@@ -141,13 +232,24 @@ class BF_PathEnumerator():
 
 
     def horizontal_merge(self, a, b):
+        #b = b[1:-1]
+        logger.debug("H-merge: {0} === {1}".format(a,b))
+
         result = []
         for lst1 in a:
+            copy_lst1 = PE.deep_copy(lst1)
+            del copy_lst1 [0]
+            del copy_lst1 [-1]
             for lst2 in b:
-                result += self.combine(lst1,lst2)
+                copy_lst2 = PE.deep_copy(lst2)
+                del copy_lst2 [0]
+                del copy_lst2 [-1]
+                result += self.combine(copy_lst1,copy_lst2)
+
         return result
 
     def combine(self, xs, ys):
+        logger.debug ("Combine: {0} === {1}".format (xs, ys))
         if xs == []: return [ys]
         if ys == []: return [xs]
         x, *xs_tail = xs
@@ -165,78 +267,122 @@ class BF_PathEnumerator():
         :return:
         """
         traces = []
-        if hypertree.is_leaf():
-            if hypertree.parent == None:
-                traces.append(hypertree.data)
-            else:
-                # merge with parent
-                self.vertical_merge(hypertree.parent.data, hypertree.data)
-        else:
-            # check if all children are leaves
-            children = hypertree.children
-            ALL_CHILD = True
-            for child in children:
-                if child.is_leaf() != True:
-                    ALL_CHILD = False
-            if ALL_CHILD:
-                # do horizontal merge of all chidlren
-                # substitute parent with merge
-                pass
-            else:
-                # recursive call on all children
-                pass
+        children = hypertree.children
+        ALL_LEAVES = True
+        for child in children:
+            if child.is_leaf() == False:
+                ALL_LEAVES = False
+        if ALL_LEAVES:
+            # horizontal merge pair by pair
 
+            child_num = len(children)
+            i = 0
+            res = children[i].data
+            while i < len(children) - 1:
+                # make a copy
+                copy_res = []
+                for r in res:
+                    copy_res.append(r)
+                res = self.horizontal_merge(copy_res, children[i+1].data)
+                j = 0
+                while j < len(res):
+                    res[j].insert (0, "tau split0")
+                    res[j].append("tau join0")
+                    j += 1
+                i += 1
+                # vertical substitution
 
-        pass
+            PE.vertical_substitution(hypertree, res)
+            if hypertree.parent != None:
+                PE.get_traces(hypertree.parent)
+
+        #return traces
 
 
 
 
 if __name__ == '__main__':
+    log = logging.getLogger ('')
+    log.setLevel (logging.WARNING)
+    format = logging.Formatter ("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    ch = logging.StreamHandler (sys.stdout)
+    ch.setFormatter (format)
+    log.addHandler (ch)
+
+    logger = logging.getLogger (__name__)
 
     PE = BF_PathEnumerator("popt.hgr")
 
-    # X = ["xxx","tau split0", "0123","0124", "tau join0", "pppp","zzzz"]
-    # Y = ["a", "b", "k"]
-    #
-
-    #
-    # v_merge = PE.vertical_merge(X,Y)
-    # print("========== Vertical merge =============")
-    # print(v_merge)
-    #
-    # Z = [["d","e"]]
-    #
-    # input()
-    # print("========= Horizontal merge =============")
-    #
-    # res = PE.horizontal_merge(v_merge, Z)
-    # print(res)
-    # print(len(res))
-
-
-
-
-
-
-
-
-
-    PE = BF_PathEnumerator("popt.hgr")
-
-    tree = Node()
-    tree.set_parent(None)
-    print(PE.get_hyperpath_tree(tree))
-
-    print(tree.parent)
-    tree.set_children()
-    print(tree.is_leaf())
-    print(tree.children)
-    for child in tree.children:
+    #tree = Node()
+    PE.get_hyperpath_tree(PE.tree)
+    PE.prepare_tree_for_trace_enumeration()
+    print(PE.tree.data)
+    for child in PE.tree.children:
         print(child.data)
-        print(child.is_leaf())
 
-    #print("========== PRINT TREE ================")
-    #tree.print_node(1)
 
+
+    """ Create sample tree """
+
+    Y = [ "a", "b", "c", "tau join0"]
+    Z = [ "x", "y", "z", "tau join0"]
+    W = [ "l", "m", "n", "tau join0"]
+
+    child1 = Node()
+    child1.data = Y
+    child2 = Node ()
+    child2.data = Z
+    child3 = Node()
+    child3.data = W
+    X = ["1", "tau split0", child1, child2, child3, "tau join0", "2", "3"]
+    parent = Node ()
+    parent.data = X
+
+    #parent.set_children()
+    child1.parent = parent
+    child2.parent = parent
+    child3.parent = parent
+
+
+    # PE.tree = parent
+    # PE.prepare_tree_for_trace_enumeration()
+    # #parent.make_lists()
+    #
+    # print(PE.tree.data)
+    # print(PE.tree.children[0].data)
+    # print(PE.tree.children[1].data)
+    # print (PE.tree.children[2].data)
+    # result = PE.horizontal_merge(PE.tree.children[0].data,PE.tree.children[1].data)
+    # for r in result:
+    #     r.insert (0, "tau split0")
+    #     r.insert(len(result),"tau join0")
+    #     print(r)
+    #
+    # print("\n\n=====  SECOND MERGE ================================")
+    # result2 = PE.horizontal_merge(result,PE.tree.children[2].data)
+    # for r in result2:
+    #     r.insert (0, "tau split0")
+    #     r.insert (len (result), "tau join0")
+    #     print (r)
+
+    """ end create sample tree """
+    print("\n\n=========== HORIZONTAL MERGE =============================")
+    # result = PE.horizontal_merge (parent.children[0].data, parent.children[1].data)
+    # for r in result:
+    #     print(r)
+    print ("\n\n=========== VERTICAL MERGE =============================")
+    # result = PE.vertical_substitution(parent.data,parent.children[0].data)
+    # for r in result:
+    #     print(r)
+
+    """ test vertical/horizontal integration"""
+
+
+    """ enumerate all possible paths """
+    print("\n\n ================ ALL TRACES ===================================")
+    PE.get_traces(PE.tree)
+    print("Number of traces: {0}".format(len(PE.tree.data)))
+    for t in PE.tree.data:
+        print(t)
 
