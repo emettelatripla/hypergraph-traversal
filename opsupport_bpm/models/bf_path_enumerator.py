@@ -13,6 +13,7 @@ import random
 from itertools import permutations, combinations
 import sys
 import logging
+import re
 
 class Node:
     def __init__(self):
@@ -145,7 +146,7 @@ class BF_PathEnumerator():
         self.tree.make_lists ()         # make all traces as "lists of lists"
 
 
-
+    """" METHODS FOR EXTRACTING traces from optimal path (START)"""
 
 
     def vertical_merge(self, data_parent, data_down_list):
@@ -233,15 +234,16 @@ class BF_PathEnumerator():
 
     def horizontal_merge(self, a, b):
         #b = b[1:-1]
+        logger = logging.getLogger(__name__)
         logger.debug("H-merge: {0} === {1}".format(a,b))
 
         result = []
         for lst1 in a:
-            copy_lst1 = PE.deep_copy(lst1)
+            copy_lst1 = self.deep_copy(lst1)
             del copy_lst1 [0]
             del copy_lst1 [-1]
             for lst2 in b:
-                copy_lst2 = PE.deep_copy(lst2)
+                copy_lst2 = self.deep_copy(lst2)
                 del copy_lst2 [0]
                 del copy_lst2 [-1]
                 result += self.combine(copy_lst1,copy_lst2)
@@ -249,6 +251,7 @@ class BF_PathEnumerator():
         return result
 
     def combine(self, xs, ys):
+        logger = logging.getLogger(__name__)
         logger.debug ("Combine: {0} === {1}".format (xs, ys))
         if xs == []: return [ys]
         if ys == []: return [xs]
@@ -292,16 +295,57 @@ class BF_PathEnumerator():
                 i += 1
                 # vertical substitution
 
-            PE.vertical_substitution(hypertree, res)
+            self.vertical_substitution(hypertree, res)
             if hypertree.parent != None:
                 PE.get_traces(hypertree.parent)
 
         #return traces
 
 
+    def actlist_from_traces(self, traces):
+        traces_copy = []
+        for trace in traces:
+            trace_copy = []
+            for event in trace:
+                is_n = re.search('n([0-9]+)', event)
+                is_tau = re.search('tau ', event)
+                if is_n is None and is_tau is None:
+                    trace_copy.append(event)
 
+            traces_copy.append(trace_copy)
+        return traces_copy
+
+    """" METHODS FOR EXTRACTING traces from optimal path (END)"""
+
+    """" METHODS FOR EXTRACTING DECISIONS from optimal path (START)"""
+
+    def get_optimal_decisions(self):
+        """
+        Returns the list of decisions in the optimal path in a dictionary of the type
+        {1: {'antec' : 'Activity_A', 'conseq' : 'ActivityB'} }
+        :return:
+        """
+        node_set = self.opt_hgr.get_node_set()
+        dec_count = 0
+        decisions = {}
+        for node in node_set:
+            if self.opt_hgr.get_node_attribute(node, 'type') == 'xor-split':
+                antec = list(self.opt_hgr.get_hyperedge_tail(list(self.opt_hgr.get_backward_star(node))[0]))[0]
+                conseq =  list(self.opt_hgr.get_hyperedge_head(list(self.opt_hgr.get_forward_star(node))[0]))[0]
+                decisions[dec_count] = {'antec' : antec, 'conseq' : conseq}
+                dec_count += 1
+        return decisions
+
+    """" METHODS FOR EXTRACTING traces from optimal path (END)"""
 
 if __name__ == '__main__':
+
+    m = re.search('n([0-9]+)', 'n456' )
+    n = re.search('n([0-9]+)', 'yuy456 ioio')
+    print(m.group(0))
+    if n is None:
+        print("No match")
+
     log = logging.getLogger ('')
     log.setLevel (logging.WARNING)
     format = logging.Formatter ("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -380,9 +424,20 @@ if __name__ == '__main__':
 
 
     """ enumerate all possible paths """
-    print("\n\n ================ ALL TRACES ===================================")
-    PE.get_traces(PE.tree)
-    print("Number of traces: {0}".format(len(PE.tree.data)))
-    for t in PE.tree.data:
-        print(t)
+    # print("\n\n ================ ALL TRACES ===================================")
+    # PE.get_traces(PE.tree)
+    # print("Number of traces: {0}".format(len(PE.tree.data)))
+    # for t in PE.tree.data:
+    #     print(t)
 
+    print("\n\n ================ ALL TRACES (NO GATEWAYS)=======================")
+    # traces_act = PE.actlist_from_traces(PE.tree.data)
+    # print("Number of traces: {0}".format(len(traces_act)))
+    # for t in traces_act:
+    #     print(t)
+
+
+    print("\n\n ================ TEST DECISIONS =======================")
+    decisions = PE.get_optimal_decisions()
+    for key in decisions:
+        print("{2} : {0} : {1}".format(decisions[key]['antec'], decisions[key]['conseq'], key))
