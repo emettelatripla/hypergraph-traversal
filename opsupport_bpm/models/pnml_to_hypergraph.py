@@ -317,10 +317,10 @@ def convert_pnet_to_hypergraph(pnet):
                     he_from_xors_needed = True
             if(he_from_xors_needed):
 
-                """ START COMMENT
+
                 logger.debug("STEP 2 - Creating backward hyperedge to (multiple) xor - TAIL {0} -- HEAD {1} ".format(str(xplace_tail),str(x_head)))
                 hg.add_hyperedge(xplace_tail, x_head, name = " ", phero = 0.5)
-                END COMMENT"""
+
                 #create forward normal hyperdge
             tail = []
             for place in otherp_list:
@@ -362,11 +362,11 @@ def convert_pnet_to_hypergraph(pnet):
                     he_to_xors_needed = True
             if(he_to_xors_needed):
 
-                pass
-                """START COMMENT
+
+
                 logger.debug("STEP 2 - Creating forward hyperedge to (multiple) xor - TAIL {0} -- HEAD {1} ".format(str(x_tail),str(xplace_head)))
                 hg.add_hyperedge(x_tail, xplace_head, name = " ", phero = 0.5)
-                STOP """
+
 
                 #create forward normal hyperdge
             head = []
@@ -388,7 +388,7 @@ def convert_pnet_to_hypergraph(pnet):
                 logger.debug("STEP 2 - Creating real forward  hyperedge - TAIL {0} -- HEAD {1} ".format(str(x_tail),str(head)))
                 hg.add_hyperedge(x_tail, head, name = " ", phero = 0.5, cost = 0.4, avail = 0.6, qual = 0.2, time = 0.99)
 
-    #hg = tau_splitjoin_postprocessing(hg)
+    hg = tau_splitjoin_postprocessing(hg)
     """ reduction of tau split/join """
     #hg = tau_reduction(hg)
     hg = post_processing_end_nodes(hg)
@@ -593,6 +593,7 @@ def main():
 
     """ TEST TAU TREE REDUCTION"""
     hg = tau_tree_reduction(hg)
+    #write_hg_to_file(hg, "hypergraph_red_tautree.hgr")
 
     print("\n\n...After tau tree reduction: ")
     print(hg.has_hyperedge(('tau split0'), ('Send Invoice', 'Approve Purchase Order for Payment')))
@@ -601,6 +602,7 @@ def main():
 
     """ TEST TAU SPLIT/JOIN REDUCTION"""
     hg = tau_splitjoin_reduction(hg)
+    #write_hg_to_file(hg, "hypergraph_red_tausj.hgr")
 
     print("\n\n...After tau split/join reduction: ")
     print(hg.has_hyperedge(('tau split0'), ('Send Invoice', 'Approve Purchase Order for Payment')))
@@ -608,7 +610,6 @@ def main():
     print(hg.has_hyperedge(('tau split0'), ('Send Invoice')))
 
 
-    write_hg_to_file(hg, "hyp_file.txt")
     logger.debug("Number of start events: {0}".format(number_of_start_events(hg)))
     logger.debug("Number of end events: {0}".format(number_of_end_events(hg)))
     print_statistics(hg)
