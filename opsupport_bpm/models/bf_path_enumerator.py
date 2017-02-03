@@ -321,7 +321,7 @@ class BF_PathEnumerator():
 
     def get_optimal_decisions(self):
         """
-        Returns the list of decisions in the optimal path in a dictionary of the type
+        Returns the list of decisions in the optimal path in a dictionary of the type (includes tau transitions)
         {1: {'antec' : 'Activity_A', 'conseq' : 'ActivityB'} }
         :return:
         """
@@ -335,6 +335,38 @@ class BF_PathEnumerator():
                 decisions[dec_count] = {'antec' : antec, 'conseq' : conseq}
                 dec_count += 1
         return decisions
+
+    def get_optimal_decisions_notau(self, opt_traces):
+        """
+        picks the list of decisions (with tau transitions) and checks in the list of optimal traces how this decisions may look like
+        :return: the list of decisions in the optimal path involving only activities (no tau transitions)
+        """
+        opt_tau_decisions = self.get_optimal_decisions()
+        opt_decisions = {}
+        for key in opt_tau_decisions:
+            antec = opt_tau_decisions[key]['antec']
+            conseq = opt_tau_decisions[key]['conseq']
+            is_antec_tau = re.search('tau from tree', antec)
+            is_conseq_tau = re.search('tau from tree', conseq)
+            if is_antec_tau is not None:
+                for opt_trace in opt_traces:
+                    possible_antecs = []
+                    for i in range(len(opt_trace)-1):
+                        if opt_trace[i+1] == conseq:
+                            possible_antecs.append(opt_trace[i])
+                # create entry in dictionary
+                opt_decisions[key] = {'antec': possible_antecs , 'conseq' : [conseq]}
+            elif is_conseq_tau is not None:
+                for opt_trace in opt_traces:
+                    possible_conseqs = []
+                    for i in range(1,len(opt_trace)):
+                        if opt_trace[i-1] == antec:
+                            possible_conseqs.append(opt_trace[i])
+                # create entry in dictionary
+                opt_decisions[key] = {'antec': [antec] , 'conseq' : possible_conseqs}
+            else:
+                opt_decisions[key] = {'antec': [antec], 'conseq': [conseq]}
+        return opt_decisions
 
     """" METHODS FOR EXTRACTING traces from optimal path (END)"""
 
@@ -425,19 +457,26 @@ if __name__ == '__main__':
 
     """ enumerate all possible paths """
     # print("\n\n ================ ALL TRACES ===================================")
-    # PE.get_traces(PE.tree)
-    # print("Number of traces: {0}".format(len(PE.tree.data)))
+    PE.get_traces(PE.tree)
+    print("Number of traces: {0}".format(len(PE.tree.data)))
     # for t in PE.tree.data:
     #     print(t)
 
     print("\n\n ================ ALL TRACES (NO GATEWAYS)=======================")
-    # traces_act = PE.actlist_from_traces(PE.tree.data)
-    # print("Number of traces: {0}".format(len(traces_act)))
-    # for t in traces_act:
-    #     print(t)
+    traces_act = PE.actlist_from_traces(PE.tree.data)
+    print("Number of traces: {0}".format(len(traces_act)))
+    for t in traces_act:
+        print(t)
 
 
     print("\n\n ================ TEST DECISIONS =======================")
+
     decisions = PE.get_optimal_decisions()
     for key in decisions:
         print("{2} : {0} : {1}".format(decisions[key]['antec'], decisions[key]['conseq'], key))
+
+    print("\n\n OPT DECISIONS NO TAU ================================== (note some decision's will collapse!! =====")
+
+    decisions_notau = PE.get_optimal_decisions_notau(traces_act)
+    for key in decisions_notau:
+        print("{2} : {0} : {1}".format(decisions_notau[key]['antec'], decisions_notau[key]['conseq'], key))

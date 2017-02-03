@@ -264,6 +264,7 @@ if __name__ == '__main__':
     print(ELH.get_ratio_optimal_traces(opt_traces))
 
     opt_decisions = PE.get_optimal_decisions()
+    print(opt_decisions)
     for key in ELH.log_by_case:
         ret = ELH.get_optimal_decisions(key, opt_decisions)
         if ret[3] == 1.0:
