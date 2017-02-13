@@ -76,58 +76,6 @@ class EventLogHandler():
 
 
 
-
-    def get_all_decisions(self):
-        """
-        Return the list of decisions in a hypergraph in a dictionary:
-        {1: {'antec' : ['actA','actB'], 'conseq': ['actC','actD']}}
-        :param case_id:
-        :return:
-        """
-        node_set = self.hgr.get_node_set()
-        dec_count = 0
-        decisions = {}
-        for node in node_set:
-            if self.hgr.get_node_attribute(node, 'type') == 'xor-split':
-                antec = []
-                for edge in self.hgr.get_backward_star(node):
-                    antec.append(list(self.hgr.get_hyperedge_tail(edge))[0])
-                conseq = []
-                for edge in self.hgr.get_forward_star(node):
-                    conseq.append(list(self.hgr.get_hyperedge_head(edge))[0])
-                decisions[node] = {'antec': antec, 'conseq': conseq}
-                dec_count += 1
-        return decisions
-
-
-    def get_case_dec_matching(self, case_id):
-        dec_opt = self.get_optimal_decisions()
-        dec_all = self.get_all_decisions()
-        trace = self.get_trace(case_id)
-        DEC_OK, DEC_DEV, DEC_BACK = 0, 0, 0
-        for dec in dec_all:
-            antec_list, antec_opt, conseq_list, conseq_opt = dec_all[dec]['antec'], dec_opt[dec]['antec'], dec_all[dec]['conseq'],   dec_opt[dec]['conseq']
-            # look for antecedent in trace
-            if antec_opt in trace:
-                #  match consequence
-                antec_index = trace.index(antec_opt)
-                cons_trace = trace[antec_index + 1]             # consequent is the next activity in the trace
-                if cons_trace == conseq_opt:
-                    # CASE 1: optimal path has been followed
-                    DEC_OK += 1
-                else:
-                    if cons_trace in conseq_list:
-                        # CASE 2: deviation from optimal path
-                        DEC_DEV += 1
-            else:
-                if conseq_opt in trace:
-                    conseq_index = trace.index(conseq_opt)
-                    antec_trace = trace[conseq_index - 1]
-                    if antec_trace != antec_opt:
-                        DEC_BACK += 1
-        # determine metric value
-        return DEC_OK, DEC_DEV, DEC_BACK, len(dec_all)
-
     def is_trace_optimal(self, case_id, opt_traces):
         logger = logging.getLogger(__name__)
         case = self.get_trace(case_id)
@@ -167,25 +115,28 @@ class EventLogHandler():
         return num_optimal / len(self.log_by_case)
 
 
-    def get_optimal_decisions(self, case_id, opt_decisions):
+
+    def opt_decisions_ratio(self, trace, opt_decisions):
         """
-        checks how many optimal decisions in a trace have been made
-        :param opt_decisions:
-        :return:
+                Calculates the ratio of optimal decision taken in a trace
+                :param trace:
+                :param opt_decision:
+                :return:
         """
-        case = self.get_trace(case_id)
-        num_dec, num_opt_dec = 0, 0
-        # WARNING: we have to handle loops in trace: only the first time a choice is made is considered
-        banned_choices = []
+        total_dec, correct_dec = 0, 0
         for key in opt_decisions:
-            antec, conseq = opt_decisions[key]['antec'], opt_decisions[key]['conseq']
-            for i in range(len(case)-1):
-                if case[i] == antec and case[i] not in banned_choices:
-                    banned_choices.append(antec)
-                    num_dec += 1
-                    if case[i+1] == conseq:
-                        num_opt_dec += 1
-        return num_dec, num_opt_dec, num_dec / len(opt_decisions), num_opt_dec / len(opt_decisions)
+            antec, conseq = opt_decisions[key]['antec'][0], opt_decisions[key]['conseq'][0]
+            checked = False             # to check only the first occurrence of a decision (otherwise is a loop)
+            for event in trace:
+                if event['activity'] == antec and checked == False:
+                    # found antecedent, check if next evet in consequent and update counters
+                    i = trace.index(event)
+                    if i != len(trace) - 1:
+                        if trace[i+1]['activity'] == conseq:
+                            checked = True
+                            correct_dec += 1
+            total_dec += 1
+        return correct_dec, total_dec, correct_dec / total_dec
 
 
 
@@ -242,7 +193,7 @@ if __name__ == '__main__':
     PE = BF_PathEnumerator("popt.hgr")
     PE.get_hyperpath_tree(PE.tree)
     PE.prepare_tree_for_trace_enumeration()
-    PE.get_traces(PE.tree)
+    PE._get_traces(PE.tree)
     opt_traces = PE.actlist_from_traces(PE.tree.data)
 
 
@@ -252,26 +203,27 @@ if __name__ == '__main__':
     #print(ELH.is_trace_optimal("411", opt_traces))
 
     """ \n\n======= test all cases ==============="""
-    # for key in ELH.log_by_case:
-    #     if ELH.is_trace_optimal(key, opt_traces) == True:
-    #         print("Case {0}, is optimal".format(key))
-    #         count_opt_traces += 1
-    # print("Optimal traces / Total traces: {0} / {1}".format(count_opt_traces, len(ELH.log_by_case)))
-    # print("STOP!")
+    for key in ELH.log_by_case:
+        if ELH.is_trace_optimal(key, opt_traces) == True:
+            print("Case {0}, is optimal".format(key))
+            count_opt_traces += 1
+    print("Optimal traces / Total traces: {0} / {1}".format(count_opt_traces, len(ELH.log_by_case)))
+    print("STOP!")
 
     """ \n\n======= ration and numbers ==============="""
     print(ELH.get_number_optimal_traces(opt_traces))
     print(ELH.get_ratio_optimal_traces(opt_traces))
 
-    opt_decisions = PE.get_optimal_decisions()
+    opt_decisions = PE.get_optimal_decisions_notau(opt_traces)
     print(opt_decisions)
     for key in ELH.log_by_case:
-        ret = ELH.get_optimal_decisions(key, opt_decisions)
-        if ret[3] == 1.0:
+        trace = ELH.log_by_case[key]
+        ret = ELH.opt_decisions_ratio(trace, opt_decisions)
+        if ret[2] == 1.0:
             found = 'True ================================='
         else:
             found = 'false'
-        print("Case {0}: {1}, {2}, {3}, {4}, {5}".format(key, ret[0], ret[1], ret[2], ret[3], found))
+        print("Case {0}: {1}, {2}, {3}, {4}".format(key, ret[0], ret[1], ret[2], found))
 
 
 

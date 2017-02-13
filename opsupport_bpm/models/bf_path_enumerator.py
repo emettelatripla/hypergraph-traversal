@@ -104,10 +104,10 @@ class BF_PathEnumerator():
             if self.opt_hgr.get_node_attribute(node, 'sink') == True:
                 end_node = node
         #hypertree = Node()
-        self.explore(hypertree, start_node, end_node)
+        self._explore(hypertree, start_node, end_node)
         return hypertree
 
-    def explore(self, tree, node_start, node_end):
+    def _explore(self, tree, node_start, node_end):
         current_node = node_start
 
         while current_node != node_end:
@@ -125,7 +125,7 @@ class BF_PathEnumerator():
                     #start_node = "tau split"+id
                     end_node = "tau join"+id
                     #self.explore (new_block, start_node, end_node)
-                    self.explore(new_block, node, end_node)
+                    self._explore(new_block, node, end_node)
                 current_node = end_node
             else:
                 tree.data.append(current_node)
@@ -149,7 +149,7 @@ class BF_PathEnumerator():
     """" METHODS FOR EXTRACTING traces from optimal path (START)"""
 
 
-    def vertical_merge(self, data_parent, data_down_list):
+    def _vertical_merge(self, data_parent, data_down_list):
         """
         does teh vertical merge step: tested!
         :param data_up: a list with tau split/join
@@ -173,17 +173,17 @@ class BF_PathEnumerator():
                 # do the merge (create list of lists)
 
             data_up[sublist_start:sublist_end+1] = next(perm_down)
-            copy = self.deep_copy(data_up)
+            copy = self._deep_copy(data_up)
             merge.append(copy)
 
             for perm in perm_down:
                 data_up[sublist_start:sublist_start+len(perm)] = perm
-                copy = self.deep_copy(data_up)
+                copy = self._deep_copy(data_up)
                 merge.append(copy)
 
         return merge
 
-    def vertical_substitution(self, hypertree, data_down_list):
+    def _vertical_substitution(self, hypertree, data_down_list):
         """
         does teh vertical merge step: tested!
         :param data_up: a list with tau split/join
@@ -210,7 +210,7 @@ class BF_PathEnumerator():
                 # do the merge (create list of lists)
 
             data_up[sublist_start:sublist_end+1] = data_down[1:-1]
-            copy = self.deep_copy(data_up)
+            copy = self._deep_copy(data_up)
             merge.append(copy)
 
             # for perm in perm_down:
@@ -225,43 +225,43 @@ class BF_PathEnumerator():
 
 
 
-    def deep_copy(self, lst):
+    def _deep_copy(self, lst):
         new = []
         for l in lst:
             new.append(l)
         return new
 
 
-    def horizontal_merge(self, a, b):
+    def _horizontal_merge(self, a, b):
         #b = b[1:-1]
         logger = logging.getLogger(__name__)
         logger.debug("H-merge: {0} === {1}".format(a,b))
 
         result = []
         for lst1 in a:
-            copy_lst1 = self.deep_copy(lst1)
+            copy_lst1 = self._deep_copy(lst1)
             del copy_lst1 [0]
             del copy_lst1 [-1]
             for lst2 in b:
-                copy_lst2 = self.deep_copy(lst2)
+                copy_lst2 = self._deep_copy(lst2)
                 del copy_lst2 [0]
                 del copy_lst2 [-1]
-                result += self.combine(copy_lst1,copy_lst2)
+                result += self._combine(copy_lst1, copy_lst2)
 
         return result
 
-    def combine(self, xs, ys):
+    def _combine(self, xs, ys):
         logger = logging.getLogger(__name__)
         logger.debug ("Combine: {0} === {1}".format (xs, ys))
         if xs == []: return [ys]
         if ys == []: return [xs]
         x, *xs_tail = xs
         y, *ys_tail = ys
-        return [[x] + l for l in self.combine(xs_tail, ys)] + \
-               [[y] + l for l in self.combine(ys_tail, xs)]
+        return [[x] + l for l in self._combine(xs_tail, ys)] + \
+               [[y] + l for l in self._combine(ys_tail, xs)]
 
 
-    def get_traces(self, hypertree):
+    def _get_traces(self, hypertree):
         """
         Does the traversal of the tree to get all possible traces (doing vertical/horizontal merge as needed)
 
@@ -286,7 +286,7 @@ class BF_PathEnumerator():
                 copy_res = []
                 for r in res:
                     copy_res.append(r)
-                res = self.horizontal_merge(copy_res, children[i+1].data)
+                res = self._horizontal_merge(copy_res, children[i + 1].data)
                 j = 0
                 while j < len(res):
                     res[j].insert (0, "tau split0")
@@ -295,9 +295,9 @@ class BF_PathEnumerator():
                 i += 1
                 # vertical substitution
 
-            self.vertical_substitution(hypertree, res)
+            self._vertical_substitution(hypertree, res)
             if hypertree.parent != None:
-                PE.get_traces(hypertree.parent)
+                PE._get_traces(hypertree.parent)
 
         #return traces
 
@@ -319,7 +319,7 @@ class BF_PathEnumerator():
 
     """" METHODS FOR EXTRACTING DECISIONS from optimal path (START)"""
 
-    def get_optimal_decisions(self):
+    def _get_optimal_decisions(self):
         """
         Returns the list of decisions in the optimal path in a dictionary of the type (includes tau transitions)
         {1: {'antec' : 'Activity_A', 'conseq' : 'ActivityB'} }
@@ -341,7 +341,7 @@ class BF_PathEnumerator():
         picks the list of decisions (with tau transitions) and checks in the list of optimal traces how this decisions may look like
         :return: the list of decisions in the optimal path involving only activities (no tau transitions)
         """
-        opt_tau_decisions = self.get_optimal_decisions()
+        opt_tau_decisions = self._get_optimal_decisions()
         opt_decisions = {}
         for key in opt_tau_decisions:
             antec = opt_tau_decisions[key]['antec']
@@ -366,9 +366,32 @@ class BF_PathEnumerator():
                 opt_decisions[key] = {'antec': [antec] , 'conseq' : possible_conseqs}
             else:
                 opt_decisions[key] = {'antec': [antec], 'conseq': [conseq]}
+
+        self._reduce_duplicate_opt_dec(opt_decisions)
         return opt_decisions
 
-    """" METHODS FOR EXTRACTING traces from optimal path (END)"""
+    def _reduce_duplicate_opt_dec(self, opt_decisions):
+        """
+        Deletes duplicate optimal decisions (because collapsed when removing taus)
+        :param opt_decisions:
+        :return:
+        """
+        keys_to_del, checked_keys = [], []
+        for key in opt_decisions:
+            for key2 in opt_decisions:
+                if opt_decisions[key] == opt_decisions[key2] and key2 not in keys_to_del and key2 not in checked_keys and key != key2:
+                    keys_to_del.append(key2)
+            checked_keys.append(key)
+        # delete duplicate keys
+        for key in keys_to_del:
+            del opt_decisions[key]
+        return opt_decisions
+
+    """" METHODS FOR EXTRACTING DECISIONS from optimal path (END)"""
+
+
+
+
 
 if __name__ == '__main__':
 
@@ -457,7 +480,7 @@ if __name__ == '__main__':
 
     """ enumerate all possible paths """
     # print("\n\n ================ ALL TRACES ===================================")
-    PE.get_traces(PE.tree)
+    PE._get_traces(PE.tree)
     print("Number of traces: {0}".format(len(PE.tree.data)))
     # for t in PE.tree.data:
     #     print(t)
@@ -471,7 +494,7 @@ if __name__ == '__main__':
 
     print("\n\n ================ TEST DECISIONS =======================")
 
-    decisions = PE.get_optimal_decisions()
+    decisions = PE._get_optimal_decisions()
     for key in decisions:
         print("{2} : {0} : {1}".format(decisions[key]['antec'], decisions[key]['conseq'], key))
 
