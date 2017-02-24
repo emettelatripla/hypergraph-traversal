@@ -27,11 +27,15 @@ class Node:
     def set_parent(self, parent):
         self.parent = parent
     def is_leaf(self):
-        return self.children == [] or self.is_merge
+        # return self.children == [] or self.is_merge
+        return self.children == []
     def set_children(self):
         for d in self.data:
             if type(d) is not str:
                 self.children.append(d)
+        for d in self.data:
+            if type(d) is not str:
+                d.set_children()
     def add_activity(self, act_name):
         self.data.append(act_name)
     def print_node(self, level):
@@ -261,6 +265,56 @@ class BF_PathEnumerator():
                [[y] + l for l in self._combine(ys_tail, xs)]
 
 
+    def get_traces_complete(self, hypertree):
+        """
+        Does the traversal of the tree to get all possible traces (doing vertical/horizontal merge as needed)
+
+        The main skeleton is here.
+        However, we need to check for data as list or list of lists (horizontal/vertical integration has to work in all cases)
+        :return:
+        """
+        logger = logging.getLogger()
+        logger.info("Processing node {0}, number of children: {1}".format(hypertree, len(hypertree.children)))
+        children = hypertree.children
+        ALL_LEAVES = True
+        for child in children:
+            if child.is_leaf () == False:
+                ALL_LEAVES = False
+        if ALL_LEAVES and children != []:
+            logger.info("--- Children are all leaves, merging....")
+            # horizontal merge pair by pair
+
+            child_num = len(children)
+            i = 0
+            res = children[i].data
+            while i < len(children) - 1:
+                # make a copy
+                copy_res = []
+                for r in res:
+                    copy_res.append(r)
+                logger.info ("--- Horiz0ntal merge")
+                res = self._horizontal_merge(copy_res, children[i + 1].data)
+                j = 0
+                logger.info ("inserting tau splits and joins for {0} fragments".format(len(res)))
+                while j < len(res):
+                    res[j].insert (0, "tau split0")
+                    res[j].append("tau join0")
+                    j += 1
+                i += 1
+                # vertical substitution
+            logger.info ("--- vertical substitution")
+            self._vertical_substitution(hypertree, res)
+            if hypertree.parent != None:
+                PE.get_traces_complete(hypertree.parent)
+        else:
+            if children != []:
+            # recursive call on the child with other children
+                for child in children:
+                    logger.info ("Recursive call on node {0}".format(child))
+                    PE.get_traces_complete(child)
+
+
+
     def _get_traces(self, hypertree):
         """
         Does the traversal of the tree to get all possible traces (doing vertical/horizontal merge as needed)
@@ -395,14 +449,9 @@ class BF_PathEnumerator():
 
 if __name__ == '__main__':
 
-    m = re.search('n([0-9]+)', 'n456' )
-    n = re.search('n([0-9]+)', 'yuy456 ioio')
-    print(m.group(0))
-    if n is None:
-        print("No match")
-
+    """ setup the logger """
     log = logging.getLogger ('')
-    log.setLevel (logging.WARNING)
+    log.setLevel (logging.INFO)
     format = logging.Formatter ("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     ch = logging.StreamHandler (sys.stdout)
@@ -411,14 +460,20 @@ if __name__ == '__main__':
 
     logger = logging.getLogger (__name__)
 
-    PE = BF_PathEnumerator("popt.hgr")
+
+    """ file names """
+    # opt_file = "opt_purchasing.hgr"
+    # opt_file = "opt_bpi2012.hgr"
+    opt_file = "opt_road_fine_process.hgr"
+
+    PE = BF_PathEnumerator(opt_file)
 
     #tree = Node()
     PE.get_hyperpath_tree(PE.tree)
     PE.prepare_tree_for_trace_enumeration()
-    print(PE.tree.data)
-    for child in PE.tree.children:
-        print(child.data)
+    # print(PE.tree.data)
+    # for child in PE.tree.children:
+    #     print(child.data)
 
 
 
@@ -466,24 +521,26 @@ if __name__ == '__main__':
     #     print (r)
 
     """ end create sample tree """
-    print("\n\n=========== HORIZONTAL MERGE =============================")
+    # print("\n\n=========== HORIZONTAL MERGE =============================")
     # result = PE.horizontal_merge (parent.children[0].data, parent.children[1].data)
     # for r in result:
     #     print(r)
-    print ("\n\n=========== VERTICAL MERGE =============================")
+    # print ("\n\n=========== VERTICAL MERGE =============================")
     # result = PE.vertical_substitution(parent.data,parent.children[0].data)
     # for r in result:
     #     print(r)
 
-    """ test vertical/horizontal integration"""
 
 
     """ enumerate all possible paths """
-    # print("\n\n ================ ALL TRACES ===================================")
-    PE._get_traces(PE.tree)
+    print("\n\n ================ ALL TRACES ===================================")
+    print(PE.tree.data)
+    PE.get_traces_complete(PE.tree)
+
+
     print("Number of traces: {0}".format(len(PE.tree.data)))
-    # for t in PE.tree.data:
-    #     print(t)
+    for t in PE.tree.data:
+        print(t)
 
     print("\n\n ================ ALL TRACES (NO GATEWAYS)=======================")
     traces_act = PE.actlist_from_traces(PE.tree.data)

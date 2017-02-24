@@ -366,7 +366,8 @@ def aco_search_nonrec(hg, ant_attributes):
 
         # choose next edge based on smartchoice or pheromone distribution
         next_edge = None
-        is_smartchoice = hg.get_node_attribute(current_node, 'smartchoice')
+        #is_smartchoice = hg.get_node_attribute(current_node, 'smartchoice')
+        is_smartchoice = False
         if is_smartchoice == True:
             # do something with smartchoice
             is_smart_attr, is_smart_node, is_smart_service = hg.get_node_attribute(current_node, 'smart_attribute'), hg.get_node_attribute(current_node, 'smart_node'), hg.get_node_attribute(current_node, 'smart_service')

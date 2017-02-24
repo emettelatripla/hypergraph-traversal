@@ -558,7 +558,10 @@ def main():
     #file_name = "C://BPMNexamples/real_logs/hospital_inductive.pnml"
     #file_name = "C://BPMNexamples/inductive/repair_start_end_inductive.pnml"
 
-    file_name = "C://opsupport_bpm_files/pnml_input/inductive/PurchasingExample.pnml"
+    # file_name = "C://opsupport_bpm_files/pnml_input/inductive/PurchasingExample.pnml"
+    file_name = 'C://opsupport_bpm_files/output_single/road_fine_process_highlight.pnml'
+    # file_name = 'C://opsupport_bpm_files/output_single/bpi_challenge2012_highlight.pnml'
+
     
     tree = ET.parse(file_name)
     pnet = tree.getroot()
@@ -585,14 +588,14 @@ def main():
     #     logger.info("Found new arc --- ID: "+id+" SOURCE: "+source+" TARGET: "+target)
     
     hg = convert_pnet_to_hypergraph(pnet)
-    write_hg_to_file(hg,"hypergraph.hgr")
+    write_hg_to_file(hg,"opt.hgr")
     print("\n\n...After first conversion: ")
     print(hg.has_hyperedge(['tau split0'], ['Send Invoice', 'Approve Purchase Order for payment']))
     print(hg.has_hyperedge(['tau split0'], ['Approve Purchase Order for payment']))
     print(hg.has_hyperedge(['tau split0'], ['Send Invoice']))
 
     """ TEST TAU TREE REDUCTION"""
-    hg = tau_tree_reduction(hg)
+    #hg = tau_tree_reduction(hg)
     #write_hg_to_file(hg, "hypergraph_red_tautree.hgr")
 
     print("\n\n...After tau tree reduction: ")
@@ -601,7 +604,7 @@ def main():
     print(hg.has_hyperedge(('tau split0'), ('Send Invoice')))
 
     """ TEST TAU SPLIT/JOIN REDUCTION"""
-    hg = tau_splitjoin_reduction(hg)
+    #hg = tau_splitjoin_reduction(hg)
     #write_hg_to_file(hg, "hypergraph_red_tausj.hgr")
 
     print("\n\n...After tau split/join reduction: ")
@@ -660,6 +663,8 @@ def test_smartchoice():
 
     # example file
     file_name = 'C://opsupport_bpm_files/pnml_input/inductive/ex2_inductive.pnml'
+
+
     tree = ET.parse(file_name)
     pnet = tree.getroot()
 

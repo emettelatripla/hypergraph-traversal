@@ -115,6 +115,7 @@ def do_one_run_single_file(io_param, aco_param, file_name):
     end_time_aco = time()
     aco_alg_time = end_time_aco - start_time_aco
     print_hg_std_out_only(p_opt)
+    write_hg_to_file (hg, "opt.hgr")
     print("ACO optimisation took: {0}s".format(aco_alg_time))
     print("UTILITY: {0}".format(utility))
 
@@ -167,6 +168,8 @@ if __name__ == "__main__":
     # Test smart SERVICE
     #file_name = "C://opsupport_bpm_files/eval/input_files/ex1_inductive_smart_service.hgr"
 
-    file_name = "C://opsupport_bpm_files/eval/input_files/PurchasingExample.hgr"
+    # file_name = "C://opsupport_bpm_files/eval/input_files/PurchasingExample.hgr"
+    # file_name = "C://opsupport_bpm_files/eval/input_files/road_fine_process.hgr"
+    file_name = "C://opsupport_bpm_files/eval/input_files/bpi_challenge2012.hgr"
 
     do_one_run_single_file(io_param, aco_param, file_name)
