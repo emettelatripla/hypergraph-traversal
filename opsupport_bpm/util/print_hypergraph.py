@@ -126,7 +126,7 @@ def print_node(node, hg):
     """
     #logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://BPMNexamples/aco.log',level=logging.INFO)
     logger = logging.getLogger(__name__)
-    logger.info("oooo Node: {0} ### Attributes: {1}".format(str(node), hg.get_node_attributes(node)))
+    logger.info("NODE: {0} ### Attributes: {1}".format(str(node), hg.get_node_attributes(node)))
     
 def print_hyperedge(h_edge, hg):
     """
@@ -141,7 +141,7 @@ def print_hyperedge(h_edge, hg):
     h_edge_head = str(hg.get_hyperedge_head(h_edge))
     h_edge_phero = str(hg.get_hyperedge_attribute(h_edge, 'phero'))
     #h_edge_id = str(hg.get_hyperedge_attribute(h_edge, 'id'))
-    logger.info(">>> Hyperedge: {0} ### Tail: {1} ### Head: {2} ### Phero: {3}".format(str(h_edge), h_edge_tail, h_edge_head, h_edge_phero))
+    logger.info("EDGE: {0} ### Tail: {1} >>> Head: {2} ### Phero: {3}".format(str(h_edge), h_edge_tail, h_edge_head, h_edge_phero))
     
     
 """ main to do some testing if required"""

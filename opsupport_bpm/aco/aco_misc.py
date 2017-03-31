@@ -104,7 +104,7 @@ def rewrite_xor_block(hg, node, size):
     split_list.append(xor_split)
     join_list.append(xor_join)
     # create edges for xor block
-    edge_attrs = {'phero' : 0.5}
+    edge_attrs = {'phero' : 100}
     for _node in node_list:
         node_as_list = []
         node_as_list.append(_node)
@@ -156,7 +156,7 @@ def rewrite_and_block(hg, node, size):
     split_list.append(tau_split)
     join_list.append(tau_join)
     # create one big hyperedge for parallel of all nodes
-    edge_attrs = {'phero' : 0.5}
+    edge_attrs = {'phero' : 100}
     node_as_list = []
     for _node in node_list:
         node_as_list.append(_node)
@@ -204,7 +204,7 @@ def random_generate_hg(level_size, block_size_min, block_size_max):
     hg.add_node(source, source_attrs)
     sink = 'sink'
     hg.add_node(sink, sink_attrs)
-    edge_attrs = {'phero' : 0.5}
+    edge_attrs = {'phero' : 100}
     source_list = []
     sink_list = []
     source_list.append(source)
@@ -325,7 +325,7 @@ def add_random_loops(hg, loops_number, loop_length):
         current_node = start_loop_node
         #print("Found nodes for loop: {0}, {1}".format(start_loop_node, end_loop_node))
         line = str(current_node)
-        edge_attrs = {'phero' : 0.5}
+        edge_attrs = {'phero' : 100}
         j = 0
         while j <= loop_length:
             if j != loop_length:                                     # add new node

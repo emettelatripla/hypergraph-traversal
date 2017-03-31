@@ -71,7 +71,7 @@ def setup_conversion_pnet_to_hg(file_root, input_eval_dir, output_eval_dir):
     
     
     
-def sim_run_pnml_files(hg, COL_NUM, ANT_NUM, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir):
+def sim_run_pnml_files(hg, COL_NUM, ANT_NUM, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir, SYS_TYPE):
     '''
     
     :param hg:
@@ -91,7 +91,7 @@ def sim_run_pnml_files(hg, COL_NUM, ANT_NUM, phero_tau, W_UTILITY, file_root, in
     
     
     start_time_aco = time()
-    aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, phero_tau, W_UTILITY)
+    aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, phero_tau, W_UTILITY, SYS_TYPE)
     p_opt = aco_result[0]
     utility = aco_result[1]
     end_time_aco = time()
@@ -165,7 +165,7 @@ def convert_input_pnml_to_hgr(io_param):
 
         
         
-def optimise(io_param, aco_param):
+def optimise(io_param, aco_param, SYS_TYPE):
     '''
     reads all input hypergraphs (in .hgr files) and does the optimisation
     :param aco_param: parameters for aco optimisation (see main)
@@ -225,11 +225,11 @@ def optimise(io_param, aco_param):
             for col_num in range(COL_NUM, COL_NUM_MAX, COL_NUM_STEP):
                 # reset_pheromone
                 print_hg_std_out_only(hg)
-                hg = reset_pheromone(hg)
+                #hg = reset_pheromone(hg)
                 # loop on ants within colonies
                 for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
                     # possible loop on phero_tau (nest here)
-                    aco_result = sim_run_pnml_files(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
+                    aco_result = sim_run_pnml_files(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir, SYS_TYPE)
                     aco_alg_time = aco_result[0] 
                     pnet_post_time = aco_result[1]
                     utility = aco_result[2]
@@ -242,7 +242,7 @@ def optimise(io_param, aco_param):
     
 
 
-def convert_and_optimise(io_param, aco_param):
+def convert_and_optimise(io_param, aco_param, SYS_TYPE):
     """
     converts all input pnml file into hypergraphs, initialise them randomly and does the optimisation
     """
@@ -262,6 +262,8 @@ def convert_and_optimise(io_param, aco_param):
     ANT_NUM_STEP = aco_param['ANT_NUM_STEP']
     phero_tau = aco_param['phero_tau']
     W_UTILITY = aco_param['W_UTILITY']
+
+
     
 
     # cleanup output directories!
@@ -304,7 +306,7 @@ def convert_and_optimise(io_param, aco_param):
                 # loop on ants within colonies
                 for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
                     # possible loop on phero_tau (nest here)
-                    aco_result = sim_run_pnml_files(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir)
+                    aco_result = sim_run_pnml_files(hg, col_num, ant_num, phero_tau, W_UTILITY, file_root, input_eval_dir, output_eval_dir, SYS_TYPE)
                     aco_alg_time = aco_result[0] 
                     pnet_post_time = aco_result[1]
                     utility = aco_result[2]

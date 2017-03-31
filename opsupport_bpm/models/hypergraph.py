@@ -114,6 +114,32 @@ def reset_pheromone(hg):
     
     return hg_copy
 
+
+def initialise_pheromone(hg, value):
+    '''
+    Reset the pheromone level to a default (0.5)
+    :param hg:
+    '''
+    hg_copy = DirectedHypergraph()
+    for edge in hg.get_hyperedge_id_set():
+        # hg_copy = hg.copy()
+        #PHERO_DEFAULT = 0.5
+        head_edge = hg.get_hyperedge_head(edge)
+        # head_edge = ast.literal_eval(head_edge)
+        # print(head_edge)
+        for head_node in head_edge:
+            # print(head_node)
+            attrs = hg.get_node_attributes(head_node)
+            hg_copy.add_node(head_node, attrs)
+        tail_edge = hg.get_hyperedge_tail(edge)
+        # tail_edge = ast.literal_eval(tail_edge)
+        for tail_node in tail_edge:
+            attrs = hg.get_node_attributes(tail_node)
+            hg_copy.add_node(tail_node, attrs)
+        hg_copy.add_hyperedge(tail_edge, head_edge, phero=value, id=edge, name=edge)
+
+    return hg_copy
+
 def tau_post_processing(hg):
     """
     POST-PROCESSING of tau-split, tau-join nodes 
@@ -121,6 +147,8 @@ def tau_post_processing(hg):
     substituted by hyperarcs
     :param hg
     """
+    PHERO_DEFAULT = 100
+
     logger = logging.getLogger(__name__)
     logger.info("Post-processin of tau splits/joins started...")
     # tau-from-tree nodes don't have to be processed?
@@ -140,7 +168,7 @@ def tau_post_processing(hg):
             #create new h_edge
             head = []
             head.append(node)
-            hg.add_hyperedge(tails, head, name = " ", phero = 0.5)
+            hg.add_hyperedge(tails, head, name = " ", phero = PHERO_DEFAULT)
         node_name = hg.get_node_attribute(node, 'name')
         if node_name[:9] == 'tau split':
             #get forward star
@@ -152,7 +180,7 @@ def tau_post_processing(hg):
             #create new h_edge
             tail = []
             tail.append(node)
-            hg.add_hyperedge(tail, heads, name = " ", phero = 0.5)
+            hg.add_hyperedge(tail, heads, name = " ", phero = PHERO_DEFAULT)
     logger.info("...done")
     return hg
 

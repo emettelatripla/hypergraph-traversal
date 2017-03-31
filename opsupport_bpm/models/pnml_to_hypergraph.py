@@ -202,6 +202,9 @@ def convert_pnet_to_hypergraph(pnet):
     :param pnet root of pnml file
     :returns hg (halp hypergraph)
     """
+
+    PHERO_DEFAULT = 100
+
     logger = logging.getLogger(__name__)
     """ pre-process pnet to number tau-split and tau-join transitions"""
     tau_pre_processing_pnet(pnet)
@@ -239,7 +242,7 @@ def convert_pnet_to_hypergraph(pnet):
                 tail.append(node_name)
                 #create hyperedge
                 logger.debug("STEP 1 - Creating hyperedge from {0} to {1}".format(str(tail), str(head)))
-                hg.add_hyperedge(tail, head, name = " ", phero = 0.5)
+                hg.add_hyperedge(tail, head, name = " ", phero = PHERO_DEFAULT)
         if len(out_arcs) > 1:
             node_id = get_id(place)
             #create node for place in hypergraph (if it does not exist already)
@@ -265,7 +268,7 @@ def convert_pnet_to_hypergraph(pnet):
                     head.append(node_name)
                     #create hyperedge
                     logger.debug("STEP 1 - Creating hyperedge from {0} to {1}".format(str(tail), str(head)))
-                    hg.add_hyperedge(tail, head, name = " ", phero = 0.5)
+                    hg.add_hyperedge(tail, head, name = " ", phero = PHERO_DEFAULT)
     """ STEP2 : Process each transition """
     for transition in transitions:
         logger.debug("######## Processing transition {0}".format(get_transition_name(transition)))
@@ -319,7 +322,7 @@ def convert_pnet_to_hypergraph(pnet):
 
 
                 logger.debug("STEP 2 - Creating backward hyperedge to (multiple) xor - TAIL {0} -- HEAD {1} ".format(str(xplace_tail),str(x_head)))
-                hg.add_hyperedge(xplace_tail, x_head, name = " ", phero = 0.5)
+                hg.add_hyperedge(xplace_tail, x_head, name = " ", phero = PHERO_DEFAULT)
 
                 #create forward normal hyperdge
             tail = []
@@ -336,7 +339,7 @@ def convert_pnet_to_hypergraph(pnet):
                 """ END NEW LINE """
 
                 logger.info("STEP 2 - Creating real backward  hyperedge - TAIL {0} -- HEAD {1} ".format(str(tail),str(x_head)))
-                hg.add_hyperedge(tail, x_head, name = " ", phero = 0.0, cost = 0.4, avail = 0.6, qual = 0.2, time = 0.99)
+                hg.add_hyperedge(tail, x_head, name = " ", phero = PHERO_DEFAULT, cost = 0.4, avail = 0.6, qual = 0.2, time = 0.99)
         #look FORWARD
         if not isSink:
             out_arcs = get_outgoing_arcs(transition,pnet)
@@ -365,7 +368,7 @@ def convert_pnet_to_hypergraph(pnet):
 
 
                 logger.debug("STEP 2 - Creating forward hyperedge to (multiple) xor - TAIL {0} -- HEAD {1} ".format(str(x_tail),str(xplace_head)))
-                hg.add_hyperedge(x_tail, xplace_head, name = " ", phero = 0.5)
+                hg.add_hyperedge(x_tail, xplace_head, name = " ", phero = PHERO_DEFAULT)
 
 
                 #create forward normal hyperdge
@@ -386,7 +389,7 @@ def convert_pnet_to_hypergraph(pnet):
                 """ END NEW LINE """
 
                 logger.debug("STEP 2 - Creating real forward  hyperedge - TAIL {0} -- HEAD {1} ".format(str(x_tail),str(head)))
-                hg.add_hyperedge(x_tail, head, name = " ", phero = 0.5, cost = 0.4, avail = 0.6, qual = 0.2, time = 0.99)
+                hg.add_hyperedge(x_tail, head, name = " ", phero = PHERO_DEFAULT, cost = 0.4, avail = 0.6, qual = 0.2, time = 0.99)
 
     hg = tau_splitjoin_postprocessing(hg)
     """ reduction of tau split/join """
