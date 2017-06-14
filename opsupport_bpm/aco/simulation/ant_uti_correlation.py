@@ -23,7 +23,8 @@ class AntUtilityCorrelator:
     def process_simulation_files(self):
         self.logger.info("Processing output file for scatter plot...")
         out_file = open(self.output_path + "scatter.txt", 'w')
-        out_file.write('COL \t ANT \t ANTS \t EXPLORE \t UTILITY' + '\n')
+        firstline = "NODES \t COL \t ANT \t ANTS \t EXPLORE \t UTILITY" + '\n'
+        out_file.write(firstline)
         for file in listdir(self.input_path + "\performance"):
             file_name = self.input_path + "\performance\\" + file
             self.logger.info("Processing file: {0}".format(file))
@@ -35,9 +36,10 @@ class AntUtilityCorrelator:
             max_utility = float(last_line_split[3])
             for line in lines:
                 line_split = line.split('\t')
-                col_num, ant_num, utility = int(line_split[1]), int(line_split[2]), int(line_split[3]), float(line_split[4]) / max_utility
+                nodes = line_split[6]
+                col_num, ant_num, utility = int(line_split[1]), int(line_split[2]),  float(line_split[3]) / max_utility
                 total_ants = col_num * ant_num
-                out_file.write(str(col_num) + '\t' + str(ant_num) + '\t' + str(total_ants) + '\t' + str(utility) + '\n')
+                out_file.write(str(nodes) + "\t" + str(col_num) + '\t' + str(ant_num) + '\t' + str(total_ants) + '\t' + str(utility) + '\n')
             f.close()
         out_file.close()
         self.logger.info("...done")
@@ -106,6 +108,6 @@ if __name__ == '__main__':
 
     AUC = AntUtilityCorrelator(input_path, output_path)
 
-    #AUC.process_simulation_files()
-    AUC.postprocessing_simulation_ONE()
+    AUC.process_simulation_files()
+    #AUC.postprocessing_simulation_ONE()
 

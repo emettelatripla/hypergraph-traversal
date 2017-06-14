@@ -223,7 +223,7 @@ def get_tag(element):
 
 if __name__ == "__main__":
     #setup the logger
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     # # Open XML document using minidom parser
     file_name = "C://BPMNexamples/simplexor.bpmn"

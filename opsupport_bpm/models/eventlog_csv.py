@@ -12,7 +12,7 @@ from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
 from opsupport_bpm.aco.aco_directed_hypergraph import aco_search_nonrec
 from opsupport_bpm.models.hypergraph import reset_pheromone
 
-from opsupport_bpm.models.bf_path_enumerator import BF_PathEnumerator
+from opsupport_bpm.models.bf_trace_enumerator import BF_PathEnumerator
 
 class EventLogHandler():
 

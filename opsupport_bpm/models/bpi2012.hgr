@@ -1,0 +1,141 @@
+node	n4	{'avail': 0.6165463731254922, 'source': False, 'sink': False, 'qual': 0.5016660419662625, 'name': ' ', 'cost': 0.7264890429522528, 'type': 'xor-join', 'time': 0.6034806943746069}
+node	n27	{'avail': 0.8591934436120271, 'source': False, 'sink': False, 'qual': 0.4061769787212618, 'name': ' ', 'cost': 0.4948029628789551, 'type': 'xor-split', 'time': 0.1358725802643851}
+node	W_Wijzigen contractgegevens	{'avail': 0.05841554995288101, 'source': False, 'sink': False, 'qual': 0.9557233728255572, 'name': 'W_Wijzigen contractgegevens', 'cost': 0.4813495990313351, 'type': 'transition', 'time': 0.6770724238831136}
+node	A_APPROVED	{'avail': 0.9340072865492015, 'source': False, 'sink': False, 'qual': 0.795578209675116, 'name': 'A_APPROVED', 'cost': 0.7245834241682315, 'type': 'transition', 'time': 0.5306358078638553}
+node	n22	{'avail': 0.05963966003929577, 'source': False, 'sink': False, 'qual': 0.8645893759363702, 'name': ' ', 'cost': 0.6127276769757819, 'type': 'xor-join', 'time': 0.22969157349795766}
+node	W_Valideren aanvraag	{'avail': 0.1435349951325564, 'source': False, 'type': 'transition', 'qual': 0.4769391280027536, 'name': 'W_Valideren aanvraag', 'cost': 0.32153342859713463, 'sink': False, 'time': 0.9489943115690956}
+node	tau from tree13	{'avail': 0.8273090182309444, 'source': False, 'sink': False, 'qual': 0.3852485371706035, 'name': 'tau from tree13', 'cost': 0.6859714855032422, 'type': 'transition', 'time': 0.338060898697779}
+node	tau from tree7	{'avail': 0.5365869521193452, 'source': False, 'sink': False, 'qual': 0.5711822820282603, 'name': 'tau from tree7', 'cost': 0.20049305164342002, 'type': 'transition', 'time': 0.301364654575457}
+node	A_FINALIZED	{'avail': 0.508116918890587, 'source': False, 'sink': False, 'qual': 0.23187657005749363, 'name': 'A_FINALIZED', 'cost': 0.061080756757863175, 'type': 'transition', 'time': 0.8880936790481485}
+node	tau from tree1	{'avail': 0.33815020905031756, 'source': False, 'sink': False, 'qual': 0.5931595737122352, 'name': 'tau from tree1', 'cost': 0.3076261141588056, 'type': 'transition', 'time': 0.7580887898472508}
+node	O_SELECTED	{'avail': 0.47864409932915264, 'source': False, 'type': 'transition', 'qual': 0.6671445093650525, 'name': 'O_SELECTED', 'cost': 0.5870907909686056, 'sink': False, 'time': 0.7172734304456683}
+node	W_Nabellen offertes	{'avail': 0.5598798637569598, 'source': False, 'sink': False, 'qual': 0.15827883749276828, 'name': 'W_Nabellen offertes', 'cost': 0.9469709212524836, 'type': 'transition', 'time': 0.2848476794537349}
+node	A_DECLINED	{'avail': 0.3411055651712217, 'source': False, 'sink': False, 'qual': 0.9544327257265104, 'name': 'A_DECLINED', 'cost': 0.6923556144742361, 'type': 'transition', 'time': 0.9372717490777558}
+node	tau from tree8	{'avail': 0.819124088866007, 'source': False, 'sink': False, 'qual': 0.944530870417163, 'name': 'tau from tree8', 'cost': 0.467984502995476, 'type': 'transition', 'time': 0.6243170378254949}
+node	n10	{'avail': 0.7282584649104007, 'source': False, 'sink': False, 'qual': 0.7691733015562271, 'name': ' ', 'cost': 0.7363323269940093, 'type': 'xor-join', 'time': 0.8289414091129099}
+node	n24	{'avail': 0.434862619588794, 'source': False, 'sink': False, 'qual': 0.1243014309448005, 'name': ' ', 'cost': 0.7210383045102899, 'type': 'xor-join', 'time': 0.492145285095167}
+node	O_CREATED	{'avail': 0.43169323182313957, 'source': False, 'sink': False, 'qual': 0.2430597957703201, 'name': 'O_CREATED', 'cost': 0.2278263289382233, 'type': 'transition', 'time': 0.400518824499537}
+node	A_CANCELLED	{'avail': 0.04987223825811349, 'source': False, 'sink': False, 'qual': 0.36700431512886467, 'name': 'A_CANCELLED', 'cost': 0.7160140920842615, 'type': 'transition', 'time': 0.5284401024530168}
+node	tau from tree3	{'avail': 0.8781493948785613, 'source': False, 'sink': False, 'qual': 0.4757656124054739, 'name': 'tau from tree3', 'cost': 0.25513261283915944, 'type': 'transition', 'time': 0.8187792047836058}
+node	n11	{'avail': 0.2508133402076208, 'source': False, 'sink': False, 'qual': 0.009241045277541104, 'name': ' ', 'cost': 0.18711568101164455, 'type': 'xor-split', 'time': 0.3406293690450326}
+node	tau from tree6	{'avail': 0.44173548266798446, 'source': False, 'sink': False, 'qual': 0.7490306435350653, 'name': 'tau from tree6', 'cost': 0.9771557025571239, 'type': 'transition', 'time': 0.38937913469044205}
+node	W_Completeren aanvraag	{'avail': 0.21470763150546224, 'source': False, 'sink': False, 'qual': 0.7535078224005444, 'name': 'W_Completeren aanvraag', 'cost': 0.582279420018451, 'type': 'transition', 'time': 0.6626967490642927}
+node	tau from tree14	{'avail': 0.9849396872187266, 'source': False, 'sink': False, 'qual': 0.7474107999906345, 'name': 'tau from tree14', 'cost': 0.8071385765096074, 'type': 'transition', 'time': 0.9022749843592114}
+node	O_CANCELLED	{'avail': 0.8302971505961776, 'source': False, 'sink': False, 'qual': 0.5526716258825543, 'name': 'O_CANCELLED', 'cost': 0.8824357760640826, 'type': 'transition', 'time': 0.15871316164937377}
+node	tau from tree11	{'avail': 0.32972614877844775, 'source': False, 'sink': False, 'qual': 0.9605862392791141, 'name': 'tau from tree11', 'cost': 0.20119716800478615, 'type': 'transition', 'time': 0.8835622295818062}
+node	tau from tree10	{'avail': 0.4562918248891259, 'source': False, 'sink': False, 'qual': 0.9769409853557891, 'name': 'tau from tree10', 'cost': 0.08386947735368766, 'type': 'transition', 'time': 0.06911174684822241}
+node	tau from tree12	{'avail': 0.6758290248888927, 'source': False, 'sink': False, 'qual': 0.2410980682026399, 'name': 'tau from tree12', 'cost': 0.3373399799437431, 'type': 'transition', 'time': 0.5194033401951608}
+node	tau join1	{'avail': 0.8800475078283103, 'source': False, 'sink': False, 'qual': 0.8475596592014776, 'name': 'tau join1', 'cost': 0.3348370511689239, 'type': 'transition', 'time': 0.16415274727455664}
+node	tau from tree2	{'avail': 0.31712933726232084, 'source': False, 'sink': False, 'qual': 0.4430828605617989, 'name': 'tau from tree2', 'cost': 0.9095709301237211, 'type': 'transition', 'time': 0.0755405647050591}
+node	n21	{'avail': 0.8359816699876049, 'source': False, 'sink': False, 'qual': 0.6479516296560887, 'name': ' ', 'cost': 0.0038083143008650344, 'type': 'xor-split', 'time': 0.4301071826049011}
+node	tau from tree15	{'avail': 0.3129915648450692, 'source': False, 'sink': False, 'qual': 0.8136337901368788, 'name': 'tau from tree15', 'cost': 0.14979959996977288, 'type': 'transition', 'time': 0.0014794539377540605}
+node	n9	{'avail': 0.6740413637256593, 'source': False, 'sink': False, 'qual': 0.990541779736244, 'name': ' ', 'cost': 0.6509280013723461, 'type': 'xor-join', 'time': 0.5319642105004011}
+node	W_Beoordelen fraude	{'avail': 0.2673421282641182, 'source': False, 'sink': False, 'qual': 0.34309263235162424, 'name': 'W_Beoordelen fraude', 'cost': 0.8875682929806473, 'type': 'transition', 'time': 0.8153238865538731}
+node	n16	{'avail': 0.4608364600839706, 'source': False, 'sink': False, 'qual': 0.8495983796945241, 'name': ' ', 'cost': 0.026923088748360913, 'type': 'xor-join', 'time': 0.630537794257183}
+node	A_ACTIVATED	{'avail': 0.41099004233319625, 'source': False, 'sink': False, 'qual': 0.500318085536489, 'name': 'A_ACTIVATED', 'cost': 0.0590614568796024, 'type': 'transition', 'time': 0.08355410302671873}
+node	tau from tree16	{'avail': 0.1069671429274397, 'source': False, 'sink': True, 'qual': 0.22365053112175126, 'name': 'tau from tree16', 'cost': 0.5331043874974148, 'type': 'transition', 'time': 0.39299832525566414}
+node	n7	{'avail': 0.3770051847150603, 'source': False, 'sink': False, 'qual': 0.038870152695414384, 'name': ' ', 'cost': 0.7878864293669767, 'type': 'xor-join', 'time': 0.5195079794422818}
+node	n5	{'avail': 0.26194194874720944, 'source': False, 'sink': False, 'qual': 0.9711370723431626, 'name': ' ', 'cost': 0.8983333558977584, 'type': 'xor-split', 'time': 0.20887520334534027}
+node	n19	{'avail': 0.41072575581800486, 'source': False, 'sink': False, 'qual': 0.3823943800388979, 'name': ' ', 'cost': 0.9033462536447153, 'type': 'xor-split', 'time': 0.02010058856801422}
+node	tau from tree5	{'avail': 0.7451555332118516, 'source': False, 'sink': False, 'qual': 0.575124183602263, 'name': 'tau from tree5', 'cost': 0.6540131251294791, 'type': 'transition', 'time': 0.44790344903503077}
+node	O_ACCEPTED	{'avail': 0.9846438937441699, 'source': False, 'sink': False, 'qual': 0.2380500015686292, 'name': 'O_ACCEPTED', 'cost': 0.24918321739218852, 'type': 'transition', 'time': 0.34975197589697893}
+node	n8	{'avail': 0.21872046834553338, 'source': False, 'sink': False, 'qual': 0.7096136569917425, 'name': ' ', 'cost': 0.6735185514573072, 'type': 'xor-join', 'time': 0.190099930842769}
+node	tau from tree0	{'avail': 0.17188951662914087, 'source': False, 'sink': False, 'qual': 0.05550748168708031, 'name': 'tau from tree0', 'cost': 0.7461896533463663, 'type': 'transition', 'time': 0.1710418763614373}
+node	tau join0	{'avail': 0.7548842788538842, 'source': False, 'sink': False, 'qual': 0.30191453626303943, 'name': 'tau join0', 'cost': 0.9716039597841046, 'type': 'transition', 'time': 0.8434415606168498}
+node	A_PARTLYSUBMITTED	{'avail': 0.8094452637939739, 'source': False, 'sink': False, 'qual': 0.9501049735038015, 'name': 'A_PARTLYSUBMITTED', 'cost': 0.1042448370853265, 'type': 'transition', 'time': 0.13871631571038856}
+node	O_SENT_BACK	{'avail': 0.8010670656311393, 'source': False, 'sink': False, 'qual': 0.0024356335144563035, 'name': 'O_SENT_BACK', 'cost': 0.45891853936721805, 'type': 'transition', 'time': 0.09324468622331405}
+node	tau split0	{'avail': 0.25107865362311077, 'source': False, 'sink': False, 'qual': 0.43882749904636786, 'name': 'tau split0', 'cost': 0.02549547530780616, 'type': 'transition', 'time': 0.5379948052962078}
+node	n15	{'avail': 0.0910443619873691, 'source': False, 'sink': False, 'qual': 0.20879722250384236, 'name': ' ', 'cost': 0.12976131986584183, 'type': 'xor-split', 'time': 0.552307554874108}
+node	A_SUBMITTED	{'avail': 0.7386970642931077, 'source': True, 'sink': False, 'qual': 0.1400168774572942, 'name': 'A_SUBMITTED', 'cost': 0.6679090976724715, 'type': 'transition', 'time': 0.5730623291732192}
+node	n6	{'avail': 0.6732364502612875, 'source': False, 'sink': False, 'qual': 0.9075499592679512, 'name': ' ', 'cost': 0.5907255586096029, 'type': 'xor-join', 'time': 0.6599721156276539}
+node	tau split1	{'avail': 0.6801273018293214, 'source': False, 'sink': False, 'qual': 0.3770879294060132, 'name': 'tau split1', 'cost': 0.3184294738991338, 'type': 'transition', 'time': 0.049304701990886435}
+node	A_PREACCEPTED	{'avail': 0.46826322890281313, 'source': False, 'sink': False, 'qual': 0.749233819114921, 'name': 'A_PREACCEPTED', 'cost': 0.0270111506411983, 'type': 'transition', 'time': 0.7531788617966998}
+node	tau from tree9	{'avail': 0.8017736285464481, 'source': False, 'sink': False, 'qual': 0.7044979027297347, 'name': 'tau from tree9', 'cost': 0.4150719918705371, 'type': 'transition', 'time': 0.5901037499665426}
+node	n23	{'avail': 0.09610803425702286, 'source': False, 'sink': False, 'qual': 0.12623339400020306, 'name': ' ', 'cost': 0.7309472233552662, 'type': 'xor-join', 'time': 0.7365810191238171}
+node	W_Afhandelen leads	{'avail': 0.0628355505040108, 'source': False, 'sink': False, 'qual': 0.49765135509592473, 'name': 'W_Afhandelen leads', 'cost': 0.04131579731805446, 'type': 'transition', 'time': 0.885518242593453}
+node	n12	{'avail': 0.03842686468855727, 'source': False, 'sink': False, 'qual': 0.4333542598306389, 'name': ' ', 'cost': 0.4565805721011508, 'type': 'xor-join', 'time': 0.017680092960317473}
+node	tau from tree4	{'avail': 0.5023575766990395, 'source': False, 'sink': False, 'qual': 0.4398926636639069, 'name': 'tau from tree4', 'cost': 0.9990702331537209, 'type': 'transition', 'time': 0.6739187062251695}
+node	A_REGISTERED	{'avail': 0.2980100515455554, 'source': False, 'sink': False, 'qual': 0.04729838124401475, 'name': 'A_REGISTERED', 'cost': 0.1828890561595048, 'type': 'transition', 'time': 0.6589499992612772}
+node	n28	{'avail': 0.4314021163411961, 'source': False, 'sink': False, 'qual': 0.1471393655263994, 'name': ' ', 'cost': 0.15060396605339255, 'type': 'xor-join', 'time': 0.9405865311551986}
+node	n20	{'avail': 0.003598252604256058, 'source': False, 'sink': False, 'qual': 0.7375430507532436, 'name': ' ', 'cost': 0.9112581242737263, 'type': 'xor-join', 'time': 0.9680337813335187}
+node	n17	{'avail': 0.1271023324172348, 'source': False, 'sink': False, 'qual': 0.7539198755964281, 'name': ' ', 'cost': 0.2522024959220909, 'type': 'xor-split', 'time': 0.08310417827625372}
+node	W_Nabellen incomplete dossiers	{'avail': 0.5682568005976047, 'source': False, 'sink': False, 'qual': 0.8463682478909227, 'name': 'W_Nabellen incomplete dossiers', 'cost': 0.6995257694126034, 'type': 'transition', 'time': 0.9267290022754272}
+node	n29	{'avail': 0.0794848425512289, 'source': False, 'sink': False, 'qual': 0.6345326515939467, 'name': ' ', 'cost': 0.8458997243915467, 'type': 'xor-join', 'time': 0.5847922692668198}
+node	n18	{'avail': 0.29224222514382603, 'source': False, 'sink': False, 'qual': 0.004887698329460233, 'name': ' ', 'cost': 0.7008205411458432, 'type': 'xor-join', 'time': 0.4614222761155712}
+node	O_SENT	{'avail': 0.5955446543496864, 'source': False, 'sink': False, 'qual': 0.33041926334945537, 'name': 'O_SENT', 'cost': 0.9890494686524873, 'type': 'transition', 'time': 0.00033632492632540423}
+edge	e14	{'weight': 1, 'phero': 0.5, 'tail': ['W_Completeren aanvraag'], 'head': ['n9'], 'name': ' '}
+edge	e27	{'weight': 1, 'phero': 0.5, 'tail': ['n17'], 'head': ['tau from tree6'], 'name': ' '}
+edge	e21	{'weight': 1, 'phero': 0.5, 'tail': ['tau join0'], 'head': ['n12'], 'name': ' '}
+edge	e15	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree1'], 'head': ['n9'], 'name': ' '}
+edge	e39	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree9'], 'head': ['n23'], 'name': ' '}
+edge	e4	{'weight': 1, 'phero': 0.5, 'tail': ['n5'], 'head': ['tau from tree15'], 'name': ' '}
+edge	e23	{'weight': 1, 'phero': 0.5, 'tail': ['n15'], 'head': ['tau from tree5'], 'name': ' '}
+edge	e67	{'weight': 1, 'phero': 0.5, 'tail': ['n12'], 'head': ['tau from tree9'], 'name': ' '}
+edge	e76	{'weight': 1, 'avail': 0.6, 'tail': ['O_CREATED'], 'name': ' ', 'phero': 0.5, 'qual': 0.2, 'head': ['O_SENT'], 'cost': 0.4, 'time': 0.99}
+edge	e42	{'weight': 1, 'phero': 0.5, 'tail': ['tau join1'], 'head': ['n24'], 'name': ' '}
+edge	e81	{'weight': 1, 'phero': 0.5, 'tail': ['n7'], 'head': ['tau from tree14'], 'name': ' '}
+edge	e54	{'weight': 1, 'phero': 0.5, 'tail': ['n6'], 'head': ['tau from tree0'], 'name': ' '}
+edge	e52	{'weight': 1, 'phero': 0.5, 'tail': ['n4'], 'head': ['A_PREACCEPTED'], 'name': ' '}
+edge	e61	{'weight': 1, 'phero': 0.5, 'tail': ['n10'], 'head': ['tau from tree4'], 'name': ' '}
+edge	e3	{'weight': 1, 'phero': 0.5, 'tail': ['n5'], 'head': ['tau from tree16'], 'name': ' '}
+edge	e80	{'weight': 1, 'phero': 0.5, 'tail': ['n7'], 'head': ['tau from tree13'], 'name': ' '}
+edge	e38	{'weight': 1, 'phero': 0.5, 'tail': ['O_ACCEPTED'], 'head': ['n22'], 'name': ' '}
+edge	e28	{'weight': 1, 'phero': 0.5, 'tail': ['n17'], 'head': ['A_APPROVED'], 'name': ' '}
+edge	e12	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree0'], 'head': ['n8'], 'name': ' '}
+edge	e19	{'weight': 1, 'phero': 0.5, 'tail': ['n11'], 'head': ['O_SENT_BACK'], 'name': ' '}
+edge	e55	{'weight': 1, 'phero': 0.5, 'tail': ['n6'], 'head': ['A_CANCELLED'], 'name': ' '}
+edge	e41	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree10'], 'head': ['n24'], 'name': ' '}
+edge	e32	{'weight': 1, 'phero': 0.5, 'tail': ['n19'], 'head': ['tau from tree7'], 'name': ' '}
+edge	e84	{'weight': 1, 'phero': 0.5, 'tail': ['n20', 'n22', 'n16', 'W_Valideren aanvraag', 'n18'], 'head': ['tau join0'], 'name': ' '}
+edge	e11	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree12'], 'head': ['n7'], 'name': ' '}
+edge	e2	{'weight': 1, 'phero': 0.5, 'tail': ['A_PARTLYSUBMITTED'], 'head': ['n4'], 'name': ' '}
+edge	e74	{'weight': 1, 'phero': 0.5, 'tail': ['n24'], 'head': ['tau from tree11'], 'name': ' '}
+edge	e22	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree4'], 'head': ['n12'], 'name': ' '}
+edge	e56	{'weight': 1, 'phero': 0.5, 'tail': ['n8'], 'head': ['tau from tree1'], 'name': ' '}
+edge	e26	{'weight': 1, 'phero': 0.5, 'tail': ['A_ACTIVATED'], 'head': ['n16'], 'name': ' '}
+edge	e82	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree14'], 'head': ['n5'], 'name': ' '}
+edge	e78	{'weight': 1, 'phero': 0.5, 'tail': ['n23'], 'head': ['tau from tree12'], 'name': ' '}
+edge	e69	{'weight': 1, 'phero': 0.5, 'tail': ['n12'], 'head': ['tau split1'], 'name': ' '}
+edge	e13	{'weight': 1, 'phero': 0.5, 'tail': ['A_CANCELLED'], 'head': ['n8'], 'name': ' '}
+edge	e45	{'weight': 1, 'phero': 0.5, 'tail': ['A_FINALIZED'], 'head': ['n28'], 'name': ' '}
+edge	e68	{'weight': 1, 'phero': 0.5, 'tail': ['n12'], 'head': ['tau from tree10'], 'name': ' '}
+edge	e46	{'weight': 1, 'phero': 0.5, 'tail': ['O_CANCELLED'], 'head': ['n28'], 'name': ' '}
+edge	e8	{'weight': 1, 'phero': 0.5, 'tail': ['W_Afhandelen leads'], 'head': ['n6'], 'name': ' '}
+edge	e57	{'weight': 1, 'phero': 0.5, 'tail': ['n8'], 'head': ['W_Completeren aanvraag'], 'name': ' '}
+edge	e35	{'weight': 1, 'phero': 0.5, 'tail': ['n21'], 'head': ['tau from tree8'], 'name': ' '}
+edge	e44	{'weight': 1, 'phero': 0.5, 'tail': ['n27'], 'head': ['A_FINALIZED'], 'name': ' '}
+edge	e6	{'weight': 1, 'phero': 0.5, 'tail': ['W_Beoordelen fraude'], 'head': ['n6'], 'name': ' '}
+edge	e60	{'weight': 1, 'phero': 0.5, 'tail': ['W_Nabellen incomplete dossiers'], 'head': ['n11'], 'name': ' '}
+edge	e9	{'weight': 1, 'phero': 0.5, 'tail': ['A_DECLINED'], 'head': ['n6'], 'name': ' '}
+edge	e51	{'weight': 1, 'phero': 0.5, 'tail': ['n4'], 'head': ['W_Afhandelen leads'], 'name': ' '}
+edge	e58	{'weight': 1, 'phero': 0.5, 'tail': ['n9'], 'head': ['tau from tree2'], 'name': ' '}
+edge	e36	{'weight': 1, 'phero': 0.5, 'tail': ['n21'], 'head': ['O_ACCEPTED'], 'name': ' '}
+edge	e59	{'weight': 1, 'phero': 0.5, 'tail': ['n9'], 'head': ['W_Nabellen incomplete dossiers'], 'name': ' '}
+edge	e16	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree3'], 'head': ['n10'], 'name': ' '}
+edge	e17	{'weight': 1, 'phero': 0.5, 'tail': ['O_SENT_BACK'], 'head': ['n10'], 'name': ' '}
+edge	e53	{'weight': 1, 'phero': 0.5, 'tail': ['n4'], 'head': ['W_Beoordelen fraude'], 'name': ' '}
+edge	e75	{'weight': 1, 'phero': 0.5, 'tail': ['n24'], 'head': ['O_CREATED'], 'name': ' '}
+edge	e62	{'weight': 1, 'phero': 0.5, 'tail': ['n10'], 'head': ['tau split0'], 'name': ' '}
+edge	e7	{'weight': 1, 'phero': 0.5, 'tail': ['A_PREACCEPTED'], 'head': ['n6'], 'name': ' '}
+edge	e18	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree2'], 'head': ['n10'], 'name': ' '}
+edge	e20	{'weight': 1, 'phero': 0.5, 'tail': ['n11'], 'head': ['tau from tree3'], 'name': ' '}
+edge	e83	{'weight': 1, 'phero': 0.5, 'tail': ['n28', 'O_SELECTED'], 'head': ['tau join1'], 'name': ' '}
+edge	e37	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree8'], 'head': ['n22'], 'name': ' '}
+edge	e30	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree6'], 'head': ['n18'], 'name': ' '}
+edge	e85	{'weight': 1, 'phero': 0.5, 'tail': ['tau split0'], 'head': ['W_Valideren aanvraag', 'n21', 'n19', 'n15', 'n17'], 'name': ' '}
+edge	e86	{'weight': 1, 'phero': 0.5, 'tail': ['tau split1'], 'head': ['n27', 'O_SELECTED'], 'name': ' '}
+edge	e33	{'weight': 1, 'phero': 0.5, 'tail': ['A_REGISTERED'], 'head': ['n20'], 'name': ' '}
+edge	e29	{'weight': 1, 'phero': 0.5, 'tail': ['A_APPROVED'], 'head': ['n18'], 'name': ' '}
+edge	e77	{'weight': 1, 'phero': 0.5, 'tail': ['n29'], 'head': ['W_Nabellen offertes'], 'name': ' '}
+edge	e50	{'weight': 1, 'phero': 0.5, 'tail': ['n4'], 'head': ['A_DECLINED'], 'name': ' '}
+edge	e24	{'weight': 1, 'phero': 0.5, 'tail': ['n15'], 'head': ['A_ACTIVATED'], 'name': ' '}
+edge	e47	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree11'], 'head': ['n29'], 'name': ' '}
+edge	e10	{'weight': 1, 'phero': 0.5, 'tail': ['W_Wijzigen contractgegevens'], 'head': ['n7'], 'name': ' '}
+edge	e40	{'weight': 1, 'phero': 0.5, 'tail': ['W_Nabellen offertes'], 'head': ['n23'], 'name': ' '}
+edge	e43	{'weight': 1, 'phero': 0.5, 'tail': ['n27'], 'head': ['O_CANCELLED'], 'name': ' '}
+edge	e79	{'weight': 1, 'phero': 0.5, 'tail': ['n23'], 'head': ['W_Wijzigen contractgegevens'], 'name': ' '}
+edge	e25	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree5'], 'head': ['n16'], 'name': ' '}
+edge	e48	{'weight': 1, 'phero': 0.5, 'tail': ['O_SENT'], 'head': ['n29'], 'name': ' '}
+edge	e34	{'weight': 1, 'phero': 0.5, 'tail': ['tau from tree7'], 'head': ['n20'], 'name': ' '}
+edge	e31	{'weight': 1, 'phero': 0.5, 'tail': ['n19'], 'head': ['A_REGISTERED'], 'name': ' '}
+edge	e49	{'weight': 1, 'avail': 0.6, 'tail': ['A_SUBMITTED'], 'name': ' ', 'phero': 0.5, 'qual': 0.2, 'head': ['A_PARTLYSUBMITTED'], 'cost': 0.4, 'time': 0.99}

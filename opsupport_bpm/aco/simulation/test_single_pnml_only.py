@@ -30,7 +30,7 @@ def main():
     # files for testing ====================================================
     #file_root = "ex1_inductive"
     #file_root = "bpi_challenge2012"
-    #file_root = "road_fine_process"
+    # file_root = "road_fine_process"
     #file_root = "hospital_inductive"
     #file_root = "repair_start_end_inductive"
     file_root = "PurchasingExample"
@@ -153,13 +153,15 @@ def main():
     ANT_NUM = 3
     COL_NUM = 3
     W_UTILITY = {'cost' : 1.0, 'avail' : 0.0, 'qual' : 0.0, 'time' : 0.0}
+    SEARCH_TYPE = 'BF'
+    SYS_TYPE = "MMAS"
     
     #===========================================================
     # =====================  call ACO algorithm (NON RECURSIVE)
     #===========================================================
     #p_opt = aco_algorithm(start_nodes, hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
     start_time_aco = time()
-    aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY)
+    aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE)
     p_opt = aco_result[0]
     utility = aco_result[1]
     end_time_aco = time()
@@ -181,4 +183,13 @@ def main():
 
 
 if __name__ == "__main__":
+    log = logging.getLogger('')
+    log.setLevel(logging.DEBUG)
+    format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setFormatter(format)
+    log.addHandler(ch)
+
+    logger = logging.getLogger(__name__)
     main()

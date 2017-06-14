@@ -169,6 +169,12 @@ def simulation_GUI():
     SYS_TYPE_label.grid(row=row_num, column=0)
     SYS_TYPE_label_entry = Entry(main_window)
     SYS_TYPE_label_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    SEARCH_TYPE_label = Label(main_window, text='Type of path to search (B, F, or BF):')
+    SEARCH_TYPE_label.grid(row=row_num, column=0)
+    SEARCH_TYPE_label_entry = Entry(main_window)
+    SEARCH_TYPE_label_entry.grid(row=row_num, column=1)
     
     def start_simulation_real_logs():
         aco_param = {}
@@ -184,6 +190,7 @@ def simulation_GUI():
         aco_param['W_UTILITY'] = W_UTILITY
 
         SYS_TYPE = SYS_TYPE_label_entry.get()
+        SEARCH_TYPE = SEARCH_TYPE_label_entry.get()
         
         # convert input pnml into hgr files
         convert_input_pnml_to_hgr(io_param)
@@ -223,8 +230,9 @@ def simulation_GUI():
         gen_param['loop_length_max'] = int(loop_length_max_entry.get())
 
         SYS_TYPE = SYS_TYPE_label_entry.get()
+        SEARCH_TYPE = SEARCH_TYPE_label_entry.get()
 
-        sim_run_hgr_only(io_param, aco_param, gen_param, SYS_TYPE)
+        sim_run_hgr_only(io_param, aco_param, gen_param, SYS_TYPE, SEARCH_TYPE)
 
     def sel():
         log_level = var.get()

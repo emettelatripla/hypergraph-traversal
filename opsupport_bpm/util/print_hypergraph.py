@@ -139,9 +139,9 @@ def print_hyperedge(h_edge, hg):
     #h_edge_name = str(hg.get_hyperedge_attribute(h_edge,'name'))
     h_edge_tail = str(hg.get_hyperedge_tail(h_edge))
     h_edge_head = str(hg.get_hyperedge_head(h_edge))
-    h_edge_phero = str(hg.get_hyperedge_attribute(h_edge, 'phero'))
-    #h_edge_id = str(hg.get_hyperedge_attribute(h_edge, 'id'))
-    logger.info("EDGE: {0} ### Tail: {1} >>> Head: {2} ### Phero: {3}".format(str(h_edge), h_edge_tail, h_edge_head, h_edge_phero))
+    #h_edge_phero = str(hg.get_hyperedge_attribute(h_edge, 'phero'))
+    # logger.info("EDGE: {0} ### Tail: {1} >>> Head: {2} ### Phero: {3}".format(str(h_edge), h_edge_tail, h_edge_head, h_edge_phero))
+    logger.info("EDGE: {0} ### Tail: {1} >>> Head: {2} ".format(str(h_edge), h_edge_tail, h_edge_head))
     
     
 """ main to do some testing if required"""

@@ -6,6 +6,8 @@ from halp.directed_hypergraph import DirectedHypergraph
 from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
     read_hg_from_file, print_hg_std_out_only
 
+from opsupport_bpm.hypergraph.bmc_path_enumeration import find_path_final, my_var, cleanup, special_print, special_print_hg
+
 from opsupport_bpm.aco.aco_directed_hypergraph import aco_search_nonrec
 from opsupport_bpm.models.hypergraph import reset_pheromone
 
@@ -462,11 +464,38 @@ if __name__ == '__main__':
 
 
     """ file names """
-    # opt_file = "opt_purchasing.hgr"
+    opt_file = "opt_purchasing.hgr"
     # opt_file = "opt_bpi2012.hgr"
-    opt_file = "opt_road_fine_process.hgr"
+    # opt_file = "opt_road_fine_process.hgr"
 
     PE = BF_PathEnumerator(opt_file)
+
+    # HYPERGRAPH = read_hg_from_file("hypergraph.hgr")
+    # rnot = DirectedHypergraph()
+    # rmust = DirectedHypergraph()
+    # find_path_final(Hcopy, rnot, rmust, ["Create Purchase Requisition"], ["Analyze Quotation Comparison Map"], my_var.en, [], "+")
+
+    # HYPERGRAPH = read_hg_from_file("bpi2012.hgr")
+    # rnot = DirectedHypergraph()
+    # rmust = DirectedHypergraph()
+    # find_path_final(Hcopy, rnot, rmust, ["A_SUBMITTED"], ["tau from tree16"], my_var.en, [], "+")
+
+
+    HYPERGRAPH = read_hg_from_file("road_fine.hgr")
+    input()
+    rnot = DirectedHypergraph()
+    rmust = DirectedHypergraph()
+    find_path_final(HYPERGRAPH, rnot, rmust, ["Create Fine"], ["n23"], my_var.en, [], "+")
+
+    i = 1
+    for hg in my_var.en:
+        print("New path found: {0}".format(i))
+        print_hg_std_out_only(cleanup(hg))
+        i += 1
+    print("Number of paths found: {0}".format(len(my_var.en)))
+
+
+    input("press a key to continue to trace enumeration in optimal path...")
 
     #tree = Node()
     PE.get_hyperpath_tree(PE.tree)

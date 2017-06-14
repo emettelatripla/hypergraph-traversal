@@ -557,12 +557,12 @@ def main():
     logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', filename='C://opsupport_bpm_files/log/aco.log',level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     
-    #file_name = "C://BPMNexamples/inductive/road_fine_process.pnml"
+    # file_name = "C://BPMNexamples/inductive/road_fine_process.pnml"
     #file_name = "C://BPMNexamples/real_logs/hospital_inductive.pnml"
     #file_name = "C://BPMNexamples/inductive/repair_start_end_inductive.pnml"
 
     # file_name = "C://opsupport_bpm_files/pnml_input/inductive/PurchasingExample.pnml"
-    file_name = 'C://opsupport_bpm_files/output_single/road_fine_process_highlight.pnml'
+    # file_name = 'C://opsupport_bpm_files/output_single/road_fine_process_highlight.pnml'
     # file_name = 'C://opsupport_bpm_files/output_single/bpi_challenge2012_highlight.pnml'
 
     

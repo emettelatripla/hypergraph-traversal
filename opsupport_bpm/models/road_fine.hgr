@@ -1,0 +1,89 @@
+node	tau from tree5	{'qual': 0.565013704948814, 'avail': 0.07745430395315367, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.7414489952013062, 'name': 'tau from tree5', 'time': 0.582142426606723, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	tau join1	{'qual': 0.69614477166207, 'avail': 0.6702203438878838, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.4683309263498906, 'name': 'tau join1', 'time': 0.28894529911549494, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	Payment	{'qual': 0.49869360914886063, 'avail': 0.21153756295984927, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.3001007162596381, 'name': 'Payment', 'time': 0.7775672639618031, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n16	{'qual': 0.6399570992235759, 'avail': 0.6749832792721436, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.35136751952317147, 'name': ' ', 'time': 0.8896211661476746, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	n17	{'qual': 0.2868397932100709, 'avail': 0.48311007757332813, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.3817527723651878, 'name': ' ', 'time': 0.6613591360636751, 'type': 'xor-join', 'smart_service': False, 'sink': False, 'source': False}
+node	tau from tree4	{'qual': 0.13008163397450834, 'avail': 0.5759102919173653, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.2506847331838905, 'name': 'tau from tree4', 'time': 0.3050456442055397, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	Appeal to Judge	{'qual': 0.9676446952165632, 'avail': 0.486347513313791, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.32694938171980226, 'name': 'Appeal to Judge', 'time': 0.4478979658369592, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	tau from tree6	{'qual': 0.7401761212527851, 'avail': 0.750404999699355, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.7702517092933382, 'name': 'tau from tree6', 'time': 0.12627960504416225, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n18	{'qual': 0.34579230995045696, 'avail': 0.030245948921276966, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.8531611137832551, 'name': ' ', 'time': 0.48284280644469957, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	Create Fine	{'qual': 0.7653032585174684, 'avail': 0.33200900773578756, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.32995753776770653, 'name': 'Create Fine', 'time': 0.921702257281277, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': True}
+node	tau split1	{'qual': 0.10976494959250427, 'avail': 0.5789229188072041, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.37772671778632216, 'name': 'tau split1', 'time': 0.011625069714855552, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n6	{'qual': 0.16253946159482602, 'avail': 0.21490332763900633, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.5157381043987159, 'name': ' ', 'time': 0.5925247365148665, 'type': 'xor-join', 'smart_service': False, 'sink': False, 'source': False}
+node	Add penalty	{'qual': 0.8000502197546591, 'avail': 0.7764975956675957, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.13409827492000825, 'name': 'Add penalty', 'time': 0.47846742176934853, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n7	{'qual': 0.9527611312229964, 'avail': 0.45210828493644917, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.70328507510186, 'name': ' ', 'time': 0.5332175908687024, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	n15	{'qual': 0.028560898784334654, 'avail': 0.6976265256199364, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.5068865377374948, 'name': ' ', 'time': 0.5397357195645208, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	n22	{'qual': 0.8469004737380899, 'avail': 0.9698823735397019, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.7514793602227405, 'name': ' ', 'time': 0.6263106102353646, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	tau from tree7	{'qual': 0.054130452197228895, 'avail': 0.8812433671416314, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.08011896287118292, 'name': 'tau from tree7', 'time': 0.6198801569064276, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n19	{'qual': 0.05061646454224178, 'avail': 0.8809743004382391, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.7047659442903504, 'name': ' ', 'time': 0.7322794627082625, 'type': 'xor-join', 'smart_service': False, 'sink': False, 'source': False}
+node	n3	{'qual': 0.005118894875713154, 'avail': 0.2244327326417761, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.04478997577537802, 'name': ' ', 'time': 0.2658270810095881, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	Notify Result Appeal to Offender	{'qual': 0.7233897574258341, 'avail': 0.19555707209037676, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.8897152989804338, 'name': 'Notify Result Appeal to Offender', 'time': 0.17406570890484752, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n20	{'qual': 0.8476973544902859, 'avail': 0.435558417841025, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.36104887099854244, 'name': ' ', 'time': 0.16090833949728334, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	n13	{'qual': 0.775396822440836, 'avail': 0.31982159482784833, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.9897143572164842, 'name': ' ', 'time': 0.575548687122972, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	tau split0	{'qual': 0.26650546782206075, 'avail': 0.3361296654329806, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.22968263642839293, 'name': 'tau split0', 'time': 0.4209227576584801, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n8	{'qual': 0.7025813395026206, 'avail': 0.6718087481236706, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.20571642778087118, 'name': ' ', 'time': 0.5636269627026997, 'type': 'xor-split', 'smart_service': False, 'sink': False, 'source': False}
+node	n23	{'qual': 0.8140561861435893, 'avail': 0.32561486401472783, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.47611022319154894, 'name': ' ', 'time': 0.7461711701331832, 'type': 'xor-join', 'smart_service': False, 'sink': False, 'source': False}
+node	tau from tree8	{'qual': 0.018842246640608296, 'avail': 0.38120497809025244, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.41011715958638184, 'name': 'tau from tree8', 'time': 0.9924094592964026, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	Receive Result Appeal from Prefecture	{'qual': 0.9681364553400817, 'avail': 0.4182749524160596, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.3698627879259555, 'name': 'Receive Result Appeal from Prefecture', 'time': 0.20992143506354877, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	tau from tree1	{'qual': 0.03199768182262008, 'avail': 0.021713218038547644, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.2916465080716649, 'name': 'tau from tree1', 'time': 0.7275313856081805, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	tau from tree3	{'qual': 0.7337508819787363, 'avail': 0.0062162865504113984, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.6423643998482026, 'name': 'tau from tree3', 'time': 0.887539792585411, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n4	{'qual': 0.3482803168255044, 'avail': 0.3184087705969144, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.9049922761507389, 'name': ' ', 'time': 0.02740463542209115, 'type': 'xor-join', 'smart_service': False, 'sink': False, 'source': False}
+node	tau split2	{'qual': 0.4689715153771363, 'avail': 0.861161582313665, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.7187908040274349, 'name': 'tau split2', 'time': 0.9723300219508723, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	Send Fine	{'qual': 0.4808803002375852, 'avail': 0.8578750819035562, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.136949579355795, 'name': 'Send Fine', 'time': 0.8847870178303023, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n21	{'qual': 0.4567549731462005, 'avail': 0.31273914012823356, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.4489818858371688, 'name': ' ', 'time': 0.9902722783789383, 'type': 'xor-join', 'smart_service': False, 'sink': False, 'source': False}
+node	Insert Fine Notification	{'qual': 0.02800446253615274, 'avail': 0.5196565291863333, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.007479595196004718, 'name': 'Insert Fine Notification', 'time': 0.838249682306167, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n14	{'qual': 0.8106576051798485, 'avail': 0.9520966650752672, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.7037550814080629, 'name': ' ', 'time': 0.8167836675687165, 'type': 'xor-join', 'smart_service': False, 'sink': False, 'source': False}
+node	tau from tree0	{'qual': 0.7780030546576018, 'avail': 0.3483058682906852, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.597874904648426, 'name': 'tau from tree0', 'time': 0.3121144006253551, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	Send for Credit Collection	{'qual': 0.07883177288399057, 'avail': 0.8927213893702067, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.9633405256695974, 'name': 'Send for Credit Collection', 'time': 0.8576144574000071, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	tau from tree2	{'qual': 0.8630431865282673, 'avail': 0.5638770759787994, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.07396149209443359, 'name': 'tau from tree2', 'time': 0.45985718628707783, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	Send Appeal to Prefecture	{'qual': 0.5763151161001928, 'avail': 0.8245704639838225, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.10516972472246777, 'name': 'Send Appeal to Prefecture', 'time': 0.4380611001783483, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	tau join2	{'qual': 0.7407497775709909, 'avail': 0.9164887075214966, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.07553497916271201, 'name': 'tau join2', 'time': 0.3584663815312352, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	n9	{'qual': 0.7255309767988265, 'avail': 0.3558156451647757, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.6610586259798262, 'name': ' ', 'time': 0.5541972460467774, 'type': 'xor-join', 'smart_service': False, 'sink': False, 'source': False}
+node	Insert Date Appeal to Prefecture	{'qual': 0.5968729752236938, 'avail': 0.055098388285181765, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.9590561113520036, 'name': 'Insert Date Appeal to Prefecture', 'time': 0.5073604480806848, 'type': 'transition', 'smart_service': False, 'sink': False, 'source': False}
+node	tau join0	{'qual': 0.48737502257316334, 'avail': 0.33765668280140526, 'smart_attribute': False, 'smartchoice': False, 'smart_node': False, 'cost': 0.3639405404293593, 'name': 'tau join0', 'time': 0.7786276126150459, 'type': 'transition', 'smart_service': False, 'sink': True, 'source': False}
+edge	e1	{'tail': ['Send Fine'], 'head': ['n4'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e2	{'tail': ['n4'], 'head': ['tau split0'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e3	{'tail': ['n8'], 'head': ['tau from tree1'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e4	{'tail': ['tau join2'], 'head': ['n9'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e5	{'tail': ['n18'], 'head': ['Appeal to Judge'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e6	{'tail': ['tau from tree0'], 'head': ['n4'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e7	{'tail': ['Create Fine'], 'head': ['n3'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e8	{'tail': ['Send for Credit Collection'], 'head': ['n6'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e9	{'tail': ['tau split0'], 'head': ['n22', 'tau split1'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e10	{'tail': ['tau from tree4'], 'head': ['n17'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e11	{'tail': ['n22'], 'head': ['tau from tree8'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e12	{'tail': ['n22'], 'head': ['Send Appeal to Prefecture'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e13	{'tail': ['n16'], 'head': ['Receive Result Appeal from Prefecture'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e14	{'tail': ['n7'], 'head': ['tau from tree7'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e15	{'tail': ['tau from tree8'], 'head': ['n23'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e16	{'tail': ['n3'], 'head': ['tau from tree0'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e17	{'tail': ['Receive Result Appeal from Prefecture'], 'head': ['n17'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e18	{'tail': ['n15'], 'head': ['tau from tree3'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e19	{'tail': ['tau from tree2'], 'head': ['n14'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e20	{'tail': ['n13'], 'head': ['tau from tree2'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e21	{'tail': ['Insert Date Appeal to Prefecture'], 'head': ['n15'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e22	{'tail': ['Add penalty', 'n17', 'n19', 'n14'], 'head': ['tau join2'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e23	{'tail': ['tau from tree6'], 'head': ['n21'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e24	{'tail': ['tau from tree1'], 'head': ['n9'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e25	{'tail': ['Appeal to Judge'], 'head': ['n19'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e26	{'tail': ['Payment'], 'head': ['n21'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e27	{'tail': ['Send Appeal to Prefecture'], 'head': ['n23'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e28	{'tail': ['tau join1'], 'head': ['n7'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e29	{'tail': ['Notify Result Appeal to Offender'], 'head': ['n14'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e30	{'tail': ['n16'], 'head': ['tau from tree4'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e31	{'tail': ['n3'], 'head': ['Send Fine'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e32	{'tail': ['n23', 'n6'], 'head': ['tau join0'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e33	{'tail': ['tau split2'], 'head': ['Add penalty', 'n13', 'n18', 'n16'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e34	{'tail': ['n7'], 'head': ['Send for Credit Collection'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e35	{'tail': ['n13'], 'head': ['Insert Date Appeal to Prefecture'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e36	{'tail': ['n20'], 'head': ['tau from tree6'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e37	{'tail': ['tau from tree5'], 'head': ['n19'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e38	{'tail': ['tau from tree7'], 'head': ['n6'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e39	{'tail': ['n15'], 'head': ['Notify Result Appeal to Offender'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e40	{'tail': ['n20'], 'head': ['Payment'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e41	{'tail': ['tau from tree3'], 'head': ['n14'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e42	{'qual': 0.2, 'avail': 0.6, 'time': 0.99, 'head': ['tau split2'], 'phero': 0.5, 'weight': 1, 'name': ' ', 'tail': ['Insert Fine Notification'], 'cost': 0.4}
+edge	e43	{'tail': ['n18'], 'head': ['tau from tree5'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e44	{'tail': ['n8'], 'head': ['Insert Fine Notification'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e45	{'tail': ['n9', 'n21'], 'head': ['tau join1'], 'weight': 1, 'phero': 0.5, 'name': ' '}
+edge	e46	{'tail': ['tau split1'], 'head': ['n20', 'n8'], 'weight': 1, 'phero': 0.5, 'name': ' '}

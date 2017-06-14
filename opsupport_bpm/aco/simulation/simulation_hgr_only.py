@@ -38,8 +38,8 @@ def cleanup(input_eval_dir, output_eval_dir):
 #         file_name = output_eval_dir + "/pnml/" + f
 #         os.remove(file_name)
 
-def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE):
-    SYS_TYPE = 'MMAS'
+def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE, SEARCH_TYPE):
+    # SYS_TYPE = 'MMAS'
     # read parameters
     # set up working directory
     working_dir = io_param['working_dir']
@@ -68,14 +68,23 @@ def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE):
     
     
     # generate hgr files
-    print("+++++++++++ Generating hypergraphs....")
-    for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
-        for j in range(LOOP_L_MIN, LOOP_L_MAX, 1):
-            file_name = input_eval_dir + '/hg_level_' + str(i) + '_' + str(j) + '.hgr'
+    if LOOP_NO_MAX != 0:
+        print("+++++++++++ Generating hypergraphs with LOOPS....")
+        for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
+            for j in range(LOOP_L_MIN, LOOP_L_MAX, 1):
+                file_name = input_eval_dir + '/hg_level_' + str(i) + '_' + str(j) + "_" + SYS_TYPE + "_" + SEARCH_TYPE +  ".hgr"
+                hg = random_generate_hg(i, B_SIZE_MIN, B_SIZE_MAX)
+                hg = add_random_loops(hg, LOOP_NO_MAX, j)
+                write_hg_to_file(hg, file_name)
+                print("+++ hypergraph level {0}, loop length {1}".format(i,j))
+    else:
+        print("+++++++++++ Generating hypergraphs, no loops....")
+        for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
+            file_name = input_eval_dir + '/hg_level_' + str(i) + '_' + "NOLOOPS" + "_" + SYS_TYPE + "_" + SEARCH_TYPE + ".hgr"
             hg = random_generate_hg(i, B_SIZE_MIN, B_SIZE_MAX)
-            hg = add_random_loops(hg, LOOP_NO_MAX, j)
+            #hg = add_random_loops(hg, LOOP_NO_MAX, j)
             write_hg_to_file(hg, file_name)
-            print("+++ hypergraph level {0}, loop length {1}".format(i,j))
+            print("+++ hypergraph level {0}, NO LOOPS".format(i))
     "+++++++++++ Hypergraph generation completed"
     
     
@@ -105,10 +114,10 @@ def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE):
                 for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
                     
                     start_time_aco = time()
-                    aco_result = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE)
+                    p_opt, utility = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE)
                     end_time_aco = time()
-                    p_opt = aco_result[0]
-                    utility = aco_result[1]
+                    # p_opt = aco_result[0]
+                    # utility = aco_result[1]
                     aco_alg_time = end_time_aco - start_time_aco
                     print("ACO optimisation took: {0}s".format(aco_alg_time))
                     
@@ -137,9 +146,9 @@ def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE):
             # run aco optimisation for all possible configuration
             for col_num in range(COL_NUM_MAX-2, COL_NUM_MAX, 1):
                 # hg = reset_pheromone(hg)
-                for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
+                for ant_num in range(8*ANT_NUM_MAX-2, 8*ANT_NUM_MAX, 1):
                     start_time_aco = time()
-                    aco_result = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE, True)
+                    aco_result = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE, True)
                     end_time_aco = time()
                     p_opt = aco_result[0]
                     utility = aco_result[1]
@@ -158,7 +167,7 @@ def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE):
     
 
 
-def sim_exp_ONE(io_param, aco_param, hg_gen_param, SYS_TYPE):
+def sim_exp_ONE(io_param, aco_param, hg_gen_param, SYS_TYPE, SEARCH_TYPE):
     SYS_TYPE = 'MMAS'
     # read parameters
     # set up working directory
@@ -228,7 +237,7 @@ def sim_exp_ONE(io_param, aco_param, hg_gen_param, SYS_TYPE):
                 # hg = reset_pheromone(hg)
                 for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
                     start_time_aco = time()
-                    aco_result = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE)
+                    aco_result = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE)
                     end_time_aco = time()
                     p_opt = aco_result[0]
                     utility = aco_result[1]
@@ -419,6 +428,7 @@ if __name__ == "__main__":
 
 
     SYS_TYPE = 'MMAS'
+    SEARCH_TYPE = 'BF'
     
     # set working directory
     working_dir = "C://opsupport_bpm_files"
@@ -444,7 +454,7 @@ if __name__ == "__main__":
     # set aco parameters
     aco_param = {}
     aco_param['COL_NUM'] = 2
-    aco_param['COL_NUM_MAX'] = 30
+    aco_param['COL_NUM_MAX'] = 10
     aco_param['COL_NUM_STEP'] = 2
     aco_param['ANT_NUM'] = 10
     aco_param['ANT_NUM_MAX'] = 11
@@ -456,7 +466,7 @@ if __name__ == "__main__":
     # set up hg gen params
     hg_gen_param = {}
     hg_gen_param['level_size_min'] = 50
-    hg_gen_param['level_size_max'] = 1001
+    hg_gen_param['level_size_max'] = 300
     hg_gen_param['level_size_step'] = 50
     hg_gen_param['block_size_min'] = 30
     hg_gen_param['block_size_max'] = 31
@@ -468,4 +478,4 @@ if __name__ == "__main__":
     
     
     #sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE)
-    sim_exp_ONE(io_param, aco_param, hg_gen_param, SYS_TYPE)
+    sim_exp_ONE(io_param, aco_param, hg_gen_param, SYS_TYPE, SEARCH_TYPE)
