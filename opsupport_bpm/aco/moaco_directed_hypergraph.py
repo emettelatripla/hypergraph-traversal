@@ -811,7 +811,20 @@ def p(s):
 NEW METHODS FOR MOACO
 """
 
-
+def extend_phero_matrix(H:DirectedHypergraph):
+    """
+    Adds dimension 1 and 2 phero information to a hypergraph H
+    :param H: 
+    :return: 
+    """
+    Hext = DirectedHypergraph()
+    edges = H.get_hyperedge_id_set()
+    for edge in edges:
+        tail, head, attrs = H.get_hyperedge_tail(edge), H.get_hyperedge_head(edge), H.get_hyperedge_attributes(edge)
+        phero = H.get_hyperedge_attribute(edge, 'phero')
+        attrs['phero_01'], attrs['phero_02'] = phero, phero
+        Hext.add_hyperedge(tail, head, attrs)
+    return Hext
 
 
 
@@ -906,34 +919,25 @@ def test_hg_simple2():
 
 
 if __name__ == "__main__":
+    # SET LOGGER
     log = logging.getLogger('')
     log.setLevel(logging.DEBUG)
     format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
     ch = logging.StreamHandler(sys.stdout)
     ch.setFormatter(format)
     log.addHandler(ch)
-
     logger = logging.getLogger(__name__)
+    # END SET LOGGER
 
     HG = test_hg_loop_F()
     # HG = test_hg_02()
+    PRINT_ATTRS = True
+    print_hg_std_out_only(HG, PRINT_ATTRS)
+    print('\n \n')
 
-    print("======== HG to optimise:")
-    print_hg_std_out_only(HG)
+    HGext = extend_phero_matrix(HG)
+    print_hg_std_out_only(HGext, PRINT_ATTRS)
 
-    print("******* optimising ....")
-
-    for i in range(10):
-        p, sol = None, None
-        print("------- NEW SEARCH: {0} --------------------------------------".format(i))
-        p, sol = aco_search_generic_path(HG, None, SEARCH_TYPE="BF")
-        print("Solution found: {0}".format(sol))
-        if sol:
-            print_hg_std_out_only(p)
-            print("####### Found p; is B-path? {0}".format(p.is_B_hypergraph()))
-            print("####### Found p; is F-path? {0}".format(p.is_F_hypergraph()))
-            print("####### Found p; is BF-path? {0}".format(p.is_BF_hypergraph()))
 
 
 
