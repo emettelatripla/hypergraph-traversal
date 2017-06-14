@@ -58,8 +58,6 @@ def get_start_end_node(hg):
         logger.warning("Found {0} start nodes and {1} end node(s)...STOP!".format(i,j))
     return (start_node,end_node)
 
-
-
 def post_process_loop_escape(p_opt):
     '''
     NON RECURSIVE ACO
@@ -88,7 +86,11 @@ def post_process_loop_escape(p_opt):
         
         
 
-""" THIS WORKS WITH NO RECURSION ACO SEARCH !!!"""
+""" ====================================== """
+""" MAIN ACO PROCEDURE FOR ALL PATHS     """
+""" =====================================+ """
+
+
 def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE, IGNORE_PHERO = False):
     '''
     NON RECURSIVE ACO
@@ -263,8 +265,6 @@ def add_edge(p,hg,edge):
     edge_id_p = p.add_hyperedge(tail_next_edge, head_next_edge, phero = phero_next_edge, id = edge, name = edge)
     return p, edge_id_p
 
-
-
 def add_head_to_nodes_to_process(edge, hg, nodes_to_process):
     """ 
         adds the tail of an edge to the set of node to be processed
@@ -382,6 +382,10 @@ def escape_from_loop(current_node,next_edge,p,hg,used_edges):
         for node in current_node_set:
             delete_nodes_visited.append(node)
     return None
+
+""" ====================================== """
+""" SEARCH FOR BF paths    """
+""" =====================================+ """
 
 
 def aco_search_nonrec(hg, ant_attributes, IGNORE_PHERO = False):
@@ -664,6 +668,10 @@ def keep_edges(edge_set, hg, edge_type = "BF"):
     return edge_set.difference(to_remove)
 
 
+""" ====================================== """
+""" SEARCH FOR GENERIC B, F, B+F paths     """
+""" =====================================+ """
+
 def aco_search_generic_path(hg:DirectedHypergraph, ant_attributes, IGNORE_PHERO = False, SEARCH_TYPE="BF"):
     logger = logging.getLogger(__name__)  # get the logger
     # get start and end node
@@ -730,8 +738,6 @@ def aco_search_generic_path(hg:DirectedHypergraph, ant_attributes, IGNORE_PHERO 
             current_node_set = head
     return p, True
 
-
-
 def loop_escape_generic(p:DirectedHypergraph, hg:DirectedHypergraph, next_edge_p, edge_added_match, SEARCH_TYPE = "BF"):
     logger = logging.getLogger(__name__)  # get the logger
     ESCAPE_FOUND = False
@@ -782,208 +788,6 @@ def loop_escape_generic(p:DirectedHypergraph, hg:DirectedHypergraph, next_edge_p
     pass
 
 
-def aco_search_BF_path(hg, ant_attributes, IGNORE_PHERO = False):
-    logger = logging.getLogger(__name__)  # get the logger
-    # get start and end node
-    start_end = get_start_end_node(hg)
-    start_node_set = start_end[0]
-    end_node_set = start_end[1]
-    start_node = random.sample(set(start_node_set), 1)[0]
-    logger.debug("Found START node set: {0}".format(start_node_set))
-    logger.debug("Chosen START node (if many available): {0}".format(start_node))
-    logger.debug("Found END node set: {0}".format(end_node_set))
-    # ASSUMPTION: only one end node
-    end_node = end_node_set[0]
-    # count number of nodes to process
-    number_of_nodes = len(hg.get_node_set())
-    logger.debug("Number of nodes to process: {0}".format(number_of_nodes))
-    p = DirectedHypergraph()            # the optimal path
-    nodes_to_process = []
-    nodes_to_process.append(start_node)
-    i = 0
-    STOP = False
-    SOLUTION = True
-    edge_added_hg = []
-    edge_added_match = {}             # {node_id hg: node_id p}
-    while not STOP:
-        # 1) get fstar of current_node_set
-        # 2) Delete non F-/B- edges from fstar
-        # 2.1) If fstar is empty then return NO FEASIBLE SOLUTION
-        # 3) choose one edge in fstar (insert ACO here)
-        # 3.1) [possibly improve solution using local search]
-        # 4) If exists node in H(edge): node has already been visited, then edge = cycle_escape()
-        # 5) Nodes_visited = Nodes_visited U current_node_set
-        # 6) add egde to optimal path
-        # 7) if end_node in current_node_set then return_p
-        current_node = nodes_to_process[i]
-        logger.debug("Visiting new node: {0}".format(current_node))
-        logger.debug("Node set of P: {0}".format(p.get_node_set()))
-        curr_fstar = hg.get_forward_star(current_node)
-        # remove edges that are not B- or F- from forward star of current node
-        to_remove = []
-        for edge in curr_fstar:
-            if not (is_B_edge(hg,edge) or is_F_edge(hg,edge)):
-                to_remove.append(edge)
-        edge_set = curr_fstar.difference(to_remove)
-        # there are possible edges to choose from to go forward
-        # choose next edge (will have to plugin ACO search here) - RANDOM for now
-        next_edge = random.sample(set(edge_set), 1)[0]
-        head = hg.get_hyperedge_head(next_edge)
-        # search has to be different whether we found a B- of F- edge
-        # case one, next edge is B-
-        if is_B_edge(hg, next_edge):
-            next_node = head[0]
-            if next_node in p.get_node_set():
-                logger.debug("!!! CYCLE !!! Node already visited: Call loop escape BF-... !!! CYCLE !!!")
-                p, current_node, edge_added_hg, next_edge = \
-                    loop_escape_BF(p, hg, current_node, next_edge, edge_added_hg, edge_added_match)
-                if current_node == None:
-                    logger.debug("STOP, no feasible escape from CYCLE found!!!!")
-                    SOLUTION = False
-                    return p, SOLUTION
-            head = hg.get_hyperedge_head(next_edge)
-            edge_added_hg.append(next_edge)
-
-            if end_node in head:
-                logging.debug("end node found, adding last edge and then STOP: {0}".format(next_edge))
-                p, edge_id_p = add_edge(p, hg, next_edge)
-                edge_added_hg.append(next_edge)
-                edge_added_match[next_edge] = edge_id_p
-                adjust_p_for_BF_paths(p, end_node, start_node)
-                STOP = True
-            else:
-                # add edge and continue
-                p, edge_id_p = add_edge(p, hg, next_edge)
-                edge_added_hg.append(next_edge)
-                edge_added_match[next_edge] = edge_id_p
-                nodes_to_process.extend(head)
-                i += 1
-    return p, SOLUTION
-
-
-
-
-
-    return p, current_node, edge_added_hg, next_edge
-
-def adjust_p_for_BF_paths(p, end_node, start_node):
-    logger = logging.getLogger(__name__)
-    logger.debug("Adjusting for BF-paths from end node: {0}".format(end_node))
-    print_hg_std_out_only(p)
-    logger.debug("ADJUSTING START....")
-    START_FOUND = False
-    curr_node = end_node
-    b_star = p.get_backward_star(end_node)
-    edge_to_process = []
-    edge_to_process.append(list(b_star)[0])
-    i = 0
-    while not START_FOUND:
-        curr_edge = edge_to_process[i]
-        tail = p.get_hyperedge_tail(curr_edge)
-        for node in tail:
-            edge_to_process.extend(p.get_backward_star(node))
-            for edge in p.get_backward_star(node):
-                logger.debug("Found edge to keep: {0} ==> {1}".format(p.get_hyperedge_tail(edge),
-                                                              p.get_hyperedge_head(edge)))
-            if node == start_node:
-                logger.debug("Found start node")
-                START_FOUND = True
-        i += 1
-    edge_list = p.get_hyperedge_id_set()
-    for edge in edge_list:
-        if edge not in edge_to_process:
-            logger.debug("removing edge: {0} ==> {1}".format(p.get_hyperedge_tail(edge),p.get_hyperedge_head(edge)))
-            p.remove_hyperedge(edge)
-    return p
-
-
-def aco_search_B_path(hg:DirectedHypergraph, ant_attributes, IGNORE_PHERO = False):
-    """
-    aco searching for a B-hyperpath
-    :param hg:
-    :param ant_attributes:
-    :param IGNORE_PHERO:
-    :return:
-    """
-    logger = logging.getLogger(__name__)                                                                                # get the logger
-    # get start and end node
-    start_end = get_start_end_node(hg)
-    start_node_set = start_end[0]
-    end_node_set = start_end[1]
-    start_node = random.sample(set(start_node_set), 1)[0]
-    logger.debug("Found START node set: {0}".format(start_node_set))
-    logger.debug("Chosen START node (if many available): {0}".format(start_node))
-    logger.debug("Found END node set: {0}".format(end_node_set))
-    # ASSUMPTION: only one end node
-    end_node = end_node_set[0]
-    # count number of nodes to process
-    number_of_nodes = len(hg.get_node_set())
-    logger.debug("Number of nodes to process: {0}".format(number_of_nodes))
-
-    p = DirectedHypergraph()
-
-    nodes_to_process = []
-    nodes_to_process.append(start_node)
-    i = 0
-
-    STOP = False
-
-    SOLUTION = True
-
-    edge_added = []
-
-    while not STOP:
-        PARTIAL_STUCK = False
-        current_node = nodes_to_process[i]
-        logger.debug("Visiting new node: {0}".format(current_node))
-        current_node_set = [current_node]
-        #current_node_set = set()
-        #current_node_set.update({current_node})
-        # get forward star
-        curr_fstar = hg.get_forward_star(current_node)
-        # choose based on pheromone
-
-        # remove non b_arcs from fstar
-        to_remove = []
-        for edge in curr_fstar:
-            if not is_B_edge(hg,edge):
-                to_remove.append(edge)
-        edge_set = curr_fstar.difference(to_remove)
-        if edge_set != set():
-            # choose next edge
-            next_edge = random.sample(set(edge_set), 1)[0]
-            # check if end_nbode in H(chosen edge)
-            head = hg.get_hyperedge_head(next_edge)
-
-            next_node = head[0]
-            if next_node in p.get_node_set():
-                logger.debug("!!! LOOP !!! Node already visited: Call loop escape B-... !!! LOOP !!!")
-                p, current_node, edge_added, next_edge = loop_escape_B(p, hg, current_node, next_edge, edge_added)
-            head = hg.get_hyperedge_head(next_edge)
-            edge_added.append(next_edge)
-
-
-            if end_node in head:
-                logging.debug("end node found, adding last edge and then STOP")
-                add_edge(p, hg, next_edge)
-                #adjust_p_for_B_paths(p, end_node, start_node)
-                STOP = True
-            else:
-                add_edge(p, hg, next_edge)
-                nodes_to_process.extend(head)
-                i += 1
-        else:
-            PARTIAL_STUCK = True
-            if i < len(nodes_to_process)-1:
-                # simply continue to next node to process
-                logging.debug("Partially stuck, continue...")
-                i += 1
-            else:
-                logging.debug("Stuck! STOP, no feasible solution found")
-                STOP = True
-                # no feasible solution
-                SOLUTION = False
-    return p, SOLUTION
 
 def is_B_edge(hg:DirectedHypergraph, edge):
     return len(hg.get_hyperedge_head(edge)) == 1
@@ -992,310 +796,31 @@ def is_F_edge(hg:DirectedHypergraph, edge):
     return len(hg.get_hyperedge_tail(edge)) == 1
 
 
-def adjust_p_for_F_paths(p:DirectedHypergraph, end_node, start_node):
-    logger = logging.getLogger(__name__)
-    logger.debug("adjusting from end node: {0}".format(end_node))
-    edges_to_keep = []
-    START_FOUND = False
-    curr_node = end_node
-    while not START_FOUND:
-        back_edges = p.get_backward_star(curr_node)
-        edges_to_keep.append(list(back_edges)[0])
-        tail = p.get_hyperedge_tail(list(back_edges)[0])
-        tail_node = tail[0]
-        if tail_node == start_node:
-            START_FOUND = True
-        else:
-            curr_node = tail_node
-    edge_list = p.get_hyperedge_id_set()
-    for edge in edge_list:
-        if edge not in edges_to_keep:
-            logger.debug("removing edge: {0}".format(edge))
-            p.remove_hyperedge(edge)
-    return p
+
+
+"""
+NEW METHODS FOR MOACO
+"""
+
+def extend_phero_matrix(H:DirectedHypergraph):
+    """
+    Adds dimension 1 and 2 phero information to a hypergraph H
+    :param H: 
+    :return: 
+    """
+    Hext = DirectedHypergraph()
+    edges = H.get_hyperedge_id_set()
+    for edge in edges:
+        tail, head, attrs = H.get_hyperedge_tail(edge), H.get_hyperedge_head(edge), H.get_hyperedge_attributes(edge)
+        phero = H.get_hyperedge_attribute(edge, 'phero')
+        attrs['phero_01'], attrs['phero_02'] = phero, phero
+        Hext.add_hyperedge(tail, head, attrs)
+    return Hext
+
 
 """ ======================================="""
-""" LOOP ESCAPE PROCEDURES"""
+""" TEST HYPERGRAPHS """
 """ ======================================="""
-
-def p(s):
-    powerset = set()
-    for i in range(2**len(s)):
-        subset = tuple([x for j,x in enumerate(s) if (i >> j) & 1])
-        powerset.add(subset)
-    return powerset
-
-def loop_escape_BF(p:DirectedHypergraph, hg: DirectedHypergraph, current_node, next_edge, edge_added, edge_added_match):
-    logger = logging.getLogger(__name__)
-    ESCAPE_FOUND = False
-    current_edge = next_edge
-    fstar = hg.get_forward_star(current_node)
-    possible_escapes = []
-
-    # NEW VERSION MONDAY 24 APRIL
-    while not ESCAPE_FOUND:
-        # we are dealing with a B- edge
-        tail = hg.get_hyperedge_tail(next_edge)
-        # case 1: there exist a successor escape node
-        powerset = p(tail)
-        powerset.remove(set())
-        next_edge = None
-        for node_set in powerset:
-            logger.debug("Checking escape from node set: {0}".format(node_set))
-            edges = hg.get_successors(node_set)
-            diff = edges.difference(next_edge)
-            if diff != set():
-                for edge in diff:
-                    # there is a possible escape from the entire tail, check if it's connected in p
-                    # check if it's B- or F-, then check if it makes p connected
-                    if is_B_edge(hg, edge) or is_F_edge(hg, edge):
-                        if p.get_predecessors(node_set) is not set():
-                            next_edge = edge
-                            ESCAPE_FOUND = True
-                            logger.debug("Found edge to escape: {0}".format(next_edge))
-                            break
-        # prepare return to aco_search
-        if next_edge is None:
-            logger.debug("Escape not found, backtracking")
-            # delet edge form edge_added_hg and edge_added_match
-            next_edge = edge_added[len(edge_added) - 1]
-            del edge_added[len(edge_added) - 1]
-        else:
-            return p, current_node, edge_added, next_edge
-        # END NEW VERSION
-
-
-
-
-
-
-
-    # search for one escape edge from current node
-    # for edge in fstar:
-    #     if is_B_edge(hg, edge) or is_F_edge(hg, edge):
-    #         if edge != current_edge:
-    #             possible_escapes.append(edge)
-    # # escape from current node found:
-    # if possible_escapes != []:
-    #     next_edge = random.sample(set(possible_escapes), 1)[0]
-    #     ESCAPE_FOUND = True
-    #     logger.debug("Found node to escape from FIRST NODE: {0}".format(next_edge))
-    # else:
-    #     # escape from current node not found, retrace one step back
-    #     current_edge = edge_added[len(edge_added) -1]
-    #     logger.debug("Current edge: hg - {0} ; p - {1}".format(current_edge, edge_added_match[current_edge]))
-    #     current_node = p.get_hyperedge_tail(edge_added_match[current_edge])[0]
-    #     # remove edgge and nodes
-    #     tail = p.get_hyperedge_tail(edge_added_match[current_edge])         # save tail of edge to remove
-    #     p.remove_hyperedge(edge_added_match[current_edge])                  # remove edge
-    #     # p.remove_nodes(tail)                                                # remnove save nodes in tail
-    #
-    #     del edge_added[len(edge_added) -1]
-    # while not ESCAPE_FOUND:
-    #     logger.debug("Backtracking to node: {0}".format(current_node))
-    #     if p.get_backward_star(current_node) == set():
-    #         logger.debug("No edge in backward star of node {0}".format(current_node))
-    #         return p, None, None, None
-    #     back_edge = list(p.get_backward_star(current_node))[0]
-    #     head = p.get_hyperedge_head(back_edge)
-    #     fstar = []
-    #     for node in head:
-    #         fstar_partial = hg.get_forward_star(node)
-    #         if fstar_partial != set():
-    #             for edge in fstar_partial:
-    #                 fstar.append(edge)
-    #     possible_escapes = []
-    #     for edge in fstar:
-    #         if is_B_edge(hg, edge) or is_F_edge(hg, edge):
-    #             if edge != current_edge:
-    #                 possible_escapes.append(edge)
-    #     if possible_escapes != []:
-    #         next_edge = random.sample(set(possible_escapes), 1)[0]
-    #         ESCAPE_FOUND = True
-    #         logger.debug("Found edge to escape: {0} - {1} >>> {2}".format(next_edge, hg.get_hyperedge_tail(next_edge),
-    #                                                                       hg.get_hyperedge_head(next_edge)))
-    #     else:
-    #         current_edge = edge_added[len(edge_added) - 1]
-    #         current_node = p.get_hyperedge_tail(edge_added_match[current_edge])[0]
-    #         # remove edgge and nodes
-    #         tail = p.get_hyperedge_tail(edge_added_match[current_edge])  # save tail of edge to remove
-    #         p.remove_hyperedge(edge_added_match[current_edge])  # remove edge
-    #         p.remove_nodes(tail)  # remnove save nodes in tail
-    #
-    #         del edge_added[len(edge_added - 1)]
-    #         if edge_added == []:
-    #             logger.warning("Something went really wrong here!")
-    #
-    # return p, current_node, edge_added, next_edge
-
-def loop_escape_B(p:DirectedHypergraph, hg: DirectedHypergraph, current_node, next_edge, edge_added):
-    logger = logging.getLogger(__name__)
-    ESCAPE_FOUND = False
-    current_edge = next_edge
-    fstar = hg.get_forward_star(current_node)
-    possible_escapes = []
-    for edge in fstar:
-        if is_B_edge(hg, edge):
-            if edge != current_edge:
-                possible_escapes.append(edge)
-    if possible_escapes != []:
-        next_edge = random.sample(set(possible_escapes), 1)[0]
-        ESCAPE_FOUND = True
-        logger.debug("Found node to escape: {0}".format(next_edge))
-    else:
-        current_edge = edge_added[len(edge_added) -1]
-        current_node = p.get_hyperedge_tail(current_edge)[0]
-        p.remove_hyperedge(current_edge)
-        del edge_added[len(edge_added) -1]
-    while not ESCAPE_FOUND:
-        logger.debug("Backtracking to node: {0}".format(current_node))
-        back_edge = list(p.get_backward_star(current_node))[0]
-        head = p.get_hyperedge_head(back_edge)
-        fstar = []
-        for node in head:
-            fstar_partial = hg.get_forward_star(node)
-            if fstar_partial != set():
-                for edge in fstar_partial:
-                    fstar.append(edge)
-        possible_escapes = []
-        for edge in fstar:
-            if is_B_edge(hg, edge):
-                if edge != current_edge:
-                    possible_escapes.append(edge)
-        if possible_escapes != []:
-            next_edge = random.sample(set(possible_escapes), 1)[0]
-            ESCAPE_FOUND = True
-            logger.debug("Found edge to escape: {0} - {1} >>> {2}".format(next_edge, hg.get_hyperedge_tail(next_edge),
-                                                                          hg.get_hyperedge_head(next_edge)))
-        else:
-            current_edge = edge_added[len(edge_added - 1)]
-            current_node = p.get_hyperedge_tail(current_edge)
-            p.remove_hyperedge(current_edge)
-            del edge_added[len(edge_added - 1)]
-            if edge_added == []:
-                logger.warning("Something went really wrong here!")
-
-    return p, current_node, edge_added, next_edge
-
-def loop_escape_F(p:DirectedHypergraph, hg: DirectedHypergraph, current_node, next_edge, edge_added):
-    logger = logging.getLogger(__name__)
-    ESCAPE_FOUND = False
-    current_edge = next_edge
-    fstar = hg.get_forward_star(current_node)
-    possible_escapes = []
-    for edge in fstar:
-        if is_F_edge(hg, edge):
-            if edge != current_edge:
-                possible_escapes.append(edge)
-    if possible_escapes != []:
-        next_edge = random.sample(set(possible_escapes), 1)[0]
-        ESCAPE_FOUND = True
-        logger.debug("Found node to escape: {0}".format(next_edge))
-    else:
-        current_edge = edge_added[len(edge_added) -1]
-        current_node = p.get_hyperedge_tail(current_edge)[0]
-        p.remove_hyperedge(current_edge)
-        del edge_added[len(edge_added) -1]
-    while not ESCAPE_FOUND:
-        logger.debug("Backtracking to node: {0}".format(current_node))
-        back_edge = list(p.get_backward_star(current_node))[0]
-        head = p.get_hyperedge_head(back_edge)
-        fstar = []
-        for node in head:
-            fstar_partial = hg.get_forward_star(node)
-            if fstar_partial != set():
-                for edge in fstar_partial:
-                    fstar.append(edge)
-        possible_escapes = []
-        for edge in fstar:
-            if is_F_edge(hg, edge):
-                if edge != current_edge:
-                    possible_escapes.append(edge)
-        if possible_escapes != []:
-            next_edge = random.sample(set(possible_escapes), 1)[0]
-            ESCAPE_FOUND = True
-            logger.debug("Found edge to escape: {0} - {1} >>> {2}".format(next_edge, hg.get_hyperedge_tail(next_edge),
-                                                                          hg.get_hyperedge_head(next_edge)))
-        else:
-            current_edge = edge_added[len(edge_added - 1)]
-            current_node = p.get_hyperedge_tail(current_edge)
-            p.remove_hyperedge(current_edge)
-            del edge_added[len(edge_added - 1)]
-            if edge_added == []:
-                logger.warning("Something went really wrong here!")
-
-    return p, current_node, edge_added, next_edge
-
-
-
-def aco_search_F_path(hg:DirectedHypergraph, ant_attributes, IGNORE_PHERO = False):
-    logger = logging.getLogger(__name__)  # get the logger
-    # get start and end node
-    start_end = get_start_end_node(hg)
-    start_node_set = start_end[0]
-    end_node_set = start_end[1]
-    start_node = random.sample(set(start_node_set), 1)[0]
-    logger.debug("Found START node set: {0}".format(start_node_set))
-    logger.debug("Chosen START node (if many available): {0}".format(start_node))
-    logger.debug("Found END node set: {0}".format(end_node_set))
-    # ASSUMPTION: only one end node
-    end_node = end_node_set[0]
-    # count number of nodes to process
-    number_of_nodes = len(hg.get_node_set())
-    logger.debug("Number of nodes to process: {0}".format(number_of_nodes))
-
-    p = DirectedHypergraph()
-
-    nodes_to_process = []
-    nodes_to_process.append(start_node)
-    i = 0
-
-    STOP = False
-    SOLUTION = True
-
-    edge_added = []
-
-    while not STOP:
-        PARTIAL_STUCK = False
-        current_node = nodes_to_process[i]
-        logger.debug("Visiting new node: {0}".format(current_node))
-        current_node_set = [current_node]
-        curr_fstar = hg.get_forward_star(current_node)
-        to_remove = []
-        for edge in curr_fstar:
-            if len(hg.get_hyperedge_tail(edge)) != 1:
-                to_remove.append(edge)
-        edge_set = curr_fstar.difference(to_remove)
-        if edge_set != set():
-            # choose next edge
-            next_edge = random.sample(set(edge_set), 1)[0]
-            next_node = hg.get_hyperedge_head(next_edge)[0]
-            if next_node in p.get_node_set():
-                logger.debug("!!! LOOP !!! Node already visited: Call loop escape F-... !!! LOOP !!!")
-                p, current_node, edge_added, next_edge = loop_escape_F(p, hg, current_node, next_edge, edge_added)
-            head = hg.get_hyperedge_head(next_edge)
-            edge_added.append(next_edge)
-            if end_node in head:
-                logging.debug("end node found, adding last edge and then STOP")
-                add_edge(p, hg, next_edge)
-                adjust_p_for_F_paths(p, end_node, start_node)
-                STOP = True
-            else:
-                add_edge(p, hg, next_edge)
-                nodes_to_process.extend(head)
-                i += 1
-
-        else:
-            if i < len(nodes_to_process) - 1:
-                # simply continue to next node to process
-                logging.debug("Partially stuck, continue...")
-                i += 1
-            else:
-                logging.debug("Stuck! STOP, no feasible solution found")
-                STOP = True
-                # no feasible solution
-                SOLUTION = False
-    return p, SOLUTION
 
 
 def test_hg_loop_F():
@@ -1381,34 +906,24 @@ def test_hg_simple2():
     return HG
 
 if __name__ == "__main__":
+    # SET LOGGER
     log = logging.getLogger('')
     log.setLevel(logging.DEBUG)
     format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
     ch = logging.StreamHandler(sys.stdout)
     ch.setFormatter(format)
     log.addHandler(ch)
-
     logger = logging.getLogger(__name__)
+    # END SET LOGGER
 
     HG = test_hg_loop_F()
     # HG = test_hg_02()
+    PRINT_ATTRS = True
+    print_hg_std_out_only(HG, PRINT_ATTRS)
+    print('\n \n')
 
-    print("======== HG to optimise:")
-    print_hg_std_out_only(HG)
-
-    print("******* optimising ....")
-
-    for i in range(10):
-        p, sol = None, None
-        print("------- NEW SEARCH: {0} --------------------------------------".format(i))
-        p, sol = aco_search_generic_path(HG, None, SEARCH_TYPE="BF")
-        print("Solution found: {0}".format(sol))
-        if sol:
-            print_hg_std_out_only(p)
-            print("####### Found p; is B-path? {0}".format(p.is_B_hypergraph()))
-            print("####### Found p; is F-path? {0}".format(p.is_F_hypergraph()))
-            print("####### Found p; is BF-path? {0}".format(p.is_BF_hypergraph()))
+    HGext = extend_phero_matrix(HG)
+    print_hg_std_out_only(HGext, PRINT_ATTRS)
 
 
 
