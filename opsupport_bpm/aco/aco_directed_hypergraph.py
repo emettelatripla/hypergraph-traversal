@@ -105,8 +105,7 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
     '''
     # check start and end nodes in hg
     logger = logging.getLogger(__name__)
-    logger.info("Ant colony optimisation has started with system: {0}".format(SYS_TYPE))
-
+    logger.info("MOACO optimisation has started with system: {0}".format(SYS_TYPE))
     # steup parameters if SYS_TYPE = MMAS
     pbest = 0.005
     # average number of options for xor splits
@@ -123,72 +122,52 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
         initialise_pheromone(hg,100)
     elif SYS_TYPE == 'ACS':
         reset_pheromone(hg)
-
     W_COST = W_UTILITY['cost']
     W_AVAIL = W_UTILITY['avail']
     W_QUAL = W_UTILITY['qual']
     W_TIME = W_UTILITY['time']
 
-    #setup the logger
+    # setup the logger
     #logging.basicConfig(filename='aco.log',level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    #currently optimal path
-    p_opt = DirectedHypergraph()
-    utility_opt = 0.0
+    # currently optimal path
+    # p_opt = DirectedHypergraph()
+    # utility_opt = 0.0
 
-    #counter for colony
+    # list of non-dominated solutions found
+    non_dom_solutions = []
+
+    # LOOP ON COLONIES
     col = 0
     while col < COL_NUM:
         #counter for ant number
         ant = 0
         logger.info("--- Processing COLONY {0} of {1} -------------------".format(col, COL_NUM - 1))
-        #h_graph to store partial pheromone update
         hg_phero = hg.copy()
-        p = DirectedHypergraph()
-        #add source node to optimal path (and its attributes)
-        #for node in start_node_set:
-            #p.add_node(node, hg.get_node_attributes(node))
-
-        col_best_uti = 0
-        col_p_best = DirectedHypergraph()
-
+        # LOOP ON ANTS
         while ant < ANT_NUM:
             logger.info("----- Processing COLONY n. {1}, ANT n. {0} of {2} -----------------".format(ant, col, ANT_NUM -1))
             p = DirectedHypergraph()
             """ call aco_search on p"""
-            # recursive
-            #visited = []
-            #p = aco_search(p, hg, start_node_set, 0, visited)
-
-            # SET ATTRIBUTE OF THIS ANT
-            ant_attrs = {}
-            ant_attrs['ant_attribute_1'] = 'silver'                     # simulate silver clients
-
-            p = DirectedHypergraph()
-            # CALL TO INS aco search procedure (works on process models)
-
+            ant_attrs = {}                          # set attributes of this ant
+            p = DirectedHypergraph()                # current path built by this ant
+            # Call the appropriate aco search procedure based on type of path searched
             if SEARCH_TYPE == "BF":
                 p = aco_search_nonrec(hg, ant_attrs)[0]
-
-            # CALL TO GENERIC aco search procedure (works with any fully connected hyperhgraph
-            # call be extended with type of path to look for F, B
             if SEARCH_TYPE == "B" or SEARCH_TYPE == "F":
                 p, path_found = aco_search_generic_path(hg, ant_attrs, SEARCH_TYPE=SEARCH_TYPE)
-                # non recursive
-                #p = aco_search_norec(p, hg, start_node_set)
-                #PRINT CURRENT OPTIMAL PATH
                 if path_found:
                     print_hg_std_out_only(p)
                 else:
                     p = DirectedHypergraph()
-
-            #calculate utility of p
+            # calculate utility of p
             if len(p.get_node_set()) == 0:
                 utility = 0
             else:
                 utility = calculate_utility(p, W_COST, W_TIME, W_QUAL, W_AVAIL)
             #do partial pheromone update
+            # TODO change pheromone update:
             partial_phero_update(hg_phero, p, W_COST, W_TIME, W_QUAL, W_AVAIL, SYS_TYPE)
             #check if p is better than current optimal solution
             #update if p is optimal
