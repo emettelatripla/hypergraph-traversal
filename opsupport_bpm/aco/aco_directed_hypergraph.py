@@ -20,7 +20,7 @@ from halp.utilities.directed_matrices import get_head_incidence_matrix, get_tail
 from opsupport_bpm.aco.aco_pheromone import final_phero_update
 from opsupport_bpm.aco.aco_pheromone import partial_phero_update
 from opsupport_bpm.aco.aco_pheromone import phero_choice_single_node
-from opsupport_bpm.aco.aco_utility import calculate_utility
+from opsupport_bpm.aco.aco_utility import calculate_utility, calc_utility_cost, calc_utility_qual
 from opsupport_bpm.util.print_hypergraph import print_hg_std_out_only
 from opsupport_bpm.models.hypergraph import initialise_pheromone, reset_pheromone, number_of_xor_splits
 
@@ -136,7 +136,7 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
     # utility_opt = 0.0
 
     # list of non-dominated solutions found
-    non_dom_solutions = []
+    non_dom_solutions = set()
 
     # LOOP ON COLONIES
     col = 0
@@ -169,20 +169,9 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
             #do partial pheromone update
             # TODO change pheromone update:
             partial_phero_update(hg_phero, p, W_COST, W_TIME, W_QUAL, W_AVAIL, SYS_TYPE)
-            #check if p is better than current optimal solution
-            #update if p is optimal
             logger.info("...ant finished!")
-            logger.info("--- Utility of path discovered by this ant: {0}".format(utility))
-            logger.info("--- Utility of optimal path in this colony: {0}".format(col_best_uti))
-            logger.info("--- Utiity of current OPTIMAL PATH: {0}".format(utility_opt))
-            if utility > utility_opt:
-                utility_opt = utility
-                p_opt = p
-                logger.info("***** Optimal path updated *****---------------")
-            # update of current best for MMAS
-            if utility > col_best_uti:
-                col_best_uti, col_p_best = utility, p
-                logger.info("### Best in colony path updated ###")
+            non_dom_solutions.add(p.copy())
+            non_dom_solutions = delete_dominated_sol(non_dom_solutions)
 
 
             ant = ant + 1
@@ -191,12 +180,14 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
         if IGNORE_PHERO == False:
             #actual pheromone update after processing an entire colony
             if SYS_TYPE == 'ACS':
-                final_phero_update(hg, tau, SYS_TYPE, W_COST, W_TIME, W_QUAL, W_AVAIL,
-                                   hg_partial = hg_phero)
+                pass
+                # final_phero_update(hg, tau, SYS_TYPE, W_COST, W_TIME, W_QUAL, W_AVAIL,
+                #                    hg_partial = hg_phero)
             elif SYS_TYPE == 'MMAS':
-                pheromax, pheromin = final_phero_update(hg, tau, SYS_TYPE, W_COST, W_TIME, W_QUAL, W_AVAIL,
-                                                                p_best=col_p_best, n_xor_splits=n_xor_splits,
-                                                                avg_xor_choices=avg_xor_choices, pbest=pbest)
+                pass
+                # pheromax, pheromin = final_phero_update(hg, tau, SYS_TYPE, W_COST, W_TIME, W_QUAL, W_AVAIL,
+                #                                                 p_best=col_p_best, n_xor_splits=n_xor_splits,
+                #                                                 avg_xor_choices=avg_xor_choices, pbest=pbest)
                 if SYS_TYPE == 'MMAS':
                     # special initialisation of pheromone at the first iteration
                     if col == 0 and ant == ANT_NUM:
@@ -223,6 +214,24 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
     logger.info("***********************************************")
     logger.warning("Is BF-path: {0}".format(p_opt.is_BF_hypergraph()))
     return (p_opt, UTILITY)
+
+
+def delete_dominated_sol(solutions):
+    """
+    Deletes solutions that are dominated
+    Uses: cost as utility_01, qual as utility_02
+    :param non_dominated_sol: a set of solutions
+    :return: 
+    """
+    to_remove = set()
+    for path in solutions:
+        uti_01, uti_02 = calc_utility_cost(path), calc_utility_qual(path)
+        for other_path in solutions:
+            if other_path is not path:
+                uti_other_01, uti_other_02 = calc_utility_cost(path), calc_utility_qual(path)
+                if (uti_other_01 > uti_01 and uti_other_02 >= uti_02) or (uti_other_02 > uti_02 and uti_other_01 >= uti_01):
+                    to_remove.add(path)
+    return solutions - to_remove
 
 def add_edge(p,hg,edge):
     """
