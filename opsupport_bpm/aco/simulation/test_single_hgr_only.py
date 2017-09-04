@@ -8,7 +8,7 @@ import logging
 from time import time
 
 from opsupport_bpm.aco.aco_directed_hypergraph import aco_algorithm_norec
-from opsupport_bpm.aco.aco_misc import random_generate_hg, add_random_loops
+from opsupport_bpm.aco.aco_misc import random_generate_hg_BF, add_random_loops
 from opsupport_bpm.aco.simulation.simulation_pnml_only import cleanup
 from opsupport_bpm.util.print_hypergraph import write_hg_to_file,\
     print_hg_std_out_only, read_hg_from_file
@@ -40,7 +40,7 @@ def do_one_run(io_param, aco_param, hg_gen_param):
     B_SIZE_MAX = hg_gen_param['block_size_max']
     
     # generate hg
-    hg = random_generate_hg(L_SIZE, B_SIZE_MIN, B_SIZE_MAX)
+    hg = random_generate_hg_BF(L_SIZE, B_SIZE_MIN, B_SIZE_MAX)
     hg = add_random_loops(hg, 5, 5)
     
     # write hg on file

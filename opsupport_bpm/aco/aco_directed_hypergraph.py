@@ -143,6 +143,12 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
         logger.info("--- Processing COLONY {0} of {1} -------------------".format(col, COL_NUM - 1))
         #h_graph to store partial pheromone update
         hg_phero = hg.copy()
+        # TODO
+        # updates the id attribute in hg phero
+        for edge in hg_phero.get_hyperedge_id_set():
+            hg_phero.add_hyperedge(hg.get_hyperedge_tail(edge), hg.get_hyperedge_head(edge), {'phero' : hg.get_hyperedge_attribute(edge, 'phero'), 'id' : edge} )
+
+
         p = DirectedHypergraph()
         #add source node to optimal path (and its attributes)
         #for node in start_node_set:

@@ -81,8 +81,10 @@ def partial_phero_update_ACS(hg_phero, path, w_cost, w_time, w_qual, w_avail):
     for p_edge in p_edge_set:
         p_edge_id = path.get_hyperedge_attribute(p_edge, 'id')
         curr_phero = hg_phero.get_hyperedge_attribute(p_edge_id, 'phero')
-        path.add_hyperedge(path.get_hyperedge_tail(p_edge), path.get_hyperedge_head(p_edge), phero = curr_phero + p_utility, id = p_edge_id)
-        logger.debug("Partial phero update - Phero value: {0}".format(str(path.get_hyperedge_attribute(p_edge, 'phero'))))
+        # path.add_hyperedge(path.get_hyperedge_tail(p_edge), path.get_hyperedge_head(p_edge), phero = curr_phero + p_utility, id = p_edge_id)
+        hg_phero.add_hyperedge(hg_phero.get_hyperedge_tail(p_edge), hg_phero.get_hyperedge_head(p_edge),
+                           phero=curr_phero + p_utility, id=p_edge_id)
+        logger.debug("Partial phero update - Phero value: {0}".format(str(hg_phero.get_hyperedge_attribute(p_edge, 'phero'))))
         logger.debug("Partial phero update - id: {0}".format(str(path.get_hyperedge_attribute(p_edge, 'id'))))
 
 
@@ -150,9 +152,11 @@ def final_phero_update_ACS(hg, tau, w_cost, w_time, w_qual, w_avail,
     edge_set = hg_partial.get_hyperedge_id_set()
     for edge in edge_set:
         edge_id = hg_partial.get_hyperedge_attribute(edge, 'id')
+
         #evaporate current phero on hg and add partial update from hg_partial
-        evap_u = tau * hg.get_hyperedge_attribute(edge_id, 'phero')
+        evap_u = tau * hg.get_hyperedge_attribute(edge, 'phero')
         new_phero = evap_u + hg_partial.get_hyperedge_attribute(edge, 'phero')
+
         hg.add_hyperedge(hg_partial.get_hyperedge_tail(edge), hg_partial.get_hyperedge_head(edge), phero = new_phero, id = edge_id)
     
     

@@ -5,6 +5,7 @@ Created on 2016. 8. 16.
 '''
 
 import logging
+import os
 from tkinter import *
 
 from opsupport_bpm.aco.simulation.simulation_hgr_only import sim_run_hgr_only
@@ -17,17 +18,19 @@ from opsupport_bpm.aco.simulation.simulation_pnml_only import optimise
 def simulation_GUI():
     
     # set working directory (not modificable using GUI
-    working_dir = "C://opsupport_bpm_files"
+    homeDir = os.environ['HOME']
+    working_dir = homeDir + "/opsupport_bpm_files"
     output_eval_dir = working_dir+"/eval/output_files"
-    
+
     io_param = {}
     io_param['working_dir'] = working_dir 
     io_param['output_eval_dir'] = working_dir+"/eval/output_files"
     io_param['input_eval_dir'] = working_dir+"/eval/input_files"
     io_param['log'] = output_eval_dir+"/logs/run.log"
     
-    # cleanup output directory
-    cleanup(output_eval_dir)
+    # cleanup output directory if not empty
+    if os.listdir(output_eval_dir + "/logs") == []:
+        cleanup(output_eval_dir)
     
     # set logger
     #log_file = io_param['log']
@@ -175,6 +178,12 @@ def simulation_GUI():
     SEARCH_TYPE_label.grid(row=row_num, column=0)
     SEARCH_TYPE_label_entry = Entry(main_window)
     SEARCH_TYPE_label_entry.grid(row=row_num, column=1)
+
+    row_num += 1
+    RUN_NUM_label = Label(main_window, text='Number of runs: ')
+    RUN_NUM_label.grid(row=row_num, column=0)
+    RUN_NUM_label_entry = Entry(main_window)
+    RUN_NUM_label_entry.grid(row=row_num, column=1)
     
     def start_simulation_real_logs():
         aco_param = {}
@@ -191,13 +200,14 @@ def simulation_GUI():
 
         SYS_TYPE = SYS_TYPE_label_entry.get()
         SEARCH_TYPE = SEARCH_TYPE_label_entry.get()
+        RUN_NUM = int(RUN_NUM_label_entry.get())
         
         # convert input pnml into hgr files
         convert_input_pnml_to_hgr(io_param)
         # optimise existing hgr files
         optimise(io_param, aco_param, SYS_TYPE)
 
-    def start_simulation_proc_gen():
+    def start_simulation_proc_gen(NONBF = False):
         aco_param = {}
         aco_param['COL_NUM']        = int(col_num_entry.get())
         aco_param['COL_NUM_MAX']    = int(col_num_max_entry.get())
@@ -231,8 +241,12 @@ def simulation_GUI():
 
         SYS_TYPE = SYS_TYPE_label_entry.get()
         SEARCH_TYPE = SEARCH_TYPE_label_entry.get()
+        RUN_NUM = int(RUN_NUM_label_entry.get())
 
-        sim_run_hgr_only(io_param, aco_param, gen_param, SYS_TYPE, SEARCH_TYPE)
+        sim_run_hgr_only(io_param, aco_param, gen_param, SYS_TYPE, SEARCH_TYPE, NONBF, RUN_NUM)
+
+    def start_simulation_proc_gen_nonBF():
+        start_simulation_proc_gen(True)
 
     def sel():
         log_level = var.get()
@@ -266,8 +280,13 @@ def simulation_GUI():
         row=row_num, column=0)
 
     row_num += 1
-    start_button_2 = Button(text="START sim on artificially generated processes",
+    start_button_2 = Button(text="START sim on artificially generated processes (BF-paths only)",
                             command=start_simulation_proc_gen).grid(
+        row=row_num, column=0)
+
+    row_num += 1
+    start_button_3 = Button(text="START sim on artificially generated processes (non-BF paths)",
+                            command=start_simulation_proc_gen_nonBF).grid(
         row=row_num, column=0)
 
 
