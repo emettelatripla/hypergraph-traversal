@@ -106,18 +106,19 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
     logger.info("Ant colony optimisation has started with system: {0}".format(SYS_TYPE))
 
     # steup parameters if SYS_TYPE = MMAS
-    pbest = 0.005
-    # average number of options for xor splits
-    n_xor_splits = number_of_xor_splits(hg)
-    nodes = hg.get_node_set()
-    tot = 0
-    for node in nodes:
-        if hg.get_node_attribute(node, 'type') == 'xor-split':
-            tot += len(hg.get_forward_star(node))
-    avg_xor_choices = tot / n_xor_splits
+
 
     # adjust initial pheromone level to a high value for MMAS
     if SYS_TYPE == 'MMAS':
+        pbest = 0.005
+        # average number of options for xor splits
+        n_xor_splits = number_of_xor_splits(hg)
+        nodes = hg.get_node_set()
+        tot = 0
+        for node in nodes:
+            if hg.get_node_attribute(node, 'type') == 'xor-split':
+                tot += len(hg.get_forward_star(node))
+        avg_xor_choices = tot / n_xor_splits
         initialise_pheromone(hg,100)
     elif SYS_TYPE == 'ACS':
         reset_pheromone(hg)
@@ -177,7 +178,7 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
 
             # CALL TO GENERIC aco search procedure (works with any fully connected hyperhgraph
             # call be extended with type of path to look for F, B
-            if SEARCH_TYPE == "B" or SEARCH_TYPE == "F":
+            if SEARCH_TYPE == "B" or SEARCH_TYPE == "F" or SEARCH_TYPE =="B+F":
                 p, path_found = aco_search_generic_path(hg, ant_attrs, SEARCH_TYPE=SEARCH_TYPE)
                 # non recursive
                 #p = aco_search_norec(p, hg, start_node_set)
@@ -189,11 +190,13 @@ def aco_algorithm_norec(hg:DirectedHypergraph, ANT_NUM, COL_NUM, tau, W_UTILITY,
 
             #calculate utility of p
             if len(p.get_node_set()) == 0:
+                logger.info("No feasible solution found by this ant, no partial phero update")
                 utility = 0
             else:
                 utility = calculate_utility(p, W_COST, W_TIME, W_QUAL, W_AVAIL)
-            #do partial pheromone update
-            partial_phero_update(hg_phero, p, W_COST, W_TIME, W_QUAL, W_AVAIL, SYS_TYPE)
+                #do partial pheromone update
+                logger.info("Doing partial phero update...")
+                partial_phero_update(hg_phero, p, W_COST, W_TIME, W_QUAL, W_AVAIL, SYS_TYPE)
             #check if p is better than current optimal solution
             #update if p is optimal
             logger.info("...ant finished!")
@@ -315,7 +318,10 @@ def escape_from_loop(current_node,next_edge,p,hg,used_edges):
     # check if we can escape from current node
     curr_node_set = []
     curr_node_set.append(current_node)
-    outgoings = hg.get_successors(curr_node_set)
+
+    # outgoings = hg.get_successors(curr_node_set)
+    outgoings = hg.get_forward_star(current_node)
+
     logger.debug("....successors of current node {1}: {0}".format(outgoings,current_node))
     outgoings = outgoings.remove(next_edge)
     logger.debug("Used edges: {0}".format(used_edges))
@@ -500,8 +506,14 @@ def aco_search_nonrec(hg, ant_attributes, IGNORE_PHERO = False):
                 next_edge = edge_list[ret_value]
                 logger.debug("==> Next edge chosen (using smart_service) is: {0}".format(next_edge))
         else:
-            next_edge = phero_choice_single_node(f_edge_set, hg, IGNORE_PHERO)
-            logger.debug("==> Next edge chosen using traditional pheromone: {0}".format(next_edge))
+            logger.debug("f_edge_set: {0}".format(f_edge_set))
+            if f_edge_set is not set():
+                next_edge = phero_choice_single_node(f_edge_set, hg, IGNORE_PHERO)
+                logger.debug("==> Next edge chosen using traditional pheromone: {0}".format(next_edge))
+            else:
+                logger.debug("ANT IS STUCK...NO SOLUTIONS FOUND")
+                # return empty hypergraph
+                return DirectedHypergraph()
         # check if next_edge chosen with pheromone is different
         # REMOVE FOR SIMULATION
         if is_smartchoice:
@@ -653,12 +665,14 @@ def get_fstar(node_set, hg:DirectedHypergraph):
         fstar.update(hg.get_forward_star(node))
     return fstar
 
-def keep_edges(edge_set, hg, edge_type = "BF"):
+def keep_edges(edge_set, hg, edge_type = "B+F"):
     to_remove = []
-    if edge_type == "BF":
+    if edge_type == "B+F":
         for edge in edge_set:
-            if not (is_B_edge(hg, edge) or is_F_edge(hg, edge)):
-                to_remove.append(edge)
+            # if not (is_B_edge(hg, edge) or is_F_edge(hg, edge)):
+            #    to_remove.append(edge)
+            # TODO fix this!
+            pass
     elif edge_type == "B":
         for edge in edge_set:
             if not (is_B_edge(hg, edge)):
@@ -670,7 +684,7 @@ def keep_edges(edge_set, hg, edge_type = "BF"):
     return edge_set.difference(to_remove)
 
 
-def aco_search_generic_path(hg:DirectedHypergraph, ant_attributes, IGNORE_PHERO = False, SEARCH_TYPE="BF"):
+def aco_search_generic_path(hg:DirectedHypergraph, ant_attributes, IGNORE_PHERO = False, SEARCH_TYPE="B+F"):
     logger = logging.getLogger(__name__)  # get the logger
     # get start and end node
     start_end = get_start_end_node(hg)
@@ -706,13 +720,15 @@ def aco_search_generic_path(hg:DirectedHypergraph, ant_attributes, IGNORE_PHERO 
             return p, False
         # 3) choose one edge in fstar (insert ACO here)
         # next_edge = random.sample(set(fstar), 1)[0]
-        # TODO used ACO intead of random search
         next_edge = phero_choice_single_node(fstar, hg, IGNORE_PHERO)
         # 3.1) [possibly improve solution using local search]
         # TODO improve solution using local search
         # 4) If exists node in H(edge): node has already been visited, then edge = cycle_escape()
         p_node_set = p.get_node_set()
         head = hg.get_hyperedge_head(next_edge)
+        # head = []
+        # head.append(head_singlenode)
+        logger.debug(p_node_set, head)
         if p_node_set.intersection(head) != set():
             logger.info("I walked through a cycle because I am again visiting node: {0}".format(p_node_set.intersection(head)))
             p, next_edge_p_id = add_edge(p, hg, next_edge)
@@ -1408,7 +1424,7 @@ if __name__ == "__main__":
     for i in range(10):
         p, sol = None, None
         print("------- NEW SEARCH: {0} --------------------------------------".format(i))
-        p, sol = aco_search_generic_path(HG, None, SEARCH_TYPE="BF")
+        p, sol = aco_search_generic_path(HG, None, SEARCH_TYPE="F")
         print("Solution found: {0}".format(sol))
         if sol:
             print_hg_std_out_only(p)

@@ -229,7 +229,7 @@ def phero_choice_single_node(f_edge_set, hg, IGNORE_PHERO = False):
     if debug: print("This is the cumul list: "+str(cumul_hash))
     #extract random number and check
     len_ch = len(cumul_hash)-1
-    low = cumul_hash[0]
+#    low = cumul_hash[0]
     high = cumul_hash[len_ch]
     choice = random.uniform(0, high)
     #logger.debug("Random number to choose next edge: {0} ==== Cumulative choice list: {1}".format(str(choice),str(cumul_hash)))
