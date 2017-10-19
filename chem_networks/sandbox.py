@@ -2,6 +2,7 @@ import logging
 import sys
 from time import time
 import random
+import graphviz as gv
 
 from halp.directed_hypergraph import DirectedHypergraph
 from opsupport_bpm.util.print_hypergraph import print_hg_std_out_only, print_node, print_hyperedge
@@ -13,6 +14,7 @@ import xml.dom.minidom
 from opsupport_bpm.aco.aco_misc import generate_random_node_attributes
 from opsupport_bpm.aco.aco_directed_hypergraph import aco_algorithm_norec
 from opsupport_bpm.util.print_hypergraph import write_hg_to_file
+from chem_networks.graphviz_sandbox import test_hypergraph
 
 
 # setup the logger
@@ -81,7 +83,7 @@ for reaction in reactions:
    # print_list_metabolites(products)
    print(product_list)
    print("********************\n")
-   dummy_node_label = "dummy" + str(dummy_counter)
+   dummy_node_label = "REAC_" + str(id) + "_" + str(dummy_counter)
    dummy_node = []
    dummy_node.append(dummy_node_label)
    dummy_counter += 1
@@ -107,13 +109,23 @@ for node in hg.get_node_set():
     hg.add_node(node,generate_random_node_attributes() )
 
 # generate source and sink nodes
-source_name = random.sample(hg.get_node_set(), 1)[0]
+SOURCE_FOUND = False
+while not SOURCE_FOUND:
+    source_name = random.sample(hg.get_node_set(), 1)[0]
+    if not source_name.startswith("REAC"):
+        SOURCE_FOUND = True
+
 logger.info("Chosen SOURCE node: {0}".format(source_name))
 source_attrs = generate_random_node_attributes()
 source_attrs['source'] = True
 hg.add_node(source_name, source_attrs)
 
-sink_name = random.sample(hg.get_node_set(), 1)[0]
+SINK_FOUND = False
+while not SINK_FOUND:
+    sink_name = random.sample(hg.get_node_set(), 1)[0]
+    if not sink_name.startswith('REAC'):
+        SINK_FOUND = True
+
 logger.info("Chosen SINK node: {0}".format(sink_name))
 sink_attrs = generate_random_node_attributes()
 sink_attrs['sink'] = True
@@ -135,9 +147,17 @@ WRITE HG TO FILE
 """
 write_hg_to_file(hg, "chem_net_hg.hgr")
 
+# """
+# RENDER HG WITH GRAPHVIZ
+# """
+# print("rendering with graphviz...")
+# test_hypergraph(hg)
+# print("...done")
+
 """
 TEST ACO
 """
+
 start_time_aco = time()
 print("running aco....")
 # aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE, IGNORE_PHERO = False)
@@ -148,6 +168,7 @@ utility = aco_result[1]
 end_time_aco = time()
 aco_alg_time = end_time_aco - start_time_aco
 print_hg_std_out_only(p_opt)
-write_hg_to_file (hg, "opt.hgr")
+write_hg_to_file (p_opt, "opt.hgr")
 print("ACO optimisation took: {0}s".format(aco_alg_time))
 print("UTILITY: {0}".format(utility))
+
