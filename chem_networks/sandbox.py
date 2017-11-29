@@ -93,13 +93,13 @@ for reaction in reactions:
 
 # print_hg_std_out_only(hg)
 
-print(number_of_hyperedges(hg))
-print(number_of_nodes(hg))
-print(mean_hyperedge_cardinality_ratio(hg))
-print(mean_hyperedge_head_cardinality(hg))
-print(mean_hyperedge_tail_cardinality(hg))
-print(mean_indegree(hg))
-print(mean_outdegree(hg))
+print("Hyperedges: ", number_of_hyperedges(hg))
+print("Nodes: ", number_of_nodes(hg))
+print("Mean hyperedge cardinality: ",mean_hyperedge_cardinality_ratio(hg))
+print("Mean head cardinality: ", mean_hyperedge_head_cardinality(hg))
+print("Mean tail cardinality: ",mean_hyperedge_tail_cardinality(hg))
+print("Mean indegree cardinality: ",mean_indegree(hg))
+print("Mean outdegree cardinality: ",mean_outdegree(hg))
 
 
 """
@@ -138,6 +138,8 @@ for node in hg.get_node_set():
 for edge in hg.get_hyperedge_id_set():
     print_hyperedge(edge, hg)
 
+print
+
 """
 DETERMINE XOR SPLITS
 """
@@ -145,7 +147,7 @@ DETERMINE XOR SPLITS
 """
 WRITE HG TO FILE
 """
-write_hg_to_file(hg, "chem_net_hg.hgr")
+# write_hg_to_file(hg, "chem_net_hg.hgr")
 
 # """
 # RENDER HG WITH GRAPHVIZ
@@ -158,17 +160,17 @@ write_hg_to_file(hg, "chem_net_hg.hgr")
 TEST ACO
 """
 
-start_time_aco = time()
-print("running aco....")
-# aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE, IGNORE_PHERO = False)
-aco_result = aco_algorithm_norec(hg, 10 , 6, 0.75, {'cost' : 0.7, 'avail' : 0.1, 'qual' : 0.1, 'time' : 0.1},
-                                 'ACS', 'B+F', IGNORE_PHERO = False)
-p_opt = aco_result[0]
-utility = aco_result[1]
-end_time_aco = time()
-aco_alg_time = end_time_aco - start_time_aco
-print_hg_std_out_only(p_opt)
-write_hg_to_file (p_opt, "opt.hgr")
-print("ACO optimisation took: {0}s".format(aco_alg_time))
-print("UTILITY: {0}".format(utility))
+# start_time_aco = time()
+# print("running aco....")
+# # aco_result = aco_algorithm_norec(hg, ANT_NUM, COL_NUM, tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE, IGNORE_PHERO = False)
+# aco_result = aco_algorithm_norec(hg, 10 , 6, 0.75, {'cost' : 0.7, 'avail' : 0.1, 'qual' : 0.1, 'time' : 0.1},
+#                                  'ACS', 'B+F', IGNORE_PHERO = False)
+# p_opt = aco_result[0]
+# utility = aco_result[1]
+# end_time_aco = time()
+# aco_alg_time = end_time_aco - start_time_aco
+# print_hg_std_out_only(p_opt)
+# write_hg_to_file (p_opt, "opt.hgr")
+# print("ACO optimisation took: {0}s".format(aco_alg_time))
+# print("UTILITY: {0}".format(utility))
 
