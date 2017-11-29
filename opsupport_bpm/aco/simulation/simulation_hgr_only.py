@@ -38,7 +38,7 @@ def cleanup(input_eval_dir, output_eval_dir):
 #         file_name = output_eval_dir + "/pnml/" + f
 #         os.remove(file_name)
 
-def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE, SEARCH_TYPE, NONBF, RUN_NUM):
+def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE, SEARCH_TYPE, NONBF, RUN_NUM, WO_LOOPS = False):
     # SYS_TYPE = 'MMAS'
     # read parameters
     # set up working directory
@@ -68,78 +68,182 @@ def sim_run_hgr_only(io_param, aco_param, hg_gen_param, SYS_TYPE, SEARCH_TYPE, N
     
     
     # generate hgr files
-    if LOOP_NO_MAX != 0:
-        print("+++++++++++ Generating hypergraphs with LOOPS....")
-        for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
-            for j in range(LOOP_L_MIN, LOOP_L_MAX, 10):
-                file_name = input_eval_dir + '/hg_level_' + str(i) + '_' + str(j) + "_" + SYS_TYPE + "_" + SEARCH_TYPE +  ".hgr"
+    if not WO_LOOPS:
+        if LOOP_NO_MAX != 0:
+            print("+++++++++++ Generating hypergraphs with LOOPS....")
+            for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
+                for j in range(LOOP_L_MIN, LOOP_L_MAX, 10):
+                    file_name = input_eval_dir + '/hg_level_' + str(i) + '_' + str(j) + "_" + SYS_TYPE + "_" + SEARCH_TYPE +  ".hgr"
+                    if NONBF == False:
+                        print("+++ BF paths only +++")
+                        hg = random_generate_hg_BF(i, B_SIZE_MIN, B_SIZE_MAX)
+                    else:
+                        print("+++ nonBF paths +++")
+                        hg = random_generate_hg_nonBF(i, B_SIZE_MIN, B_SIZE_MAX)
+                    hg = add_random_loops(hg, LOOP_NO_MAX, j)
+                    write_hg_to_file(hg, file_name)
+                    print("+++ hypergraph level {0}, loop length {1}".format(i,j))
+        else:
+            print("+++++++++++ Generating hypergraphs, no loops....")
+            for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
+                file_name = input_eval_dir + '/hg_level_' + str(i) + '_' + "NOLOOPS" + "_" + SYS_TYPE + "_" + SEARCH_TYPE + ".hgr"
                 if NONBF == False:
                     print("+++ BF paths only +++")
                     hg = random_generate_hg_BF(i, B_SIZE_MIN, B_SIZE_MAX)
                 else:
                     print("+++ nonBF paths +++")
                     hg = random_generate_hg_nonBF(i, B_SIZE_MIN, B_SIZE_MAX)
-                hg = add_random_loops(hg, LOOP_NO_MAX, j)
+                #hg = add_random_loops(hg, LOOP_NO_MAX, j)
                 write_hg_to_file(hg, file_name)
-                print("+++ hypergraph level {0}, loop length {1}".format(i,j))
+                print("+++ hypergraph level {0}, NO LOOPS".format(i))
+        "+++++++++++ Hypergraph generation completed"
+
+        sep = '\t'
+
+        # main loop (calls single_run)
+        for run in range(RUN_NUM):
+            print("Run round {0}: STARTED ..........".format(run))
+            for file_name in os.listdir(input_eval_dir):
+                if file_name.endswith(".hgr"):
+                    file_root = os.path.splitext(file_name)[0]
+                    file_ext = os.path.splitext(file_name)[1]
+                    print("=============================================================================")
+                    print("========= Processing {1} file: {0}".format(file_name, file_ext))
+                    print("========= USING PHEROMONE ===================================================")
+                    print("=============================================================================")
+                    file_name = input_eval_dir + '/'  + file_name
+                    hg = read_hg_from_file(file_name)
+                    hg_stats = get_statistics(hg)
+                    perf_file_name = output_eval_dir + '/performance/' + str(run) + "__" + file_root + '.txt'
+                    perf_file = open(perf_file_name, 'w')
+                    line = 'FILE_ROOT' + sep + 'COL_NUM' + sep + 'ANT_NUM' + sep + 'UTILITY' + sep + 'EXEC_TIME' +  sep + 'ACT' + sep + 'TRANS' + sep + 'XOR-JOINS' + sep + 'XOR-SPLITS'
+                    perf_file.write(line)
+                    perf_file.write('\n')
+                    # run aco optimisation for all possible configuration
+                    for col_num in range(COL_NUM, COL_NUM_MAX, COL_NUM_STEP):
+                        #hg = reset_pheromone(hg)
+                        for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
+
+                            start_time_aco = time()
+                            p_opt, utility = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE)
+                            end_time_aco = time()
+                            # p_opt = aco_result[0]
+                            # utility = aco_result[1]
+                            aco_alg_time = end_time_aco - start_time_aco
+                            print("ACO optimisation took: {0}s".format(aco_alg_time))
+
+                            line = file_root + sep + str(col_num) + sep + str(ant_num) + sep + str(utility) + sep + str(aco_alg_time) + sep + str(hg_stats['activities']) + sep + str(hg_stats['transitions']) + sep + str(hg_stats['xor-join']) + sep + str(hg_stats['xor-split'])
+                            perf_file.write(line)
+                            perf_file.write('\n')
+                    perf_file.close()
+            print("....... Run round {0}: TERMINATED".format(run))
+        print("PHEROMONE RUNS TERMINATED")
+
     else:
-        print("+++++++++++ Generating hypergraphs, no loops....")
-        for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
-            file_name = input_eval_dir + '/hg_level_' + str(i) + '_' + "NOLOOPS" + "_" + SYS_TYPE + "_" + SEARCH_TYPE + ".hgr"
-            if NONBF == False:
-                print("+++ BF paths only +++")
-                hg = random_generate_hg_BF(i, B_SIZE_MIN, B_SIZE_MAX)
-            else:
-                print("+++ nonBF paths +++")
-                hg = random_generate_hg_nonBF(i, B_SIZE_MIN, B_SIZE_MAX)
-            #hg = add_random_loops(hg, LOOP_NO_MAX, j)
-            write_hg_to_file(hg, file_name)
-            print("+++ hypergraph level {0}, NO LOOPS".format(i))
-    "+++++++++++ Hypergraph generation completed"
-    
-    
-        
-    sep = '\t'
-    
-    # main loop (calls single_run)
-    for run in range(RUN_NUM):
-        print("Run round {0}: STARTED ..........".format(run))
+        # WO_LOOPS = True
+        if LOOP_NO_MAX != 0:
+            print("+++++++++++ Generating hypergraphs with and without LOOPS....")
+            for i in range(L_SIZE_MIN, L_SIZE_MAX, L_SIZE_STEP):
+                for j in range(LOOP_L_MIN, LOOP_L_MAX, 10):
+                    file_name_without = input_eval_dir + '/NOLOOP_hg_level_' + str(i) + '_' + str(
+                        j) + "_" + SYS_TYPE + "_" + SEARCH_TYPE + ".hgr"
+                    file_name_with = input_eval_dir + '/LOOP_hg_level_' + str(i) + '_' + str(
+                        j) + "_" + SYS_TYPE + "_" + SEARCH_TYPE + ".hgr"
+                    if NONBF == False:
+                        print("+++ BF paths only +++")
+                        hg = random_generate_hg_BF(i, B_SIZE_MIN, B_SIZE_MAX)
+                        write_hg_to_file(hg, file_name_without)
+                    else:
+                        print("+++ nonBF paths +++")
+                        hg = random_generate_hg_nonBF(i, B_SIZE_MIN, B_SIZE_MAX)
+                        write_hg_to_file(hg, file_name_without)
+                    hg = add_random_loops(hg, LOOP_NO_MAX, j)
+                    write_hg_to_file(hg, file_name_with)
+                    print("+++ hypergraph level {0}, loop length {1}".format(i, j))
+        "+++++++++++ Hypergraph generation completed"
+
+        sep = '\t'
+
+        # main loop (calls single_run)
+        for run in range(RUN_NUM):
+            print("Run round {0}: STARTED ..........".format(run))
+            for file_name in os.listdir(input_eval_dir):
+                if file_name.endswith(".hgr"):
+                    file_root = os.path.splitext(file_name)[0]
+                    file_ext = os.path.splitext(file_name)[1]
+                    print("=============================================================================")
+                    print("========= Processing {1} file: {0}".format(file_name, file_ext))
+                    print("========= USING PHEROMONE ===================================================")
+                    print("=============================================================================")
+                    file_name = input_eval_dir + '/' + file_name
+                    hg = read_hg_from_file(file_name)
+                    hg_stats = get_statistics(hg)
+                    perf_file_name = output_eval_dir + '/performance/' + str(run) + "__" + file_root + '.txt'
+                    perf_file = open(perf_file_name, 'w')
+                    line = 'FILE_ROOT' + sep + 'COL_NUM' + sep + 'ANT_NUM' + sep + 'UTILITY' + sep + 'EXEC_TIME' + sep + 'ACT' + sep + 'TRANS' + sep + 'XOR-JOINS' + sep + 'XOR-SPLITS'
+                    perf_file.write(line)
+                    perf_file.write('\n')
+                    # run aco optimisation for all possible configuration
+                    for col_num in range(COL_NUM, COL_NUM_MAX, COL_NUM_STEP):
+                        # hg = reset_pheromone(hg)
+                        for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
+                            start_time_aco = time()
+                            p_opt, utility = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE,
+                                                                 SEARCH_TYPE)
+                            end_time_aco = time()
+                            # p_opt = aco_result[0]
+                            # utility = aco_result[1]
+                            aco_alg_time = end_time_aco - start_time_aco
+                            print("ACO optimisation took: {0}s".format(aco_alg_time))
+
+                            line = file_root + sep + str(col_num) + sep + str(ant_num) + sep + str(utility) + sep + str(
+                                aco_alg_time) + sep + str(hg_stats['activities']) + sep + str(
+                                hg_stats['transitions']) + sep + str(hg_stats['xor-join']) + sep + str(
+                                hg_stats['xor-split'])
+                            perf_file.write(line)
+                            perf_file.write('\n')
+                    perf_file.close()
+            print("....... Run round {0}: TERMINATED".format(run))
+        print("PHEROMONE RUNS TERMINATED")
+
         for file_name in os.listdir(input_eval_dir):
             if file_name.endswith(".hgr"):
                 file_root = os.path.splitext(file_name)[0]
                 file_ext = os.path.splitext(file_name)[1]
                 print("=============================================================================")
                 print("========= Processing {1} file: {0}".format(file_name, file_ext))
-                print("========= USING PHEROMONE ===================================================")
+                print("========== BENCHMARK (IGNORE PHEROMONE) ======================================")
                 print("=============================================================================")
-                file_name = input_eval_dir + '/'  + file_name
+                file_name = input_eval_dir + '/' + file_name
                 hg = read_hg_from_file(file_name)
                 hg_stats = get_statistics(hg)
-                perf_file_name = output_eval_dir + '/performance/' + str(run) + "__" + file_root + '.txt'
+                perf_file_name = output_eval_dir + '/performance/' + file_root + '_BENCHMARK.txt'
                 perf_file = open(perf_file_name, 'w')
-                line = 'FILE_ROOT' + sep + 'COL_NUM' + sep + 'ANT_NUM' + sep + 'UTILITY' + sep + 'EXEC_TIME' +  sep + 'ACT' + sep + 'TRANS' + sep + 'XOR-JOINS' + sep + 'XOR-SPLITS'
+                line = 'FILE_ROOT' + sep + 'COL_NUM' + sep + 'ANT_NUM' + sep + 'UTILITY' + sep + 'EXEC_TIME' + sep + 'ACT' + sep + 'TRANS' + sep + 'XOR-JOINS' + sep + 'XOR-SPLITS'
                 perf_file.write(line)
                 perf_file.write('\n')
                 # run aco optimisation for all possible configuration
-                for col_num in range(COL_NUM, COL_NUM_MAX, COL_NUM_STEP):
-                    #hg = reset_pheromone(hg)
-                    for ant_num in range(ANT_NUM, ANT_NUM_MAX, ANT_NUM_STEP):
-
+                for col_num in range(COL_NUM_MAX - 2, COL_NUM_MAX, 1):
+                    # hg = reset_pheromone(hg)
+                    for ant_num in range(8 * ANT_NUM_MAX - 2, 8 * ANT_NUM_MAX, 1):
                         start_time_aco = time()
-                        p_opt, utility = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE, SEARCH_TYPE)
+                        aco_result = aco_algorithm_norec(hg, ant_num, col_num, phero_tau, W_UTILITY, SYS_TYPE,
+                                                         SEARCH_TYPE, True)
                         end_time_aco = time()
-                        # p_opt = aco_result[0]
-                        # utility = aco_result[1]
+                        p_opt = aco_result[0]
+                        utility = aco_result[1]
                         aco_alg_time = end_time_aco - start_time_aco
                         print("ACO optimisation took: {0}s".format(aco_alg_time))
 
-                        line = file_root + sep + str(col_num) + sep + str(ant_num) + sep + str(utility) + sep + str(aco_alg_time) + sep + str(hg_stats['activities']) + sep + str(hg_stats['transitions']) + sep + str(hg_stats['xor-join']) + sep + str(hg_stats['xor-split'])
+                        line = file_root + sep + str(col_num) + sep + str(ant_num) + sep + str(utility) + sep + str(
+                            aco_alg_time) + sep + str(hg_stats['activities']) + sep + str(
+                            hg_stats['transitions']) + sep + str(hg_stats['xor-join']) + sep + str(
+                            hg_stats['xor-split'])
                         perf_file.write(line)
                         perf_file.write('\n')
                 perf_file.close()
-        print("....... Run round {0}: TERMINATED".format(run))
-    print("PHEROMONE RUNS TERMINATED")
-
+        print("System type: {0}".format(SYS_TYPE))
+        print("BENCHMARK RUN TERMINATED")
 
     """
     UNCOMMENT TO RUN BENCHMARK RANDOM RUNS

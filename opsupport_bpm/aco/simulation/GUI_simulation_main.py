@@ -207,7 +207,7 @@ def simulation_GUI():
         # optimise existing hgr files
         optimise(io_param, aco_param, SYS_TYPE)
 
-    def start_simulation_proc_gen(NONBF = False):
+    def start_simulation_proc_gen(NONBF = False, WO_LOOPS = False):
         aco_param = {}
         aco_param['COL_NUM']        = int(col_num_entry.get())
         aco_param['COL_NUM_MAX']    = int(col_num_max_entry.get())
@@ -243,10 +243,18 @@ def simulation_GUI():
         SEARCH_TYPE = SEARCH_TYPE_label_entry.get()
         RUN_NUM = int(RUN_NUM_label_entry.get())
 
-        sim_run_hgr_only(io_param, aco_param, gen_param, SYS_TYPE, SEARCH_TYPE, NONBF, RUN_NUM)
+        sim_run_hgr_only(io_param, aco_param, gen_param, SYS_TYPE, SEARCH_TYPE, NONBF, RUN_NUM, WO_LOOPS)
 
     def start_simulation_proc_gen_nonBF():
         start_simulation_proc_gen(True)
+
+    def start_simulation_proc_gen_nonBF_wo_loops():
+        WO_LOOPS = True
+        start_simulation_proc_gen(True, WO_LOOPS)
+
+    def start_simulation_proc_gen_BF_wo_loops():
+        WO_LOOPS = True
+        start_simulation_proc_gen(False, WO_LOOPS)
 
     def sel():
         log_level = var.get()
@@ -287,6 +295,16 @@ def simulation_GUI():
     row_num += 1
     start_button_3 = Button(text="START sim on artificially generated processes (non-BF paths)",
                             command=start_simulation_proc_gen_nonBF).grid(
+        row=row_num, column=0)
+
+    row_num += 1
+    start_button_3 = Button(text="START sim on artificially generated processes (non-BF paths), WITH/WITHOUT LOOPS",
+                            command=start_simulation_proc_gen_nonBF_wo_loops).grid(
+        row=row_num, column=0)
+
+    row_num += 1
+    start_button_3 = Button(text="START sim on artificially generated processes (BF paths), WITH/WITHOUT LOOPS",
+                            command=start_simulation_proc_gen_BF_wo_loops).grid(
         row=row_num, column=0)
 
 

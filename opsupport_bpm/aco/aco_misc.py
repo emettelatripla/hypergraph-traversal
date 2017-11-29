@@ -441,7 +441,7 @@ def add_random_loops(hg, loops_number, loop_length):
         end_loop_node = []
         end_loop_node.append(end)
         # TBC TBC should check also that node is not in and hyperedge???
-        print("Found nodes for loop: {0}, {1}".format(node1, node2))
+        # print("Found nodes for loop: {0}, {1}".format(node1, node2))
         # insert loop
         current_node = start_loop_node
         #print("Found nodes for loop: {0}, {1}".format(start_loop_node, end_loop_node))
